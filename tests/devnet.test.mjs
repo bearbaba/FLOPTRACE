@@ -52,7 +52,7 @@ test('public model browser and copy actions are safe and functional',async()=>{
   assert.doesNotMatch(script,/innerHTML\s*=/);
   // The public tool never asks for a seed phrase to use Faucet or Explorer.
   assert.match(page,/No automatic claim/);
-  assert.match(script,/This only checks its appearance/);
+  assert.match(script,/SS58 checksum valid/);
 });
 
 test('chain actions and PoUI are not misrepresented as implemented',async()=>{
