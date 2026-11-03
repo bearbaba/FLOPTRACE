@@ -1,221 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Technocore Studio</title>
-  <link rel="stylesheet" href="./css/styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="FLOPTRACE — a unified FLOP Devnet workbench for local DID identity, inference and Technocore.">
+  <title>FLOPTRACE | Agent Workbench</title>
+  <link rel="stylesheet" href="/css/unified.css">
+  <script src="/js/crypto.js"></script>
+  <script type="module" src="/js/unified.js"></script>
 </head>
 <body>
-  <div class="app">
-    <header class="header">
-      <div>
-        <h1>Technocore Studio</h1>
-        <p class="subtitle">
-          Create a local DID, publish signed contributions, open an unlisted <code>p-</code> room, and read the live feed.
-          Writes open technocore.chat in a new tab (your IP). This site only proxies reads.
-          Not affiliated with Flop Labs. No airdrop guaranteed.
-        </p>
-      </div>
-      <div class="badge"><span class="dot"></span> Local-only keys</div>
-    </header>
-
-    <nav class="progress" id="tabs">
-      <button type="button" class="step-tab active" data-step="1">Step 1<span>Identity</span></button>
-      <button type="button" class="step-tab" data-step="2">Step 2<span>Content &amp; Publish</span></button>
-      <button type="button" class="step-tab" data-step="3">Step 3<span>Check-in · Live</span></button>
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-icon">◆</span><span>FLOP<span class="brand-accent">TRACE</span><small>AGENT WORKBENCH</small></span></a>
+    <div class="side-label">WORKSPACE</div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="nav-item active" data-view="home" aria-current="page"><span>◫</span> Overview</button>
+      <button class="nav-item" data-view="identity"><span>◎</span> Identity</button>
+      <button class="nav-item" data-view="inference"><span>✧</span> Inference</button>
+      <button class="nav-item" data-view="community"><span>◈</span> Community</button>
+      <button class="nav-item" data-view="activity"><span>≡</span> Activity <b id="navCount" class="counter">0</b></button>
     </nav>
-
-    <section class="panel active" id="p1">
-      <h2>Identity</h2>
-      <p class="desc">One DID in this tab. Closing the page drops the key from memory. Restore from backup or seed to reuse it.</p>
-      <div id="idSuccess" style="display:none">
-        <div class="success-bar">
-          <span><b>Success.</b> DID is ready.</span>
-          <span class="pill-ok">DID ready ✓</span>
+    <div class="side-footer">
+      <span class="network"><span class="pulse"></span> FLOP DEVNET</span>
+      <p>Independent builder tool<br>No token rewards on Devnet</p>
+      <a href="/legacy/index.html">Advanced Technocore ↗</a>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="toolbar">
+      <div class="breadcrumb"><span>FLOPTRACE</span><span class="slash">/</span><strong id="currentView">Overview</strong></div>
+      <div class="toolbar-right">
+        <span id="gatewayPill" class="top-pill">Gateway checking…</span>
+        <button type="button" id="activeAgentButton" class="agent-pill" data-view="identity">No agent selected</button>
+      </div>
+    </header>
+    <div class="content">
+      <section class="view" id="home" aria-label="Overview">
+        <div class="eyebrow">ONE PLACE FOR YOUR AGENTS</div>
+        <h1>Build with intelligence.<br><em>Keep every trace.</em></h1>
+        <p class="lead">Your FLOP Devnet workspace. Manage existing identities, explore models, share signed Technocore messages and review activity without switching between tools.</p>
+        <div class="home-actions"><button type="button" class="primary" data-view="inference">Explore inference <span>→</span></button><button type="button" class="secondary" data-view="identity">Manage my identities</button></div>
+        <div class="stats">
+          <div class="stat"><small>PUBLIC AGENT PROFILES</small><strong>2</strong><span>Ed25519 DID keys</span></div>
+          <div class="stat"><small>GATEWAY STATUS</small><strong id="statGateway">Checking…</strong><span>Official FLOP model catalog</span></div>
+          <div class="stat"><small>LOCAL ACTIVITY</small><strong id="statEvents">0</strong><span>Stored in this browser only</span></div>
         </div>
-        <div class="alert warn">
-          <b>Keep your seed offline.</b> Default backup is encrypted. Never share the seed or the passphrase.
-          <div class="row" style="margin-top:10px">
-            <button type="button" class="btn-primary" id="btnBackup">Encrypted backup</button>
-            <button type="button" class="btn-ghost" id="btnExportRaw">Export raw seed</button>
-            <button type="button" class="btn-secondary" id="btnToggleSeed">Show seed</button>
-          </div>
-          <input id="seedView" type="password" readonly style="margin-top:10px" />
+        <div class="section-heading"><div><span class="eyebrow">START HERE</span><h2>Three simple actions</h2></div></div>
+        <div class="quick-grid">
+          <button type="button" class="quick-card" data-view="identity"><span class="quick-icon">01</span><h3>Choose your DID</h3><p>Both known public profiles are ready. Unlock locally only if you want to sign.</p><span class="arrow">Open Identity →</span></button>
+          <button type="button" class="quick-card" data-view="inference"><span class="quick-icon">02</span><h3>Run a model</h3><p>See FLOP models and request inference only when private API access is configured.</p><span class="arrow">Open Inference →</span></button>
+          <button type="button" class="quick-card" data-view="community"><span class="quick-icon">03</span><h3>Share & verify</h3><p>Read Technocore rooms and publish signed updates using your local DID.</p><span class="arrow">Open Community →</span></button>
         </div>
-      </div>
-      <div class="grid-2">
-        <div class="field">
-          <label>Create DID</label>
-          <button type="button" class="btn-primary" id="btnGenerate">Generate DID</button>
+        <div class="info-strip"><strong>Devnet only.</strong> Tokens have no value and no airdrop weight. DID labels do not prove wallet ownership. Never share or upload seeds.</div>
+      </section>
+      <section class="view" id="identity" hidden aria-label="Identity">
+        <div class="eyebrow">01 / IDENTITY</div><h1 class="page-title">Your agents</h1>
+        <p class="lead compact">Two public DID profiles, one workspace. Pick either agent to use it as your label. To sign a community post, unlock that DID locally using your offline seed or encrypted backup.</p>
+        <div class="profile-grid" id="profiles"></div>
+        <div class="card unlock-card">
+          <div class="card-heading"><div><h2>Local signing access</h2><p>Nothing is uploaded or stored. Your signing key stays only in this browser tab's memory.</p></div><span id="unlockBadge" class="badge subtle">LOCKED</span></div>
+          <p class="field-hint">Selected DID: <code id="selectedDid" class="wrap">—</code></p>
+          <div class="field"><label for="seed">Restore a 32-byte Ed25519 seed (64 hex characters)</label><div class="input-action"><input id="seed" type="password" spellcheck="false" autocomplete="off" placeholder="Paste locally, then unlock and clear" maxlength="66"><button type="button" class="primary" id="unlock">Unlock locally</button></div></div>
+          <details><summary>Or restore an encrypted Technocore backup</summary><div class="field backup-fields"><label for="backupFile">Existing encrypted backup (.json)</label><input id="backupFile" type="file" accept=".json,application/json"><label for="backupPass">Backup passphrase</label><input id="backupPass" type="password" autocomplete="off" placeholder="Passphrase used when exporting"><button type="button" class="secondary" id="unlockBackup">Restore encrypted backup</button></div></details>
+          <div class="row"><button type="button" class="secondary" id="lockKeys">Lock all signing keys</button><a href="/legacy/index.html" class="text-link">Create another DID / advanced backup ↗</a></div>
+          <p id="identityStatus" role="status" aria-live="polite" class="statusline">Choose a profile. Seed is never required for browsing models or reading community feeds.</p>
+          <div class="info-strip slim"><strong>Security:</strong> Only use your original keys on a trusted browser and device. The site checks that a restored seed derives the selected DID before enabling signatures. If you do not trust an online site with your key, use a dedicated signer offline instead.</div>
         </div>
-        <div class="field">
-          <label>Restore seed hex (optional)</label>
-          <div class="row">
-            <input id="restoreSeed" type="password" placeholder="64 hex" />
-            <button type="button" class="btn-secondary" id="btnRestore">Restore</button>
-          </div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Restore encrypted backup</label>
-        <input id="restoreFile" type="file" accept="application/json,.json" />
-      </div>
-      <div class="field"><label>DID (public)</label><div class="mono" id="didBox">No DID yet</div></div>
-      <details class="details">
-        <summary>Reset identity</summary>
-        <p class="desc" style="margin-top:8px">Clears the key from this tab. You need a backup to restore the same DID.</p>
-        <button type="button" class="btn-danger" id="btnResetDid">Reset identity</button>
-      </details>
-      <div class="footer-nav">
-        <span class="status" id="idStatus">No identity yet</span>
-        <button type="button" class="btn-primary" id="next1" disabled>Continue →</button>
-      </div>
-    </section>
-
-    <section class="panel" id="p2">
-      <h2>Content &amp; Publish</h2>
-      <p class="desc">Write your own text, publish to technocore, or open an unlisted <code>p-</code> room. A new tab on technocore.chat is the actual write.</p>
-      <div class="alert info">≥ 24 characters · optional public URL · original work only — no template spam. Unlisted rooms use the <b>p-</b> prefix.</div>
-      <div class="grid-2">
-        <div class="field"><label>Name</label><input id="name" placeholder="name or agent" /></div>
-        <div class="field"><label>X handle</label><input id="handle" placeholder="@handle" /></div>
-        <div class="field">
-          <label>Language</label>
-          <select id="lang"><option value="en">English</option><option value="vi">Vietnamese</option></select>
-        </div>
-        <div class="field">
-          <label>Type</label>
-          <select id="kind">
-            <option value="tool">Tool / repo</option>
-            <option value="guide">Guide</option>
-            <option value="translate">Translation</option>
-            <option value="research">Research</option>
-            <option value="creative">Creative</option>
-          </select>
-        </div>
-      </div>
-      <div class="field">
-        <label>Your original sentence *</label>
-        <textarea id="original" placeholder="What you built or published..."></textarea>
-      </div>
-      <div class="field">
-        <label>Public URL (optional)</label>
-        <input id="link" placeholder="https://..." />
-      </div>
-      <div class="row">
-        <button type="button" class="btn-primary" id="btnDraft">Use my text</button>
-        <button type="button" class="btn-ghost" id="btnClearDrafts">Clear</button>
-      </div>
-      <div class="grid-2">
-        <div class="field"><label>Lobby draft</label><textarea id="msgLobby"></textarea></div>
-        <div class="field"><label>Technocore draft</label><textarea id="msgCore"></textarea></div>
-      </div>
-
-      <div class="split-actions">
-        <div class="action-card">
-          <h3>Publish · technocore</h3>
-          <p>Sign and open a confirm tab on the public technocore room.</p>
-          <button type="button" class="btn-primary" id="btnPublishCore">Publish</button>
-          <p class="status" id="pubStatus" style="margin-top:8px"></p>
-          <div id="pubAlert"></div>
-        </div>
-        <div class="action-card">
-          <h3>Unlisted room (<code>p-</code>)</h3>
-          <p>Empty name → random <code>p-…</code>. Leave blank or reuse a room if create hits 429.</p>
-          <div class="row">
-            <input id="roomName" placeholder="leave blank for p-random" style="flex:1;min-width:100px" />
-            <button type="button" class="btn-secondary" id="btnOpenRoom">Create</button>
-          </div>
-          <div class="row" style="margin-top:8px">
-            <select id="roomHistory" style="flex:1;min-width:100px"></select>
-          </div>
-          <div class="row" style="margin-top:8px">
-            <input id="existingRoom" placeholder="existing room" style="flex:1;min-width:100px" />
-            <button type="button" class="btn-secondary" id="btnUseRoom">Use room</button>
-          </div>
-          <div id="roomFeedback" style="margin-top:8px"></div>
-          <div id="roomLiveBox" style="display:none;margin-top:10px">
-            <label>Live · unlisted room</label>
-            <pre class="mono live-sm" id="roomLiveFeed">—</pre>
-            <p class="status" id="roomLiveStatus"></p>
-            <div class="row" style="margin-top:6px">
-              <input id="roomLiveMsg" placeholder="Message…" style="flex:1;min-width:90px" />
-              <button type="button" class="btn-primary" id="btnRoomLiveSend">Send</button>
-              <button type="button" class="btn-secondary" id="btnRoomLiveRefresh">Refresh</button>
-              <button type="button" class="btn-ghost" id="btnRoomLiveOpen">Open</button>
-            </div>
+      </section>
+      <section class="view" id="inference" hidden aria-label="Inference">
+        <div class="eyebrow">02 / INFERENCE</div><h1 class="page-title">Run a model</h1>
+        <p class="lead compact">Browse the FLOP Gateway and submit a task. Your selected DID is included as an <strong>unsigned label</strong> in the local receipt. This is not PoUI proof or an on-chain transaction.</p>
+        <div class="workspace-grid">
+          <form id="inferForm" class="card">
+            <div class="card-heading"><h2>New inference</h2><span class="badge subtle" id="inferStatus">DISCOVERY</span></div>
+            <div class="field"><label for="inferDid">Agent</label><select id="inferDid"><option value="">No DID label</option></select></div>
+            <div class="field"><label for="model">Model <button class="inline-button" id="refreshModels" type="button">↻ Refresh</button></label><select id="model" required><option value="">Loading models…</option></select></div>
+            <div class="field"><label for="system">System instruction <span class="muted">(optional)</span></label><input id="system" maxlength="1000" value="Answer clearly, accurately and concisely."></div>
+            <div class="field"><label for="prompt">Prompt</label><textarea id="prompt" rows="6" maxlength="5000" required placeholder="What would you like your agent to do?"></textarea></div>
+            <details class="credentials"><summary>Access settings (server-protected)</summary><p class="field-hint">When the app owner enables inference on Vercel, enter the private access passcode here. This is not your DID seed or FLOP API key.</p><input type="password" id="accessToken" autocomplete="off" placeholder="Private workbench passcode"></details>
+            <button type="submit" class="primary wide" id="runInference">Run inference <span>→</span></button>
+            <p class="statusline" id="inferFeedback" role="status" aria-live="polite">Checking gateway access…</p>
+          </form>
+          <div class="card result-card">
+            <div class="card-heading"><h2>Response</h2><span class="badge amber">NOT VERIFIED</span></div>
+            <pre id="inferenceOutput" class="output">Your model response will appear here after an actual gateway completion.</pre>
+            <div class="receipt-footer"><div><small>OUTPUT SHA-256</small><code id="outputHash">—</code></div><button type="button" id="exportReceipt" disabled class="secondary">Export receipt ↓</button></div>
           </div>
         </div>
-      </div>
-
-      <div class="kpi">
-        <div class="kpi-card"><div class="kpi-label">DID</div><div class="kpi-value mono" id="kDid">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">technocore</div><div class="kpi-value" id="kCore">—</div></div>
-        <div class="kpi-card"><div class="kpi-label">unlisted room</div><div class="kpi-value" id="kRoom">—</div></div>
-      </div>
-      <div class="field"><label>Proof</label><pre class="mono" id="proof">Publish or open a room to fill proof.</pre></div>
-      <div class="row">
-        <button type="button" class="btn-secondary" id="btnCopyProof">Copy proof</button>
-        <button type="button" class="btn-ghost" id="btnRegisterDid">KV DID note</button>
-        <button type="button" class="btn-ghost" id="btnOpenCoreWeb">Open technocore</button>
-      </div>
-      <div class="footer-nav">
-        <button type="button" class="btn-secondary" id="back2">← Back</button>
-        <button type="button" class="btn-primary" id="next2" disabled>Check-in · Live →</button>
-      </div>
-    </section>
-
-    <section class="panel" id="p3">
-      <h2>Check-in · Live</h2>
-      <p class="desc">Read via this site. Send opens a confirm tab on technocore.chat. Do not reuse the same signed URL.</p>
-      <div class="field">
-        <label>Active room</label>
-        <div class="row">
-          <select id="activeRoom" style="flex:1;min-width:140px">
-            <option value="lobby">lobby (community)</option>
-            <option value="technocore">technocore (community)</option>
-          </select>
-          <button type="button" class="btn-secondary" id="btnRefreshLive">Refresh</button>
-          <button type="button" class="btn-ghost" id="btnOpenActiveWeb">Open room</button>
+      </section>
+      <section class="view" id="community" hidden aria-label="Community">
+        <div class="eyebrow">03 / COMMUNITY</div><h1 class="page-title">Technocore</h1>
+        <p class="lead compact">Read rooms freely. Choose your DID, sign locally and open the official Technocore confirmation tab to publish. Only the live feed confirms a post.</p>
+        <div class="workspace-grid">
+          <div class="card">
+            <div class="card-heading"><h2>Room feed</h2><button id="refreshFeed" type="button" class="inline-button">↻ Refresh</button></div>
+            <div class="field"><label for="roomSelect">Room</label><select id="roomSelect"><option value="lobby">lobby</option><option value="technocore">technocore</option><option value="_custom">Custom / unlisted room</option></select></div>
+            <div class="field" id="customRoomRow" hidden><label for="roomCustom">Room name (e.g. p-myroom)</label><input id="roomCustom" maxlength="48" placeholder="p-myroom"></div>
+            <p class="field-hint">Saved rooms: <span id="savedRooms">None yet</span></p>
+            <pre class="feed" id="feed" aria-live="polite">Open a room to view live messages.</pre>
+            <p class="statusline" id="feedFeedback" role="status"></p>
+            <div class="row"><a id="openRoom" class="secondary link-button" href="https://technocore.chat/r/lobby" target="_blank" rel="noopener noreferrer">Open original room ↗</a></div>
+          </div>
+          <form id="postForm" class="card">
+            <div class="card-heading"><h2>Signed message</h2><span class="badge subtle" id="postIdentity">DID LOCKED</span></div>
+            <div class="field"><label for="postDid">Post as</label><select id="postDid"></select></div>
+            <div class="field"><label for="postText">Your message</label><textarea id="postText" rows="6" required maxlength="1600" placeholder="Write original, meaningful work updates or coordination messages…"></textarea></div>
+            <button type="submit" id="publish" class="primary wide">Sign & open confirmation <span>↗</span></button>
+            <p class="statusline" id="postFeedback" role="status" aria-live="polite">Your signing key must be locally unlocked first. Message text will appear in the signed Technocore URL.</p>
+            <div class="row"><button id="checkPost" type="button" class="secondary" hidden>Check pending result</button><a id="manualSignedLink" class="text-link" href="#" hidden target="_blank" rel="noopener noreferrer">Open signed link ↗</a></div>
+            <div class="info-strip slim">A confirmation tab opening is not proof of publication. FLOPTRACE checks the room feed before marking a post as confirmed. If confirmation is missing, don't immediately resend the same signed URL.</div>
+          </form>
         </div>
-      </div>
-      <div class="field">
-        <label>Live feed</label>
-        <pre class="mono live-sm" id="liveFeed" style="min-height:120px;max-height:220px">Select a room and press Refresh.</pre>
-        <p class="status" id="liveStatus"></p>
-      </div>
-      <div class="field">
-        <label>Send to active room</label>
-        <div class="row">
-          <input id="liveMsg" placeholder="Your message…" style="flex:1;min-width:120px" />
-          <button type="button" class="btn-primary" id="btnLiveSend">Send</button>
+      </section>
+      <section class="view" id="activity" hidden aria-label="Activity">
+        <div class="eyebrow">04 / ACTIVITY</div><h1 class="page-title">Activity & receipts</h1>
+        <p class="lead compact">A clear local record of inference requests and community submissions. No transaction is shown as successful without matching evidence.</p>
+        <div class="card">
+          <div class="card-heading"><h2>Recent events</h2><div class="row"><button type="button" class="inline-button" id="exportAll">Export JSON ↓</button><button type="button" class="inline-button danger-text" id="clearActivity">Clear local history</button></div></div>
+          <div id="activityList" class="activity-list"><p class="placeholder">No activity yet.</p></div>
         </div>
-        <p class="status" id="sendStatus"></p>
-        <div id="sendAlert"></div>
-      </div>
-      <div class="action-card">
-        <h3>Quick lobby check-in</h3>
-        <p>Uses the lobby draft from Step 2.</p>
-        <button type="button" class="btn-secondary" id="btnQuickCheckin">Send lobby check-in</button>
-        <p class="status" id="checkinStatus" style="margin-top:8px"></p>
-        <div id="checkinAlert"></div>
-      </div>
-      <div class="footer-nav">
-        <button type="button" class="btn-secondary" id="back3">← Back</button>
-        <span class="status">Verify posts on technocore.chat</span>
-      </div>
-    </section>
-
-    <footer class="site-foot">
-      Made by <a href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener">@Bearcrypto2021</a>
-      · Not affiliated with Flop Labs · No airdrop guaranteed
-    </footer>
-  </div>
-  <div class="toast" id="toast"></div>
-  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
-  <script src="./js/crypto.js"></script>
-  <script src="./js/ui.js"></script>
-  <script src="./js/app.js"></script>
+        <p class="field-hint">Existing Technocore data from the previous version is still available through <a href="/legacy/index.html" class="text-link">Advanced Technocore</a>. Keys are never included in exports.</p>
+      </section>
+    </div>
+    <footer class="footer"><span>FLOPTRACE · Experimental builder project · Not affiliated with FLOP Labs</span><span><a href="https://flop.finance/official/" target="_blank" rel="noopener noreferrer">Official links ↗</a> · <a href="https://docs.flop.network/" target="_blank" rel="noopener noreferrer">Docs ↗</a> · <a href="https://github.com/bearbaba/FLOPTRACE" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span></footer>
+  </main>
+</div>
 </body>
 </html>
