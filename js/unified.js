@@ -263,6 +263,7 @@ async function verifyPost(id){
     const result=await api('/api/room?room='+encodeURIComponent(item.room)+'&limit=80&format=json');
     const found=findPost(result,item);
     if(found){
+      if(pendingPostId===id)void loadFeed();
       updateEvent(id,{status:'CONFIRMED',seq:found.seq??found.id??null});
       if(pendingPostId===id)message('postFeedback','Confirmed on Technocore feed'+(found.seq?' · #'+found.seq:'')+'. No resend needed.','good');
       return true;
@@ -291,6 +292,7 @@ $('postForm').addEventListener('submit',async event=>{
   const button=$('publish');button.disabled=true;
   // Create the confirmation tab directly in the click event to avoid popup blockers.
   const popup=window.open('about:blank','_blank');
+  if(popup)popup.opener=null;
   try{
     const payload=enc.encode(room+'|'+nonce+'|'+text);
     const sig=b64url(await crypto.subtle.sign('Ed25519',unlocked.get(activeDid),payload));
