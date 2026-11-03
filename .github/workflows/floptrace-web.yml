@@ -32,4 +32,4 @@ jobs:
       - run: node --check api/status.js
       - run: node --check api/models.js
       - run: node --check api/infer.js
-      - run: node --test tests/web.test.mjs tests/community.test.mjs
+      - run: node --test tests/web.test.mjs tests/community.test.mjs tests/devnet.test.mjs
