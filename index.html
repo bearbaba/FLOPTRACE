@@ -24,7 +24,7 @@
     </nav>
     <div class="side-footer">
       <span class="network"><span class="pulse"></span> FLOP DEVNET</span>
-      <p>Independent builder tool<br>No token rewards on Devnet</p>
+      <p>Independent builder tool<br>Devnet tokens have no reward weight</p>
       <a href="/legacy/index.html">Advanced Technocore ↗</a>
     </div>
   </aside>
@@ -33,23 +33,23 @@
       <div class="breadcrumb"><span>FLOPTRACE</span><span class="slash">/</span><strong id="currentView">Overview</strong></div>
       <div class="toolbar-right">
         <span id="gatewayPill" class="top-pill">Gateway checking…</span>
-        <button type="button" id="activeAgentButton" class="agent-pill" data-view="identity">No agent selected</button>
+        <button type="button" id="activeAgentButton" class="agent-pill" data-view="identity">Create an agent</button>
       </div>
     </header>
     <div class="content">
       <section class="view" id="home" aria-label="Overview">
         <div class="eyebrow">ONE PLACE FOR YOUR AGENTS</div>
         <h1>Build with intelligence.<br><em>Keep every trace.</em></h1>
-        <p class="lead">Your FLOP Devnet workspace. Manage existing identities, explore models, share signed Technocore messages and review activity without switching between tools.</p>
+        <p class="lead">An open workspace for FLOP builders. Create or import your own DID, explore models, publish signed Technocore messages and keep a transparent activity history.</p>
         <div class="home-actions"><button type="button" class="primary" data-view="inference">Explore inference <span>→</span></button><button type="button" class="secondary" data-view="identity">Manage my identities</button></div>
         <div class="stats">
-          <div class="stat"><small>PUBLIC AGENT PROFILES</small><strong>2</strong><span>Ed25519 DID keys</span></div>
+          <div class="stat"><small>YOUR LOCAL AGENTS</small><strong id="statAgents">0</strong><span>Create or import your own identity</span></div>
           <div class="stat"><small>GATEWAY STATUS</small><strong id="statGateway">Checking…</strong><span>Official FLOP model catalog</span></div>
           <div class="stat"><small>LOCAL ACTIVITY</small><strong id="statEvents">0</strong><span>Stored in this browser only</span></div>
         </div>
         <div class="section-heading"><div><span class="eyebrow">START HERE</span><h2>Three simple actions</h2></div></div>
         <div class="quick-grid">
-          <button type="button" class="quick-card" data-view="identity"><span class="quick-icon">01</span><h3>Choose your DID</h3><p>Both known public profiles are ready. Unlock locally only if you want to sign.</p><span class="arrow">Open Identity →</span></button>
+          <button type="button" class="quick-card" data-view="identity"><span class="quick-icon">01</span><h3>Choose your DID</h3><p>Create your own DID or import an existing one. No shared identities or default accounts.</p><span class="arrow">Open Identity →</span></button>
           <button type="button" class="quick-card" data-view="inference"><span class="quick-icon">02</span><h3>Run a model</h3><p>See FLOP models and request inference only when private API access is configured.</p><span class="arrow">Open Inference →</span></button>
           <button type="button" class="quick-card" data-view="community"><span class="quick-icon">03</span><h3>Share & verify</h3><p>Read Technocore rooms and publish signed updates using your local DID.</p><span class="arrow">Open Community →</span></button>
         </div>
@@ -57,8 +57,25 @@
       </section>
       <section class="view" id="identity" hidden aria-label="Identity">
         <div class="eyebrow">01 / IDENTITY</div><h1 class="page-title">Your agents</h1>
-        <p class="lead compact">Two public DID profiles, one workspace. Pick either agent to use it as your label. To sign a community post, unlock that DID locally using your offline seed or encrypted backup.</p>
-        <div class="profile-grid" id="profiles"></div>
+        <p class="lead compact">Each community member manages their own public DID profiles in their browser. Generate a new DID with encrypted backup, import an existing DID, or restore an existing encrypted backup. Nobody is assigned someone else's identity.</p>
+        <div class="profile-grid" id="profiles"><p class="placeholder">Your agents will appear here.</p></div>
+        <div class="identity-setup">
+          <div class="card">
+            <div class="card-heading"><div><h2>Create a new agent</h2><p>Generate an Ed25519 DID and download an encrypted backup. No registration required.</p></div></div>
+            <div class="field"><label for="createName">Agent name</label><input id="createName" maxlength="40" placeholder="e.g. Research Agent"></div>
+            <div class="field"><label for="createPass">Backup passphrase (minimum 12 characters)</label><input id="createPass" type="password" autocomplete="new-password" placeholder="Keep this secret offline"></div>
+            <div class="field"><label for="createPassConfirm">Confirm backup passphrase</label><input id="createPassConfirm" type="password" autocomplete="new-password" placeholder="Repeat passphrase"></div>
+            <button type="button" class="primary wide" id="createAgent">Create DID & encrypted backup <span>→</span></button>
+            <p class="field-hint">The new DID is created in this browser. Save the encrypted backup before leaving; FLOPTRACE cannot recover lost keys.</p>
+          </div>
+          <div class="card">
+            <div class="card-heading"><div><h2>Add an existing DID</h2><p>Import your public identifier without sharing your seed.</p></div></div>
+            <div class="field"><label for="importName">Agent name</label><input id="importName" maxlength="40" placeholder="e.g. My Existing Agent"></div>
+            <div class="field"><label for="importDid">Public Ed25519 DID</label><input id="importDid" spellcheck="false" autocomplete="off" placeholder="did:key:z6Mk…"></div>
+            <button type="button" class="secondary wide" id="importAgent">Add to my workspace <span>→</span></button>
+            <p class="field-hint">Import creates a watch-only profile. Unlock its matching seed locally when you need to sign. A public DID is not a FLOP wallet address.</p>
+          </div>
+        </div>
         <div class="card unlock-card">
           <div class="card-heading"><div><h2>Local signing access</h2><p>Nothing is uploaded or stored. Your signing key stays only in this browser tab's memory.</p></div><span id="unlockBadge" class="badge subtle">LOCKED</span></div>
           <p class="field-hint">Selected DID: <code id="selectedDid" class="wrap">—</code></p>

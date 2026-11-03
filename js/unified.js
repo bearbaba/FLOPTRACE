@@ -1,15 +1,12 @@
-// FLOPTRACE unified browser workbench.
-// Only public DIDs and metadata persist. Raw seeds, signing keys and passcodes are never stored.
+import {isValidEd25519Did,normalizedProfiles,addProfile,removeProfile} from './did-utils.mjs';
 const $ = id => document.getElementById(id);
-const DID_PROFILES = Object.freeze([
-  {name:'Main Agent',did:'did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG'},
-  {name:'Review Agent',did:'did:key:z6MktbDb2dVYvfm2C8koCMxvREpyCRDD1zFPzGgEdJQ1M2AR'}
-]);
+const KEY_PROFILES='floptrace:profiles:v4';
 const KEY_ACTIVE='floptrace:active-did:v1',KEY_EVENTS='floptrace:activity:v3',
   KEY_ROOMS='floptrace:rooms:v1',KEY_NONCES='floptrace:nonces:v1';
 const TECH='https://technocore.chat';
+let DID_PROFILES=(()=>{try{return normalizedProfiles(JSON.parse(localStorage.getItem(KEY_PROFILES)||'[]'));}catch{return [];}})();
 let activeDid=DID_PROFILES.some(p=>p.did===localStorage.getItem(KEY_ACTIVE))
-  ?localStorage.getItem(KEY_ACTIVE):DID_PROFILES[0].did;
+  ?localStorage.getItem(KEY_ACTIVE):(DID_PROFILES[0]?.did||'');
 const unlocked=new Map();
 let inferenceEnabled=false, gatewayReady=false,latestReceipt=null,pendingPostId=null;
 const enc=new TextEncoder();
@@ -29,32 +26,73 @@ function saveEvents(items){
 }
 function appendEvent(evt){saveEvents([{id:crypto.randomUUID(),createdAt:new Date().toISOString(),...evt},...events()]);}
 function updateEvent(id,patch){saveEvents(events().map(e=>e.id===id?{...e,...patch}:e));}
-function label(did){return DID_PROFILES.find(x=>x.did===did)?.name||'Unlinked';}
+function label(did){return DID_PROFILES.find(x=>x.did===did)?.name||'No agent';}
 function short(did){return did?did.slice(0,23)+'…'+did.slice(-7):'No agent selected';}
+function persistProfiles(){
+  try{localStorage.setItem(KEY_PROFILES,JSON.stringify(DID_PROFILES));}catch{}
+  $('statAgents').textContent=String(DID_PROFILES.length);
+}
+function populateAgentPickers(){
+  for(const id of ['inferDid','postDid']){
+    const el=$(id);el.replaceChildren();
+    const empty=document.createElement('option');empty.value='';empty.textContent='Select an agent';el.append(empty);
+    for(const p of DID_PROFILES){
+      const option=document.createElement('option');
+      option.value=p.did;option.textContent=p.name+' · '+short(p.did);el.append(option);
+    }
+    el.value=activeDid;
+  }
+}
 function selectDid(did){
-  if(!DID_PROFILES.some(p=>p.did===did))return;
-  activeDid=did;
-  try{localStorage.setItem(KEY_ACTIVE,did);}catch{}
-  for(const id of ['inferDid','postDid'])$(id).value=did;
-  $('selectedDid').textContent=did;
-  $('activeAgentButton').textContent=label(did);
-  $('unlockBadge').textContent=unlocked.has(did)?'UNLOCKED HERE':'LOCKED';
-  $('postIdentity').textContent=unlocked.has(did)?'SIGNING READY':'DID LOCKED';
+  if(did&&!DID_PROFILES.some(p=>p.did===did))return;
+  activeDid=did||'';
+  try{if(activeDid)localStorage.setItem(KEY_ACTIVE,activeDid);else localStorage.removeItem(KEY_ACTIVE);}catch{}
+  for(const id of ['inferDid','postDid'])$(id).value=activeDid;
+  $('selectedDid').textContent=activeDid||'No agent selected';
+  $('activeAgentButton').textContent=activeDid?label(activeDid):'Create an agent';
+  $('unlockBadge').textContent=unlocked.has(activeDid)?'UNLOCKED HERE':'LOCKED';
+  $('postIdentity').textContent=unlocked.has(activeDid)?'SIGNING READY':'DID LOCKED';
   renderProfiles();
-  message('identityStatus',unlocked.has(did)?'This DID was restored and verified locally in this tab.':'This DID is public. Restore its own seed to sign; browsing never needs a seed.',unlocked.has(did)?'good':'');
+  if(!activeDid)message('identityStatus','Create a new DID, restore an encrypted backup, or add an existing public DID.');
+  else message('identityStatus',unlocked.has(activeDid)
+    ?'This DID is verified locally in this tab. You can sign messages.'
+    :'Public profile selected. Unlock its matching seed locally to sign.',unlocked.has(activeDid)?'good':'');
 }
 function renderProfiles(){
   const root=$('profiles');root.replaceChildren();
-  for(const item of DID_PROFILES){
-    const card=document.createElement('button');card.type='button';card.className='profile-card'+(activeDid===item.did?' selected':'');
-    const head=document.createElement('div');head.className='profile-top';
-    const name=document.createElement('span');name.textContent=item.name;
-    const mark=document.createElement('span');mark.textContent=activeDid===item.did?'● Selected':'○ Choose';
-    const code=document.createElement('code');code.textContent=item.did;
-    const foot=document.createElement('small');foot.textContent=unlocked.has(item.did)?'SIGNED OWNERSHIP VERIFIED LOCALLY':'ED25519 DID · SIGNING KEY LOCKED';
-    head.append(name,mark);card.append(head,code,foot);
-    card.addEventListener('click',()=>selectDid(item.did));root.append(card);
+  $('statAgents').textContent=String(DID_PROFILES.length);
+  if(!DID_PROFILES.length){
+    const hint=document.createElement('p');hint.className='placeholder';
+    hint.textContent='No identities yet. Create your first DID or add an existing one below.';
+    root.append(hint);return;
   }
+  for(const item of DID_PROFILES){
+    const card=document.createElement('div');card.className='profile-card'+(activeDid===item.did?' selected':'');
+    const top=document.createElement('div');top.className='profile-top';
+    const name=document.createElement('strong');name.textContent=item.name;
+    const status=document.createElement('span');status.textContent=unlocked.has(item.did)?'● Signing ready':'○ Key locked';
+    const code=document.createElement('code');code.textContent=item.did;
+    const actions=document.createElement('div');actions.className='profile-actions';
+    const choose=document.createElement('button');choose.className='secondary';choose.type='button';
+    choose.textContent=activeDid===item.did?'Selected':'Use this agent';
+    choose.disabled=activeDid===item.did;
+    choose.addEventListener('click',()=>selectDid(item.did));
+    const forget=document.createElement('button');forget.className='inline-button danger-text';forget.type='button';
+    forget.textContent='Remove';
+    forget.addEventListener('click',()=>{
+      if(!confirm('Remove '+item.name+' from this browser? The DID can only be restored with your own seed or backup. Local activity history will remain.'))return;
+      DID_PROFILES=removeProfile(DID_PROFILES,item.did);
+      unlocked.delete(item.did);persistProfiles();populateAgentPickers();
+      selectDid(DID_PROFILES[0]?.did||'');
+    });
+    top.append(name,status);actions.append(choose,forget);
+    card.append(top,code,actions);root.append(card);
+  }
+}
+function registerProfile(did,name){
+  DID_PROFILES=addProfile(DID_PROFILES,{did,name});
+  persistProfiles();populateAgentPickers();selectDid(did);
+  return did;
 }
 function go(view){
   if(!$(view)||!$(view).classList.contains('view'))return;
@@ -97,6 +135,7 @@ async function unlockSeed(seedText){
 }
 $('unlock').addEventListener('click',async()=>{
   const input=$('seed');const value=input.value;input.value='';
+  if(!activeDid)return message('identityStatus','Select or import a DID before unlocking its seed.','error');
   if(!value)return message('identityStatus','Enter your own seed locally or restore an encrypted backup.','error');
   $('unlock').disabled=true;
   try{await unlockSeed(value);}catch(error){message('identityStatus',error.message||'Could not unlock DID','error');}
@@ -108,14 +147,59 @@ $('unlockBackup').addEventListener('click',async()=>{
   if(!file||!pass)return message('identityStatus','Select your encrypted backup and enter its passphrase.','error');
   if(file.size>16384)return message('identityStatus','Backup file is unexpectedly large.','error');
   $('unlockBackup').disabled=true;
+  let inserted=null;
   try{
     const obj=JSON.parse(await file.text());
-    if(obj.did&&obj.did!==activeDid)throw new Error('Backup belongs to a different DID; select its profile first.');
     const decrypted=await window.CryptoUtil.decryptBackup(obj,pass);
-    if(decrypted.did&&decrypted.did!==activeDid)throw new Error('Backup DID does not match the selected profile.');
+    const did=decrypted.did||obj.did;
+    if(!isValidEd25519Did(did))throw new Error('This file does not contain a valid public Ed25519 DID.');
+    if(!DID_PROFILES.some(p=>p.did===did)){
+      inserted=did;registerProfile(did,'Restored Agent');
+    }else selectDid(did);
     await unlockSeed(decrypted.seed_hex);
-  }catch(error){message('identityStatus',error.message||'Could not open encrypted backup','error');}
-  finally{$('unlockBackup').disabled=false;}
+    message('identityStatus','Encrypted backup restored. Your DID was matched and unlocked locally.','good');
+  }catch(error){
+    if(inserted){
+      DID_PROFILES=removeProfile(DID_PROFILES,inserted);persistProfiles();populateAgentPickers();
+      selectDid(DID_PROFILES[0]?.did||'');
+    }
+    message('identityStatus',error.message||'Could not open encrypted backup','error');
+  }finally{$('unlockBackup').disabled=false;}
+});
+$('importAgent').addEventListener('click',()=>{
+  const did=$('importDid').value.trim(),name=$('importName').value.trim();
+  try{
+    registerProfile(did,name||'Imported Agent');
+    $('importDid').value='';$('importName').value='';
+    message('identityStatus','Public DID added locally. To sign, unlock it using its matching seed.','good');
+  }catch(error){message('identityStatus',error.message,'error');}
+});
+$('createAgent').addEventListener('click',async()=>{
+  const name=$('createName').value.trim()||'My Agent';
+  const pass=$('createPass').value,again=$('createPassConfirm').value;
+  $('createPass').value='';$('createPassConfirm').value='';
+  if(pass.length<12||pass!==again)return message('identityStatus','Enter a matching backup passphrase of at least 12 characters.','error');
+  $('createAgent').disabled=true;
+  try{
+    if(!crypto.subtle||!crypto.subtle.generateKey)throw new Error('Secure browser cryptography is unavailable.');
+    const pair=await crypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
+    const pubJwk=await crypto.subtle.exportKey('jwk',pair.publicKey);
+    const privJwk=await crypto.subtle.exportKey('jwk',pair.privateKey);
+    const publicBytes=decodeB64url(pubJwk.x);
+    const seed=decodeB64url(privJwk.d);
+    if(seed.length!==32)throw new Error('Unsupported Ed25519 key format.');
+    const seedHex=Array.from(seed,b=>b.toString(16).padStart(2,'0')).join('');
+    const did=window.CryptoUtil.didFromPub(publicBytes);
+    const backup=await window.CryptoUtil.encryptBackup(seedHex,did,pass);
+    seed.fill(0);
+    // Never persist an unencrypted seed. The encrypted backup must be retained by its owner.
+    download('floptrace-'+did.slice(-9)+'-ENCRYPTED.json',backup);
+    registerProfile(did,name);
+    await unlockSeed(seedHex);
+    $('createName').value='';
+    message('identityStatus','Agent created and unlocked. An encrypted backup download was initiated. Confirm you have saved the file and passphrase before closing the tab.','good');
+  }catch(error){message('identityStatus',error.message||'Unable to create an identity','error');}
+  finally{$('createAgent').disabled=false;}
 });
 $('lockKeys').addEventListener('click',()=>{
   unlocked.clear();$('seed').value='';$('backupPass').value='';
@@ -171,7 +255,7 @@ $('inferForm').addEventListener('submit',async event=>{
   try{
     const result=await api('/api/infer',{
       method:'POST',headers:{'content-type':'application/json',Authorization:'Bearer '+access},
-      body:JSON.stringify({model:$('model').value,system:$('system').value,prompt:$('prompt').value.trim(),did:activeDid})
+      body:JSON.stringify({model:$('model').value,system:$('system').value,prompt:$('prompt').value.trim(),did:activeDid||null})
     });
     $('inferenceOutput').textContent=result.output;latestReceipt=result.receipt;
     $('outputHash').textContent=result.receipt.outputSha256.slice(0,28)+'…';
@@ -341,10 +425,8 @@ $('clearActivity').addEventListener('click',()=>{
 });
 document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.view)));
 for(const id of ['inferDid','postDid']){
-  const el=$(id);for(const p of DID_PROFILES){
-    const option=document.createElement('option');option.value=p.did;option.textContent=p.name+' · '+short(p.did);el.append(option);
-  }
-  el.addEventListener('change',()=>selectDid(el.value));
+  $(id).addEventListener('change',()=>selectDid($(id).value));
 }
+populateAgentPickers();
 fillRooms();selectDid(activeDid);renderEvents();go('home');
 await Promise.all([loadStatus(),loadModels()]);

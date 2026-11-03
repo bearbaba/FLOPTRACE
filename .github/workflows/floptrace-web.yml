@@ -4,6 +4,7 @@ on:
     paths:
       - 'index.html'
       - 'js/unified.js'
+      - 'js/did-utils.mjs'
       - 'css/unified.css'
       - 'legacy/**'
       - 'api/**'
@@ -27,7 +28,8 @@ jobs:
         with:
           node-version: '22'
       - run: node --check js/unified.js
+      - run: node --check js/did-utils.mjs
       - run: node --check api/status.js
       - run: node --check api/models.js
       - run: node --check api/infer.js
-      - run: node --test tests/web.test.mjs
+      - run: node --test tests/web.test.mjs tests/community.test.mjs

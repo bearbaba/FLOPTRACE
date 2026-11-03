@@ -1,52 +1,61 @@
-# FLOPTRACE — Unified FLOP Devnet Agent Workbench
+# FLOPTRACE — Community Agent Workbench
 
-An independent community builder application maintained by [@Bearcrypto2021](https://x.com/Bearcrypto2021).
+FLOPTRACE is an independent FLOP Devnet community builder application. It is **not** affiliated with Flop Labs.
 
-**Production site: https://flops-murex.vercel.app**
+**Public app:** https://flops-murex.vercel.app/
+**Source:** https://github.com/bearbaba/FLOPTRACE
 
-The root website unifies four tasks: **Identity → Inference → Community → Activity**. An Overview page helps new users get started. The original Technocore Studio remains available at [Advanced Technocore](legacy/index.html) with its original identity creation, encrypted backup, signed messages and room controls.
+## Purpose
 
-## Existing features reused
+One simple workspace for a broad community, not a dashboard preconfigured for its founder. Everyone can explore supported model IDs, create or import their **own** Ed25519 DID identity, publish their own signed Technocore content, and inspect their own **browser-local** activity.
 
-- Public DID profiles for Main Agent and Review Agent:
-  - did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG
-  - did:key:z6MktbDb2dVYvfm2C8koCMxvREpyCRDD1zFPzGgEdJQ1M2AR
-- Client-side seed restoration using native WebCrypto Ed25519. The derived public key must match the selected DID, and the app verifies a local challenge signature.
-- Original AES-GCM + PBKDF2 encrypted Technocore backup format (read locally via existing crypto helper).
-- Technocore lobby, technocore room and custom/unlisted rooms, using the existing read-only /api/room proxy.
-- Signed Technocore messages using the original canonical room|nonce|text Ed25519 format; writes open the official Technocore URL in a separate tab.
-- Automatic feed readback before a post is marked CONFIRMED. Opening a tab is not success.
-- Official FLOP Gateway model discovery and server-gated chat completions with local-only SHA-256 receipt metadata.
-- One local Activity journal for inference and community posts. No seeds, raw prompts, raw inference outputs or API keys are stored in that journal.
+The interface has Overview, Identity, Inference, Community and Activity. Original advanced Technocore Studio is preserved at /legacy/index.html for compatibility.
 
-## Security boundaries
+## Self-service identity for every visitor
 
-- **Never upload, paste into chat, or commit seed phrases, private Ed25519 seeds or API keys.**
-- The two DIDs are public identifiers, **not FLOP wallet addresses**, and do not demonstrate on-chain ownership.
-- Selecting a DID only attaches an unsigned label to inference receipts. Matching a restored seed verifies key possession locally, but does not register an agent, sign inference requests, or prove PoUI.
-- The new root app does not load third-party signing scripts. It uses native WebCrypto Ed25519 and non-extractable signing keys held in tab memory. Close or refresh the tab to discard them.
-- The original Advanced Technocore backup/signing page is preserved as a compatibility fallback.
-- Community messages appear in the signed URL, browser history and the external Technocore tab; never include secrets.
-- /api/infer is **disabled by default**. To enable private access the Vercel server must have:
-  - FLOP_API_KEY — official Gateway credential (server only)
-  - FLOPTRACE_ACCESS_TOKEN — high-entropy private workbench passcode (never your seed)
-  - FLOPTRACE_ENABLE_INFERENCE=1
-  - FLOPTRACE_SPEND_CAP_ACK=1 — only after a real provider-side hard spending cap is in effect
-- Each request is bounded. A serverless app has no reliable global rate limits without persistent state. Do not enable paid public inference without actual abuse controls.
-- All inference receipts remain NOT_VERIFIED. A local SHA-256 hash is not PoUI, TEE attestation, chain settlement or an on-chain transaction.
+- First-time visitors see **zero agent profiles**, not the author's two public DIDs.
+- **Create**: generate a fresh Ed25519 DID in the user's browser, provide a backup passphrase of at least 12 characters, and initiate a download of an AES-GCM encrypted seed backup. Save that encrypted backup and its separate passphrase offline before closing the browser.
+- **Import**: add any valid public Ed25519 did:key as a local watch-only profile. No seed needed for browsing.
+- **Restore**: select an imported DID and locally unlock with its own matching 32-byte seed, or open an existing encrypted Technocore backup; backup restoration can import its DID automatically.
+- Private Ed25519 signing keys are imported as non-extractable WebCrypto keys and retained in browser-tab memory only; no seed is uploaded or written to localStorage.
+- **Multiple agents**: choose, unlock, and remove independent profiles. Names, public DIDs and local receipts are stored in this browser only, not a central user database; there is no multi-device account sync. An import is not proof of ownership; successful local seed unlock verifies key possession in the browser only.
+- A shared browser's localStorage is not a secure multi-user boundary. Do not use the same browser profile with untrusted users; use separate browser profiles/devices or a future authenticated server account.
 
-## Deployment and checks
+The community can use the site independently. The founder's two previously created DIDs remain **importable by their holder**, but are not preselected for everyone, privileged, registered wallets, or shared test accounts.
 
-Vercel project: flops. The Git-linked root site is static HTML and functions under api/. The standalone inference dev prototype remains in [inference/](inference/README.md).
+## Technocore community
 
-To run automated checks using Node.js 22+:
+- Supports lobby, technocore and custom/unlisted rooms through the existing read-only /api/room proxy.
+- Signing occurs in the user's browser using their own unlocked Ed25519 key and canonical room|nonce|text payload.
+- Posts go directly to the official technocore.chat URL in a separate tab (which can expose the post text in its address). No signing seed is transmitted to FLOPTRACE.
+- A post is logged as AWAITING_CONFIRMATION; only a matching readback from the room's public feed marks it CONFIRMED. Auto-polling and a manual follow-up are available.
+- Newly created identity profiles are isolated from other visitors at the browser-storage level. This is not a private or access-controlled group chat. Unlisted rooms are not encrypted or secret.
+
+## FLOP model discovery and inference
+
+- Public model listing through /api/models, with brief CDN caching to reduce load on FLOP Gateway.
+- Private inference through /api/infer is **disabled by default**. To enable it the site operator must supply FLOP_API_KEY, FLOPTRACE_ACCESS_TOKEN, FLOPTRACE_ENABLE_INFERENCE=1 and FLOPTRACE_SPEND_CAP_ACK=1 with an enforced **provider-side spending limit**.
+- The current private access-token mode is intended for operator testing, **not** for offering free inference to thousands of visitors. For shared production inference, implement authenticated user sessions, per-user quotas, durable limits (Redis/database), billing controls, request abuse prevention and operational monitoring before enabling it.
+- Receipts are local SHA-256 records, not proof of FLOP inference or settlement. Every inference receipt remains NOT_VERIFIED until a real PoUI/TEE/chain verification is added.
+- Public DIDs are unsigned labels on inference receipts; they are not wallet addresses or proof of FLOP chain account ownership.
+
+## Scale / production readiness
+
+This release allows **any number of independent visitors to create their own local identity** without provisioning a server account. The number of visitors a deployment can reliably handle depends on Vercel limits, upstream Technocore throughput, FLOP API limits, cache hit rates and traffic; no 1,000-user load test has been claimed. Public read-only model discovery is inexpensive relative to per-user paid inference. A durable account system, device synchronization, service-side moderation, operational telemetry, rate limiting and load tests remain separate workstreams.
+
+Serverless routes are intentionally narrow. They cannot guarantee per-IP or per-DID global quotas without persistent shared storage. Do not expose shared Gateway credentials to the browser or publish any seed.
+
+## Automated checks
+
+Node.js 22+:
 
     node --check js/unified.js
+    node --check js/did-utils.mjs
     node --check api/infer.js
-    node --test tests/web.test.mjs
+    node --test tests/web.test.mjs tests/community.test.mjs
 
-Use Vercel's local dev environment for /api endpoints. Static HTML without serverless functions cannot provide model discovery or inference.
+GitHub Actions runs the checks on proposed changes and on main. Manual browser acceptance still must verify key generation/backup restoration, both previously existing DIDs, Technocore read/write/confirmation and public Vercel reachability.
 
-Manual acceptance still required for both local DID restorations, Technocore external signed-post readback, and live Gateway inference once an official API key and provider spending cap are configured. Mocked tests do not count as live blockchain execution.
+**FLOP Devnet tokens have no value or airdrop/reward weight.** Devnet may reset. Verify official links at https://flop.finance/official/ .
 
-**FLOP Devnet has no monetary value or reward/airdrop weight.** The Devnet may reset. No FLOP token is trading. Check official links at https://flop.finance/official/ .
+Created by [@Bearcrypto2021](https://x.com/Bearcrypto2021).
