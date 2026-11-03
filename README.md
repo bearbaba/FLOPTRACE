@@ -76,3 +76,14 @@ GitHub Actions runs the checks on proposed changes and on main. Manual browser a
 **FLOP Devnet tokens have no value or airdrop/reward weight.** Devnet may reset. Verify official links at https://flop.finance/official/ .
 
 Created by [@Bearcrypto2021](https://x.com/Bearcrypto2021).
+
+
+## Simpler onboarding & read-only Faucet status
+
+The main flow is **Explore Devnet → Get test FLOP → Build an agent**; neither a wallet nor a DID is necessary to view public explorer/model information. Advanced SDK, MCP and CLI instructions stay available inside a collapsed developer section. Local seed-unlock controls are likewise collapsed on the Identity page. Existing backup support is preserved.
+
+FLOPTRACE checks the **SS58 checksum locally** when someone copies a public address. This does not prove a FLOP chain network prefix, account ownership, balance or grant eligibility. No address is submitted to FLOPTRACE backend.
+
+The read-only /api/devnet-health function fetches public GET endpoints from faucet.flop.network/health and explorer.devnet.flop.network/api/health, with short-lived edge caching. It always marks **grant availability NOT_VERIFIED**, even when service/indexer diagnostics are green. There are credible reports of /fund returning 503 during normal /health responses: https://github.com/flop-labs/network/issues/22 . This function does not attempt funds, spend tokens, process wallet secrets or repeatedly poll the faucet. Users use the official faucet themselves and verify resulting transactions on the official explorer.
+
+Automated checks cover diagnostics, checksum and onboarding copy. Live grants, transaction confirmation and stress testing remain unverified.

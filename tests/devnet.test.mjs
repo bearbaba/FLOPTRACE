@@ -10,7 +10,7 @@ test('one unified public app contains discoverable Devnet Hub', async()=>{
   const page = await html();
   assert.match(page,/id="devnet"/);
   assert.match(page,/data-view="devnet"/);
-  assert.match(page,/Start on Devnet/);
+  assert.match(page,/Explore Devnet/);
   assert.match(page,/PUBLIC DEVNET/);
   assert.match(page,/No rewards · No airdrop weight/);
   assert.match(page,/did:key/);
@@ -52,7 +52,7 @@ test('public model browser and copy actions are safe and functional',async()=>{
   assert.doesNotMatch(script,/innerHTML\s*=/);
   // The public tool never asks for a seed phrase to use Faucet or Explorer.
   assert.match(page,/No automatic claim/);
-  assert.match(script,/This only checks its appearance/);
+  assert.match(script,/SS58 checksum valid/);
 });
 
 test('chain actions and PoUI are not misrepresented as implemented',async()=>{
@@ -62,5 +62,5 @@ test('chain actions and PoUI are not misrepresented as implemented',async()=>{
   assert.match(server,/FLOPTRACE_ENABLE_INFERENCE/);
   assert.match(server,/FLOPTRACE_SPEND_CAP_ACK/);
   assert.match(server,/NOT_VERIFIED/);
-  assert.match(script,/checksum or balance/);
+  assert.match(script,/network compatibility/);
 });

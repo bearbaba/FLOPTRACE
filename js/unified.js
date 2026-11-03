@@ -1,4 +1,5 @@
 import {isValidEd25519Did,normalizedProfiles,addProfile,removeProfile} from './did-utils.mjs';
+import {validateSs58} from './ss58-utils.mjs';
 const $ = id => document.getElementById(id);
 const KEY_PROFILES='floptrace:profiles:v4';
 const KEY_ACTIVE='floptrace:active-did:v1',KEY_EVENTS='floptrace:activity:v3',
@@ -106,6 +107,7 @@ function go(view){
   $('currentView').textContent={home:'Overview',devnet:'Devnet Hub',identity:'Identity',inference:'Inference',community:'Community',activity:'Activity'}[view];
   if(view==='activity')renderEvents();
   if(view==='community')loadFeed();
+  if(view==='devnet')void loadDevnetHealth();
   window.scrollTo({top:0,behavior:'instant'});
 }
 function decodeB64url(value){
@@ -471,17 +473,36 @@ for(const id of ['inferDid','postDid']){
   $(id).addEventListener('change',()=>selectDid($(id).value));
 }
 populateAgentPickers();
-// Read-only Devnet helper: the SS58 address is never sent to FLOPTRACE or stored locally.
+let lastHealthCheck=0,healthLoading=false;
+async function loadDevnetHealth(force=false){
+  if(healthLoading||(!force&&Date.now()-lastHealthCheck<45_000))return;
+  healthLoading=true;
+  $('refreshFaucet').disabled=true;
+  message('faucetNote','Checking the official service and explorer. Grant availability is never inferred from health alone.');
+  try{
+    const r=await api('/api/devnet-health');
+    lastHealthCheck=Date.now();
+    $('faucetService').textContent=r.faucetService==='reachable'?'Reachable':r.faucetService==='degraded'?'Degraded':'Unknown';
+    $('faucetIndexer').textContent=r.explorerIndexer==='live'?
+      'Live'+(r.headLag!==null?' · lag '+r.headLag:''):
+      r.explorerIndexer==='catching_up'?'Catching up':'Unknown';
+    message('faucetNote','Test FLOP grants are NOT VERIFIED. A healthy service can still reject requests (for example, HTTP 503). Use the official faucet and verify any grant on Explorer.');
+  }catch{
+    $('faucetService').textContent='Unknown';$('faucetIndexer').textContent='Unknown';
+    message('faucetNote','Live diagnostics unavailable. Faucet grant availability remains unknown. Open the official service for details.','error');
+  }finally{healthLoading=false;$('refreshFaucet').disabled=false;}
+}
+$('refreshFaucet').addEventListener('click',()=>loadDevnetHealth(true));
+// Read-only wallet helper: validate full SS58 checksum locally before copying.
 $('copyAddress').addEventListener('click',async()=>{
   const address=$('devnetAddress').value.trim();
-  if(!/^[1-9A-HJ-NP-Za-km-z]{35,64}$/.test(address)){
-    return message('addressFeedback','That does not resemble a public SS58 address. Do not enter a DID or seed phrase.','error');
-  }
+  const validation=await validateSs58(address);
+  if(!validation.valid) return message('addressFeedback',validation.reason,'error');
   try{
     await navigator.clipboard.writeText(address);
-    message('addressFeedback','Address copied. Paste it into the official Faucet. This only checks its appearance, not its checksum or balance.','good');
+    message('addressFeedback','SS58 checksum valid. Address copied; paste into official Faucet. This does not prove account ownership or network compatibility.','good');
   }catch{
-    message('addressFeedback','Clipboard unavailable. Select your address and copy it manually.','error');
+    message('addressFeedback','Checksum valid, but clipboard unavailable. Select and copy the address manually.','error');
   }
 });
 for(const button of document.querySelectorAll('[data-copy-target]')){

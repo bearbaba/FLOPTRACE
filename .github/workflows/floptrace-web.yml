@@ -5,6 +5,7 @@ on:
       - 'index.html'
       - 'js/unified.js'
       - 'js/did-utils.mjs'
+      - 'js/ss58-utils.mjs'
       - 'css/unified.css'
       - 'legacy/**'
       - 'api/**'
@@ -29,7 +30,9 @@ jobs:
           node-version: '22'
       - run: node --check js/unified.js
       - run: node --check js/did-utils.mjs
+      - run: node --check js/ss58-utils.mjs
+      - run: node --check api/devnet-health.js
       - run: node --check api/status.js
       - run: node --check api/models.js
       - run: node --check api/infer.js
-      - run: node --test tests/web.test.mjs tests/community.test.mjs tests/devnet.test.mjs
+      - run: node --test tests/web.test.mjs tests/community.test.mjs tests/devnet.test.mjs tests/onboarding.test.mjs
