@@ -1,0 +1,13 @@
+{
+  "name": "floptrace-inference",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first FLOP Devnet agent inference workbench",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test.mjs"
+  },
+  "dependencies": { "@flop-labs/client": "0.2.1" }
+}
