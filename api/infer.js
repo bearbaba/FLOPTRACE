@@ -1,9 +1,17 @@
 const {createHash,timingSafeEqual}=require('node:crypto');
 const GATEWAY='https://api.flop.network/v1/chat/completions';
-const VALID_DIDS=new Set([
-'did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG',
-'did:key:z6MktbDb2dVYvfm2C8koCMxvREpyCRDD1zFPzGgEdJQ1M2AR'
-]);
+// Validate any public Ed25519 did:key. No community member has a privileged preset DID.
+const BASE58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function validDid(did) {
+  if(typeof did!=='string'||!did.startsWith('did:key:z')||did.length>128)return false;
+  const raw=did.slice(9);
+  if(!raw||[...raw].some(c=>!BASE58.includes(c)))return false;
+  let n=0n;for(const c of raw)n=n*58n+BigInt(BASE58.indexOf(c));
+  const bytes=[];
+  while(n>0n){bytes.unshift(Number(n%256n));n/=256n;}
+  for(const c of raw){if(c!=='1')break;bytes.unshift(0);}
+  return bytes.length===34&&bytes[0]===0xed&&bytes[1]===0x01;
+}
 const digest=x=>createHash('sha256').update(x,'utf8').digest('hex');
 function authorized(req,secret){
   const provided=String(req.headers.authorization||'').replace(/^Bearer /i,'');
@@ -33,7 +41,7 @@ module.exports=async function handler(req,res){
   if(typeof model!=='string'||!(/^[a-z0-9._:/@+-]{1,180}$/i.test(model)))return res.status(400).json({error:'Invalid model'});
   if(typeof prompt!=='string'||!prompt.trim()||prompt.length>5000)return res.status(400).json({error:'Prompt must be 1–5000 characters'});
   if(typeof system!=='string'||system.length>1000)return res.status(400).json({error:'System prompt too long'});
-  if(did!==null&&!VALID_DIDS.has(did))return res.status(400).json({error:'Unknown DID label'});
+  if(did!==null&&!validDid(did))return res.status(400).json({error:'Unknown DID label'});
   try{
     const payload={model,messages:[...(system?[{role:'system',content:system}]:[]),{role:'user',content:prompt.trim()}],max_tokens:512,stream:false};
     const response=await fetch(GATEWAY,{
