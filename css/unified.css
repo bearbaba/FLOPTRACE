@@ -57,3 +57,18 @@
 .model-browser .placeholder{grid-column:1/-1}
 @media(max-width:900px){.devnet-steps{grid-template-columns:1fr 1fr}.resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.model-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:610px){.devnet-steps,.resource-grid,.devtools-grid,.model-results{grid-template-columns:1fr}.builder-signoff{align-items:stretch;flex-direction:column}.builder-signoff .primary{align-self:flex-start}.guide-step{padding:18px}.devnet-banner{align-items:flex-start;flex-direction:column}.model-browser{margin-top:18px}}
+
+/* Calmer onboarding: practical actions first; power tools progressively disclosed. */
+.faucet-health{margin:19px 0 14px;border:1px solid #46505a;background:#151d26;border-radius:12px;padding:19px 21px}
+.faucet-health-main{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.faucet-health-main h2{font-size:16px;margin:8px 0 0;letter-spacing:-.025em}
+.faucet-health .field-hint{margin:13px 0 9px}
+.health-values{display:flex;align-items:center;flex-wrap:wrap;gap:12px 24px;border-top:1px solid #2a3742;margin-top:16px;padding-top:12px;font-size:12px;color:#a7bac8}
+.health-values strong{color:#ebeff4}
+.advanced-tools{border:1px solid #2b3d4d;border-radius:12px;background:#101924;margin:24px 0;padding:2px 20px}
+.advanced-tools>summary{display:list-item;padding:17px 1px;font-size:13px;font-weight:700;color:#a9dccb;list-style:revert}
+.advanced-tools[open]{padding-bottom:20px}
+.advanced-tools .section-heading.section-space{margin-top:15px}
+.identity-advanced{margin-top:20px}
+.identity-advanced>.unlock-card{margin-top:8px}
+@media(max-width:610px){.faucet-health{padding:17px}.advanced-tools{padding:2px 15px}.devnet-steps{gap:11px}}
