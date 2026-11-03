@@ -28,3 +28,7 @@ Community browser tool: local Ed25519 `did:key`, signed Technocore posts, unlist
 ## License
 
 MIT
+
+## FLOP Devnet inference workbench
+
+The experimental FLOPTRACE inference application is under [inference/](inference/README.md). It runs separately on localhost, uses two public agent DID labels, reads the official FLOP model catalogue and produces local unverified inference receipts. The existing Technocore Studio page above remains unchanged. For public hosting, authentication and spending limits are required first.
