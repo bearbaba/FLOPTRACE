@@ -53,6 +53,7 @@ function selectDid(did){
   $('unlockBadge').textContent=unlocked.has(activeDid)?'UNLOCKED HERE':'LOCKED';
   $('postIdentity').textContent=unlocked.has(activeDid)?'SIGNING READY':'DID LOCKED';
   renderProfiles();
+  renderEvents();
   if(!activeDid)message('identityStatus','Create a new DID, restore an encrypted backup, or add an existing public DID.');
   else message('identityStatus',unlocked.has(activeDid)
     ?'This DID is verified locally in this tab. You can sign messages.'
@@ -402,7 +403,7 @@ $('checkPost').addEventListener('click',async()=>{
 });
 function renderEvents(){
   const root=$('activityList');if(!root)return;
-  const items=events();
+  const items=events().filter(e=>activeDid?e.did===activeDid:!e.did);
   $('navCount').textContent=String(items.length);
   $('statEvents').textContent=String(items.length);
   root.replaceChildren();
@@ -417,11 +418,11 @@ function renderEvents(){
     row.append(type,details,id,status);root.append(row);
   }
 }
-$('exportAll').addEventListener('click',()=>download('floptrace-local-activity.json',{exportedAt:new Date().toISOString(),receipts:events()}));
+$('exportAll').addEventListener('click',()=>download('floptrace-agent-activity.json',{exportedAt:new Date().toISOString(),selectedDid:activeDid||null,receipts:events().filter(e=>activeDid?e.did===activeDid:!e.did)}));
 $('clearActivity').addEventListener('click',()=>{
-  if(!confirm('Clear only FLOPTRACE activity saved in this browser? DID profiles and Technocore data will be kept.'))return;
-  try{localStorage.removeItem(KEY_EVENTS);}catch{}
-  renderEvents();message('postFeedback','Local activity history cleared.');
+  if(!confirm('Clear local activity for '+(activeDid?label(activeDid):'unlinked activity')+' only? Other agent records will be kept.'))return;
+  saveEvents(events().filter(e=>activeDid?e.did!==activeDid:!!e.did));
+  message('postFeedback','Selected agent activity cleared from this browser.');
 });
 document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.view)));
 for(const id of ['inferDid','postDid']){
