@@ -9,6 +9,7 @@ let activeDid=DID_PROFILES.some(p=>p.did===localStorage.getItem(KEY_ACTIVE))
   ?localStorage.getItem(KEY_ACTIVE):(DID_PROFILES[0]?.did||'');
 const unlocked=new Map();
 let inferenceEnabled=false, gatewayReady=false,latestReceipt=null,pendingPostId=null;
+let publicModels=[];
 const enc=new TextEncoder();
 function message(id,text,variant=''){
   const el=$(id);if(!el)return;
@@ -102,7 +103,7 @@ function go(view){
     const selected=el.dataset.view===view;el.classList.toggle('active',selected);
     if(selected)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
   });
-  $('currentView').textContent={home:'Overview',identity:'Identity',inference:'Inference',community:'Community',activity:'Activity'}[view];
+  $('currentView').textContent={home:'Overview',devnet:'Devnet Hub',identity:'Identity',inference:'Inference',community:'Community',activity:'Activity'}[view];
   if(view==='activity')renderEvents();
   if(view==='community')loadFeed();
   window.scrollTo({top:0,behavior:'instant'});
@@ -227,19 +228,60 @@ async function loadStatus(){
     message('inferFeedback','Inference status unavailable. Model discovery may still work.','error');
   }
 }
+function renderModelCatalogue(){
+  const root=$('modelResults');
+  if(!root)return;
+  root.replaceChildren();
+  const query=$('modelSearch').value.trim().toLowerCase();
+  const filtered=publicModels.filter(m=>m.id.toLowerCase().includes(query));
+  $('modelCount').textContent=publicModels.length?filtered.length+' of '+publicModels.length+' models':'No models';
+  if(!filtered.length){
+    const item=document.createElement('p');item.className='placeholder';
+    item.textContent=publicModels.length?'No model ID matches your search.':'Public model catalogue is unavailable.';
+    root.append(item);return;
+  }
+  for(const model of filtered.slice(0,18)){
+    const item=document.createElement('div');item.className='model-item';
+    const name=document.createElement('code');name.textContent=model.id;
+    const row=document.createElement('div');row.className='row';
+    const choose=document.createElement('button');choose.type='button';choose.className='inline-button';
+    choose.textContent='Use model →';
+    choose.addEventListener('click',()=>{
+      $('model').value=model.id;
+      $('model').focus();
+      message('inferFeedback','Model selected. Public discovery is available; completions require authorized access.');
+    });
+    const copy=document.createElement('button');copy.type='button';copy.className='inline-button';
+    copy.textContent='Copy ID';
+    copy.addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText(model.id);message('inferFeedback','Model ID copied.');}
+      catch{message('inferFeedback','Clipboard unavailable. Select and copy the model ID manually.','error');}
+    });
+    row.append(choose,copy);item.append(name,row);root.append(item);
+  }
+  if(filtered.length>18){
+    const hint=document.createElement('p');hint.className='placeholder';
+    hint.textContent='Showing the first 18 matches. Refine your search to find more models.';
+    root.append(hint);
+  }
+}
+$('modelSearch').addEventListener('input',renderModelCatalogue);
 async function loadModels(){
   $('statGateway').textContent='Checking…';$('gatewayPill').textContent='Checking gateway…';
   try{
     const data=await api('/api/models');
     const models=Array.isArray(data.data)?data.data.filter(m=>typeof m.id==='string'):[];
+    publicModels=models;
     const previous=$('model').value;$('model').replaceChildren();
     for(const model of models){const item=document.createElement('option');item.value=model.id;item.textContent=model.id;$('model').append(item);}
     if(models.some(m=>m.id===previous))$('model').value=previous;
     gatewayReady=models.length>0;
-    $('statGateway').textContent=gatewayReady?'Online':'No models';
+    $('statGateway').textContent=gatewayReady?'Available':'No models';
     $('gatewayPill').textContent=gatewayReady?models.length+' gateway models':'Empty catalog';
+    renderModelCatalogue();
     if(!gatewayReady)message('inferFeedback','Gateway returned no models. Try refreshing later.','error');
   }catch(error){
+    publicModels=[];renderModelCatalogue();
     gatewayReady=false;$('statGateway').textContent='Offline';$('gatewayPill').textContent='Gateway unavailable';
     $('model').replaceChildren(new Option('Models unavailable',''));
     message('inferFeedback','Model discovery error: '+error.message,'error');
@@ -429,5 +471,31 @@ for(const id of ['inferDid','postDid']){
   $(id).addEventListener('change',()=>selectDid($(id).value));
 }
 populateAgentPickers();
+// Read-only Devnet helper: the SS58 address is never sent to FLOPTRACE or stored locally.
+$('copyAddress').addEventListener('click',async()=>{
+  const address=$('devnetAddress').value.trim();
+  if(!/^[1-9A-HJ-NP-Za-km-z]{35,64}$/.test(address)){
+    return message('addressFeedback','That does not resemble a public SS58 address. Do not enter a DID or seed phrase.','error');
+  }
+  try{
+    await navigator.clipboard.writeText(address);
+    message('addressFeedback','Address copied. Paste it into the official Faucet. This only checks its appearance, not its checksum or balance.','good');
+  }catch{
+    message('addressFeedback','Clipboard unavailable. Select your address and copy it manually.','error');
+  }
+});
+for(const button of document.querySelectorAll('[data-copy-target]')){
+  button.addEventListener('click',async()=>{
+    const source=$(button.dataset.copyTarget);
+    if(!source)return;
+    try{
+      await navigator.clipboard.writeText(source.textContent.trim());
+      message('copyFeedback','Copied. Check the official docs before running any command.','good');
+    }catch{
+      message('copyFeedback','Clipboard unavailable. Select the command and copy it manually.','error');
+    }
+  });
+}
+
 fillRooms();selectDid(activeDid);renderEvents();go('home');
 await Promise.all([loadStatus(),loadModels()]);

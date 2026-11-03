@@ -5,6 +5,23 @@ FLOPTRACE is an independent FLOP Devnet community builder application. It is **n
 **Public app:** https://flops-murex.vercel.app/
 **Source:** https://github.com/bearbaba/FLOPTRACE
 
+## FLOP Devnet Hub (public release)
+
+The unified web includes a Devnet Hub with read-only, official developer resources:
+
+- [Official Explorer](https://explorer.devnet.flop.network/) — inspect blocks, transactions and chain information on the source website.
+- [Official Faucet](https://faucet.flop.network/) — request non-transferable-worth test balance using a **public SS58 wallet address**. A TechnoCore Ed25519 DID is **not** an SS58 chain address.
+- [Gateway models](https://api.flop.network/v1/models) — publicly listed models, now browsable/searchable directly in FLOPTRACE Inference without an API key. Listing a model is not proof of live routability or inference success.
+- [Hosted MCP](https://mcp.flop.network/mcp) — read-only Streamable HTTP endpoint, suitable for third-party agent clients. FLOPTRACE offers a copyable URL, not a hosted personal MCP client.
+- [Official SDK docs](https://docs.flop.network/docs/sdk-references) — copy package installation commands for @flop-labs/client, @flop-labs/sdk, and the pinned CLI.
+- [Ask FLOP](https://ask.flop.finance) — the official docs assistant.
+
+There is no automatic faucet claim, no wallet import, no on-chain transaction signing, no production PoUI verifier and no user-paid inference in the public website. The existing authenticated server inference is disabled by default without official credentials and a provider-enforced hard spending cap. The UI labels this boundary explicitly.
+
+The public website credits its independent builder, [Bear Crypto](https://x.com/Bearcrypto2021), with a voluntary follow link, and makes it clear that FLOPTRACE is not an official FLOP Labs product.
+
+**This is not a performance-tested 1,000+ concurrent-user product**. Static resource browsing scales much more easily than paid inference, but serverless call volumes, upstream quota, abuse controls and throughput still require load testing, quotas and monitoring before high-volume inference is enabled.
+
 ## Purpose
 
 One simple workspace for a broad community, not a dashboard preconfigured for its founder. Everyone can explore supported model IDs, create or import their **own** Ed25519 DID identity, publish their own signed Technocore content, and inspect their own **browser-local** activity.
