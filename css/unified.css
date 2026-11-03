@@ -14,3 +14,46 @@
 .profile-grid>.placeholder{border:1px dashed #344657;background:#101923;border-radius:12px;padding:22px;color:#96a8b8}
 @media(max-width:900px){.identity-setup{grid-template-columns:1fr}}
 @media(max-width:610px){.identity-setup .card-heading{min-height:auto}.profile-top{flex-wrap:wrap}}
+
+
+/* FLOP Devnet Hub — public, read-only first. */
+.follow-link{display:block;margin-top:12px;color:#9ce8d0!important;font-weight:700}
+.community-credit{font-size:12px;color:#879bac;line-height:1.75;margin-top:22px}
+.community-credit a{font-weight:750;color:#9cdec7}
+.devnet-banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:17px 19px;margin:25px 0 36px;border:1px solid #2b5f52;background:#142922;border-radius:11px;font-size:12px;color:#a9c9be}
+.devnet-banner a{color:#a8e8d1;font-weight:750}
+.devnet-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.guide-step{background:#131d28;border:1px solid #2a3946;border-radius:12px;padding:22px;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.step-number{color:#88d8c1;font-size:12px;font-weight:800;letter-spacing:.13em}
+.guide-step h3{font-size:16px;margin:20px 0 8px}
+.guide-step p{font-size:12px;line-height:1.85;color:#a1afbd;margin:0 0 17px;flex:1}
+.guide-step code{font-size:11px;color:#c0d9ca;overflow-wrap:anywhere}
+.section-space{margin-top:38px}
+.resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.resource{position:relative;min-height:132px;display:flex;flex-direction:column;gap:8px;padding:18px;background:#141e2a;border:1px solid #2a3948;border-radius:11px;transition:background .12s,border-color .12s}
+.resource:hover{background:#1a2d30;border-color:#6da994;color:inherit}
+.resource-symbol{color:#91d8c4;font-size:18px;line-height:1}
+.resource strong{font-size:14px}
+.resource small{font-size:11px;color:#8ea4b5;line-height:1.6;max-width:90%}
+.resource-arrow{position:absolute;top:17px;right:19px;color:#8fbbaa;font-size:17px}
+.devtools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.code-card{display:flex;flex-direction:column;gap:13px}
+.code-card .card-heading{margin-bottom:0;align-items:flex-start}
+.code-card .card-heading h2{font-size:15px}
+.code-card .card-heading p{font-size:12px}
+.command{white-space:pre-wrap;word-break:break-word;margin:0;background:#0b141c;border:1px solid #273a49;border-radius:8px;padding:13px;color:#a7decf;font-size:12px;line-height:1.8}
+.code-card .secondary{align-self:flex-start;margin-top:auto}
+.address-helper{margin-top:14px}
+.builder-signoff{margin:36px 0 0;border:1px solid #2c6055;background:linear-gradient(110deg,#152b29,#14212d);border-radius:12px;padding:19px 22px;display:flex;gap:20px;justify-content:space-between;align-items:center}
+.builder-signoff strong{display:block;font-size:17px}
+.builder-signoff span{display:block;margin-top:7px;color:#99b1b8;font-size:12px;line-height:1.7}
+.builder-signoff .primary{flex-shrink:0}
+.model-browser{margin:24px 0 17px}
+.model-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.model-item{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:12px;padding:12px 14px;background:#0d1720;border:1px solid #273846;border-radius:9px;min-width:0}
+.model-item code{font-size:11px;line-height:1.55;color:#c8e7da;overflow-wrap:anywhere;word-break:break-all}
+.model-item .inline-button{padding:0}
+.model-item:hover{border-color:#528475}
+.model-browser .placeholder{grid-column:1/-1}
+@media(max-width:900px){.devnet-steps{grid-template-columns:1fr 1fr}.resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.model-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:610px){.devnet-steps,.resource-grid,.devtools-grid,.model-results{grid-template-columns:1fr}.builder-signoff{align-items:stretch;flex-direction:column}.builder-signoff .primary{align-self:flex-start}.guide-step{padding:18px}.devnet-banner{align-items:flex-start;flex-direction:column}.model-browser{margin-top:18px}}
