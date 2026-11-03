@@ -1,0 +1,21 @@
+name: FLOPTRACE Inference checks
+on:
+  push:
+    paths:
+      - 'inference/**'
+      - '.github/workflows/floptrace-inference.yml'
+  pull_request:
+    paths:
+      - 'inference/**'
+      - '.github/workflows/floptrace-inference.yml'
+jobs:
+  node-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check inference/server.mjs
+      - run: node --check inference/web/app.js
+      - run: node --test inference/test.mjs

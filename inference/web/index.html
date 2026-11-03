@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>FLOPTRACE — Agent Inference Workbench</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <a class="wordmark" href="/">◈ <span>FLOPTRACE</span></a>
+      <div class="topright"><span class="network"><span class="dot"></span> FLOP DEVNET</span><span class="version">INFERENCE / V0.2</span></div>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">AI INFRASTRUCTURE / DEVELOPER WORKBENCH</div>
+      <h1>Run intelligence.<br><em>Keep the trace.</em></h1>
+      <p>Explore FLOP models, call official inference when API access is configured, and inspect local SHA-256 receipts. Never confuse a digest with protocol proof.</p>
+      <div class="metrics">
+        <div><small>GATEWAY</small><strong id="gateway">Checking…</strong></div>
+        <div><small>INFERENCE ACCESS</small><strong id="access">Checking…</strong></div>
+        <div><small>LOCAL RECEIPTS</small><strong id="count">0</strong></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="sectionhead"><div><span class="eyebrow">01 / IDENTITY</span><h2>Agent profiles</h2></div><span class="subtle">Public keys only · no wallet custody</span></div>
+      <div id="profiles" class="profiles"><div class="empty">Loading agent profiles…</div></div>
+      <p class="notice">The DID values below are public <code>did:key</code> identifiers. Selecting one does not sign a request, prove ownership, register an agent, or link a FLOP wallet.</p>
+    </section>
+    <section class="section">
+      <div class="sectionhead"><div><span class="eyebrow">02 / EXECUTION</span><h2>Inference console</h2></div><span class="subtle">Official FLOP Gateway</span></div>
+      <div class="console">
+        <form id="form" class="form">
+          <label>AGENT LABEL<select id="did"><option value="">No DID attached</option></select></label>
+          <label>MODEL <button class="textbutton" type="button" id="refresh">Refresh models</button><select id="model" required><option value="">Loading available models…</option></select></label>
+          <label>SYSTEM MESSAGE <span class="muted">OPTIONAL</span><input id="system" maxlength="1000" value="Answer clearly, accurately and concisely."></label>
+          <label>YOUR PROMPT<textarea id="prompt" maxlength="5000" rows="6" required placeholder="Ask the FLOP gateway to explain a concept, compare approaches or complete a task…"></textarea></label>
+          <button class="primary" id="run" type="submit">Run inference <span>↗</span></button>
+          <p role="status" aria-live="polite" id="feedback" class="feedback">Requires an officially issued FLOP_API_KEY on the server.</p>
+        </form>
+        <div class="result">
+          <div class="resulttop"><span>OUTPUT / TRACE</span><span class="unverified">NOT VERIFIED</span></div>
+          <pre id="output" aria-live="polite">Your response will appear here after a real gateway completion.</pre>
+          <div class="receiptinfo"><div><small>LAST RECEIPT</small><code id="digest">No execution yet</code></div><button type="button" id="export" disabled>Export JSON ↓</button></div>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="sectionhead"><div><span class="eyebrow">03 / LOCAL JOURNAL</span><h2>Audit receipts</h2></div><button id="clear" type="button" class="textbutton">Clear history</button></div>
+      <div id="history" class="history"><div class="empty">No local receipts.</div></div>
+      <p class="notice"><strong>Verification boundary:</strong> Local request/output hashes do not establish PoUI, TEE attestation, miner identity, settlement, finality, or DID signature validity. Every response stays <strong>NOT VERIFIED</strong> until an independent protocol verifier is implemented.</p>
+    </section>
+    <footer>Independent FLOP builder project · <a href="https://flop.finance/official/" target="_blank" rel="noopener noreferrer">Verify official links</a> · <a href="https://docs.flop.network/docs/sdk-references" target="_blank" rel="noopener noreferrer">Developer documentation</a><br>Devnet FLOP has no monetary value, reward, or airdrop weight. Never share seed phrases or private keys.</footer>
+  </main>
+</body>
+</html>
