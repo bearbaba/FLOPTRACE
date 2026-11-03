@@ -8,6 +8,7 @@ module.exports=async function handler(req,res){
     if(!response.ok) return res.status(502).json({error:'FLOP model catalogue is unavailable',status:response.status});
     const body=await response.json();
     if(!Array.isArray(body?.data)) return res.status(502).json({error:'Unexpected model catalogue response'});
+    res.setHeader('Cache-Control','public, s-maxage=45, stale-while-revalidate=90');
     return res.status(200).json({data:body.data.filter(m=>typeof m?.id==='string').slice(0,100).map(m=>({id:m.id})),source:'official FLOP gateway'});
   }catch{
     return res.status(502).json({error:'Could not reach the official FLOP gateway'});
