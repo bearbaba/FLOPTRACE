@@ -130,12 +130,11 @@ test('launch email voucher guidance is visible without promising automatic claim
     'daily testnet faucet funds',
     'eligible inference',
     'DID creation alone earns nothing.',
-    'min ers', // replaced with actual intended title below
     '14-day grace period',
     '1.2M FLOP stake seats',
     'No mainnet FLOP token or legitimate claim is live today.',
     'does not claim vouchers on your behalf'
-  ].filter(x=>x!=='min ers')){
+  ]){
     assert.ok(html.includes(phrase),phrase);
   }
   assert.match(html,/<details class="testnet-more">/);
