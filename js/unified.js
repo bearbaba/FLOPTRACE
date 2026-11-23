@@ -1,5 +1,6 @@
 import {isValidEd25519Did,normalizedProfiles,addProfile,removeProfile} from './did-utils.mjs';
 import {validateSs58} from './ss58-utils.mjs';
+import { LAUNCH_UTC, getLaunchCountdown } from './launch-clock.mjs';
 const $ = id => document.getElementById(id);
 const KEY_PROFILES='floptrace:profiles:v4';
 const KEY_ACTIVE='floptrace:active-did:v1',KEY_EVENTS='floptrace:activity:v3',
@@ -472,26 +473,40 @@ document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click'
 
 /* A launch TARGET clock, never a claim that the Testnet is live. */
 function updateLaunchTarget(){
-  const local=$('testnetLocalTime'),note=$('testnetCountdown');
-  if(!local||!note)return;
-  const target=new Date('2026-11-24T07:00:00Z');
+  const local=$('testnetLocalTime'), note=$('testnetCountdown');
+  const panel=$('testnetCountdownPanel'), clock=$('testnetCountdownClock');
+  if(!local||!note||!panel||!clock)return;
+  const target=new Date(LAUNCH_UTC);
   local.textContent=new Intl.DateTimeFormat(undefined,{
     year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'
   }).format(target);
-  const minutes=Math.ceil((target.getTime()-Date.now())/60_000);
-  if(minutes<=0){
-    note.textContent='The announced target time has passed. This is NOT proof Testnet is live — check the official network status before acting.';
-    return;
+  const countdown=getLaunchCountdown();
+  const format=n=>String(n).padStart(2,'0');
+  for(const [id,value] of [['clockDays',countdown.days],['clockHours',countdown.hours],
+    ['clockMinutes',countdown.minutes],['clockSeconds',countdown.seconds]]){
+    const cell=$(id);
+    if(cell)cell.textContent=format(value);
   }
-  const days=Math.floor(minutes/1440),hours=Math.floor((minutes%1440)/60),mins=minutes%60;
-  const parts=[];
-  if(days)parts.push(days+'d');
-  if(hours)parts.push(hours+'h');
-  if(mins||!parts.length)parts.push(mins+'m');
-  note.textContent='Target in '+parts.join(' ')+' (approximate). Only the official network status can confirm Testnet is live.';
+  const wasElapsed=panel.dataset.phase==='elapsed';
+  if(countdown.elapsed){
+    panel.dataset.phase='elapsed';
+    clock.setAttribute('aria-label','The announced FLOP Testnet target time has passed');
+    if(!wasElapsed){
+      note.textContent='Target time reached. Await official confirmation that Testnet is live — this countdown does not verify network status.';
+    }
+  }else{
+    panel.dataset.phase='counting';
+    // Static message avoids announcing every changing second to screen readers.
+    if(wasElapsed){
+      note.textContent='This clock shows a planned launch time — not confirmation that Testnet is live.';
+    }
+  }
 }
 updateLaunchTarget();
-setInterval(updateLaunchTarget,60_000);
+setInterval(updateLaunchTarget,1000);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden)updateLaunchTarget();
+});
 
 for(const id of ['inferDid','postDid']){
   $(id).addEventListener('change',()=>selectDid($(id).value));
