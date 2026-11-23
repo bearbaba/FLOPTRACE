@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {LAUNCH_UTC,getLaunchCountdown} from '../js/launch-clock.mjs';
 import statusHandler from '../api/status.js';
 import modelsHandler from '../api/models.js';
 import inferHandler from '../api/infer.js';
@@ -81,6 +82,12 @@ test('Testnet launch guide is explicit, timezone-safe and never claims live stat
   assert.match(html,/id="launchGuideTitle"/);
   assert.match(html,/id="testnetLocalTime"/);
   assert.match(html,/id="testnetCountdown"/);
+  for(const id of ['testnetCountdownPanel','testnetCountdownClock','clockDays','clockHours','clockMinutes','clockSeconds']){
+    assert.match(html,new RegExp('id="'+id+'"'));
+  }
+  assert.match(html,/role="timer"/);
+  assert.match(html,/aria-live="off"/);
+  assert.match(js,/setInterval\(updateLaunchTarget,1000\)/);
   assert.match(html,/2026-11-24T07:00:00Z/);
   assert.match(html,/TARGET ONLY · LIVE NOT VERIFIED/);
   assert.match(html,/https:\/\/docs\.flop\.network\/docs\/network-testnet/);
@@ -88,11 +95,27 @@ test('Testnet launch guide is explicit, timezone-safe and never claims live stat
   assert.match(html,/Devnet tokens and activity carry no airdrop weight/);
   assert.match(html,/DID creation alone earns nothing/);
   assert.match(html,/A <code>did:key<\/code> is an agent identity, not an SS58 wallet address/);
-  assert.match(js,/new Date\('2026-11-24T07:00:00Z'\)/);
+  assert.match(js,/new Date\(LAUNCH_UTC\)/);
   assert.match(js,/Intl\.DateTimeFormat/);
-  assert.match(js,/NOT proof Testnet is live/);
+  assert.match(js,/Await official confirmation that Testnet is live/);
   assert.match(css,/\.launch-guide\{/);
   assert.match(css,/@media\(max-width:610px\)/);
   assert.doesNotMatch(html,/did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG/);
   assert.doesNotMatch(html,/did:key:z6MktbDb2dVYvfm2C8koCMxvREpyCRDD1zFPzGgEdJQ1M2AR/);
+});
+
+test('UTC countdown calculates days, hours, minutes and seconds correctly across launch boundary',()=>{
+  assert.equal(LAUNCH_UTC,'2026-11-24T07:00:00Z');
+  const target=Date.parse(LAUNCH_UTC);
+  const delta=((2*86400)+(3*3600)+(4*60)+5)*1000;
+  assert.deepEqual(getLaunchCountdown(target-delta,target),{
+    elapsed:false,totalSeconds:183845,days:2,hours:3,minutes:4,seconds:5
+  });
+  assert.equal(getLaunchCountdown(target-1,target).totalSeconds,1);
+  assert.deepEqual(getLaunchCountdown(target,target),{
+    elapsed:true,totalSeconds:0,days:0,hours:0,minutes:0,seconds:0
+  });
+  assert.equal(getLaunchCountdown(target+60000,target).elapsed,true);
+  assert.equal(getLaunchCountdown(target+60000,target).totalSeconds,0);
+  assert.throws(()=>getLaunchCountdown(NaN,target),/finite timestamps/);
 });

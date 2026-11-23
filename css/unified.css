@@ -321,3 +321,59 @@ details{color:#6a7490}summary{color:#5f4ed0;font-weight:680}
   .footer{padding:22px 18px;flex-direction:column}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.quick-card,.nav-item{transition:none}.quick-card:hover,.nav-item:hover{transform:none}}
+
+
+/* A bold, readable, 1-second UTC launch countdown. Times are goals, not live-chain claims. */
+.launch-clock{
+  position:relative;isolation:isolate;overflow:hidden;margin-top:18px;
+  border:1px solid #6555bb;border-radius:21px;padding:22px 25px 20px;
+  background:radial-gradient(ellipse at 85% 0%,rgba(191,165,255,.32),transparent 43%),
+    linear-gradient(116deg,#292153 1%,#45358e 65%,#5b4292 100%);
+  color:#fff;box-shadow:0 15px 25px rgba(63,45,125,.15)
+}
+.launch-clock::before{
+  content:"✳";position:absolute;z-index:-1;top:-90px;right:27px;
+  color:rgba(255,255,255,.075);font-size:270px;line-height:1;pointer-events:none
+}
+.launch-clock-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.launch-clock-heading strong{font-size:15px;letter-spacing:-.025em;font-weight:830;color:#f7f6ff}
+.clock-live{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.10em;font-weight:810;color:#e0d8ff}
+.clock-indicator{width:7px;height:7px;display:inline-block;border-radius:50%;background:#ffcf83;box-shadow:0 0 0 4px rgba(255,207,131,.12);animation:clock-pulse 2s ease-in-out infinite}
+@keyframes clock-pulse{50%{opacity:.48;box-shadow:0 0 0 7px rgba(255,207,131,.06)}}
+.clock-grid{
+  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);
+  align-items:start;gap:11px;margin-top:18px
+}
+.clock-unit{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+  min-width:0;min-height:119px;padding:14px 8px 11px;
+  background:rgba(255,255,255,.115);border:1px solid rgba(255,255,255,.19);
+  border-radius:16px;backdrop-filter:blur(6px)
+}
+.clock-number{
+  color:#fff;font-family:"Segoe UI",ui-sans-serif,system-ui,sans-serif;
+  font-size:clamp(35px,4.6vw,63px);font-weight:830;line-height:1;
+  font-variant-numeric:tabular-nums;letter-spacing:-.065em
+}
+.clock-unit:last-child{background:rgba(255,197,218,.18);border-color:rgba(255,210,228,.35)}
+.clock-label{font-size:10px;letter-spacing:.12em;font-weight:800;color:#ded8ff}
+.clock-separator{font-size:30px;font-weight:800;color:#c7bbff;margin-top:31px}
+.launch-clock .launch-countdown{
+  color:#e8e2ff;margin:16px 0 0;font-size:11px;line-height:1.65
+}
+.launch-clock[data-phase="elapsed"]{
+  background:linear-gradient(116deg,#27334f 1%,#414e6c 100%);border-color:#6f819d
+}
+.launch-clock[data-phase="elapsed"] .clock-indicator{animation:none;background:#ffcb83}
+.launch-clock[data-phase="elapsed"] .clock-unit:last-child{background:rgba(255,255,255,.115);border-color:rgba(255,255,255,.19)}
+@media(max-width:650px){
+  .launch-clock{padding:18px 14px 17px;border-radius:17px}
+  .launch-clock-heading strong{font-size:13px}
+  .clock-live{font-size:9px}
+  .clock-grid{gap:5px;margin-top:16px}
+  .clock-unit{min-height:87px;padding:12px 1px 10px;gap:9px;border-radius:12px}
+  .clock-number{font-size:clamp(28px,7.1vw,42px)}
+  .clock-label{font-size:8px;letter-spacing:.035em}
+  .clock-separator{font-size:17px;margin-top:24px}
+}
+@media(prefers-reduced-motion:reduce){.clock-indicator{animation:none}}
