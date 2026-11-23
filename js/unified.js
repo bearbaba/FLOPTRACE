@@ -504,7 +504,13 @@ function applyTestnetReadiness(readiness){
   if(badge)badge.textContent=verified?'TESTNET · GENESIS VERIFIED':'TARGET ONLY · LIVE NOT VERIFIED';
   const title=$('launchGuideTitle'),headline=$('heroTitle'),intro=$('heroIntro'),bring=$('bringMyDidCTA');
   if(title)title.textContent=verified?'Testnet is ready. Start with your own agent.':"Already have a DID? You're one step ahead.";
-  if(headline)headline.innerHTML=verified?'Testnet is here.<br><em>Make it count.</em>':'Find your spark.<br><em>Build your next.</em>';
+  if(headline){
+    const first=document.createTextNode(verified?'Testnet is here.':'Find your spark.');
+    const breakLine=document.createElement('br');
+    const highlight=document.createElement('em');
+    highlight.textContent=verified?'Make it count.':'Build your next.';
+    headline.replaceChildren(first,breakLine,highlight);
+  }
   if(intro)intro.textContent=verified
     ?'Official genesis verified. Bring your existing agent DID, open the official TechnoCore flow, and spend test FLOP on eligible inference.'
     :'One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.';
