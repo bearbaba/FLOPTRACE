@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/devnet",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/devnet/",
+      "destination": "/index.html"
+    }
+  ]
+}
