@@ -424,3 +424,33 @@ details{color:#6a7490}summary{color:#5f4ed0;font-weight:680}
 .launch-steps li>a.link-button:hover{background:#f0edff;border-color:#9d8eeb}
 .hero-copy .home-actions>a.link-button{display:inline-flex;align-items:center;justify-content:center}
 @media(max-width:580px){.launch-steps li>a.link-button{width:100%}}
+
+
+/* Verified Testnet cutover — the UI can only reveal this after backend RPC genesis proof. */
+[hidden]{display:none!important}
+.testnet-ready-panel{
+  padding:24px 26px;margin:20px 0 0;position:relative;overflow:hidden;
+  border:1px solid #b4dece;border-radius:21px;
+  background:linear-gradient(125deg,#e6faf1 0%,#e9f5ff 62%,#f4eafd 100%);
+  box-shadow:0 12px 25px rgba(47,97,89,.065)
+}
+.ready-kicker{font-size:10px;letter-spacing:.13em;font-weight:840;color:#277761}
+.testnet-ready-panel h3{font-size:clamp(22px,2.6vw,33px);letter-spacing:-.045em;color:#1b524c;margin:12px 0}
+.testnet-ready-panel>p{font-size:13px;line-height:1.75;max-width:760px;color:#4d6473}
+.testnet-ready-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:21px 0}
+.testnet-ready-actions>a,.testnet-ready-actions>button{display:inline-flex;align-items:center;justify-content:center}
+.testnet-ready-panel .ready-genesis{border-top:1px solid #c8e4dd;padding-top:14px;margin-top:19px;font-size:11px}
+.ready-genesis code{display:block;overflow-wrap:anywhere;margin-top:5px;color:#155f55;font-size:12px;font-family:ui-monospace,Consolas,monospace}
+.testnet-ready-panel .ready-caution{font-size:11px;color:#697888;margin-top:8px}
+body.testnet-verified .launch-guide{border-color:#b9e0d4;background:#f1f9f6}
+body.testnet-verified .launch-state{background:#e4f8ef;border:1px solid #b6dcc7;color:#1b7852}
+body.testnet-verified #bringMyDidCTA{background:#fff;box-shadow:none;color:#4d42ac;border:1px solid #d2caef}
+body.testnet-verified .hero-shell{background:linear-gradient(115deg,#e4f8ef 0%,#e9f7ff 50%,#f0e7ff 100%)}
+body.testnet-verified .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.testnet-verified .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:600px){
+  .testnet-ready-panel{padding:20px 16px;border-radius:17px}
+  .testnet-ready-actions{align-items:stretch;flex-direction:column}
+  .testnet-ready-actions>a,.testnet-ready-actions>button{width:100%;min-height:44px}
+  body.testnet-verified .stats,body.testnet-verified .quick-grid{grid-template-columns:1fr}
+}
