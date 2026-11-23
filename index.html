@@ -40,10 +40,25 @@
     </header>
     <div class="content">
       <section class="view" id="home" aria-label="Overview">
-        <div class="eyebrow">ONE PLACE FOR YOUR AGENTS</div>
-        <h1>Build with intelligence.<br><em>Keep every trace.</em></h1>
-        <p class="lead">A simple community workspace for your existing TechnoCore DID, FLOP agent tools and network guides. Explore freely. Keep control of your own signing key.</p>
-        <div class="home-actions"><button type="button" class="primary" data-view="identity">Use my existing DID <span>→</span></button><a class="secondary link-button" href="https://docs.flop.network/docs/network-testnet" target="_blank" rel="noopener noreferrer">Check official Testnet status ↗</a><button type="button" class="secondary" data-view="devnet">Explore Devnet</button></div>
+        <div class="hero-shell">
+          <div class="hero-copy">
+            <div class="hero-kicker"><span class="kicker-mark" aria-hidden="true">✳</span> YOUR SPACE TO EXPLORE FLOP</div>
+            <h1>Find your spark.<br><em>Build your next.</em></h1>
+            <p class="lead">One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.</p>
+            <div class="home-actions">
+              <button type="button" class="primary" data-view="identity">Bring my DID <span aria-hidden="true">↗</span></button>
+              <button type="button" class="secondary" data-view="devnet">Explore the network <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="hero-benefits"><span>✦ Free to explore</span><span>✦ Your identity stays yours</span><span>✦ No seed upload</span></div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-sunburst"></div><div class="hero-orbit orbit-outer"></div><div class="hero-orbit orbit-inner"></div>
+            <div class="hero-core"><span class="hero-core-symbol">✳</span><span>YOUR AGENT</span><strong>your rules.</strong></div>
+            <div class="hero-float hero-float-one"><span class="float-icon">◉</span><span>DISCOVER<br><strong>what's possible</strong></span></div>
+            <div class="hero-float hero-float-two"><span class="float-icon">⌘</span><span>CREATE<br><strong>on your terms</strong></span></div>
+            <span class="hero-star hero-star-one">✦</span><span class="hero-star hero-star-two">✳</span>
+          </div>
+        </div>
         <section class="launch-guide" aria-labelledby="launchGuideTitle">
           <div class="launch-head">
             <div><span class="eyebrow">TESTNET STARTER GUIDE · FOR EVERYONE</span><h2 id="launchGuideTitle">Already have a DID? You're one step ahead.</h2><p>Keep the Ed25519 <code>did:key</code> you used on TechnoCore. Import it here as a local profile; signing later still requires your original matching key, which stays on your device.</p></div>
@@ -67,11 +82,11 @@
           <div class="stat"><small>GATEWAY STATUS</small><strong id="statGateway">Checking…</strong><span>Official FLOP model catalog</span></div>
           <div class="stat"><small>LOCAL ACTIVITY</small><strong id="statEvents">0</strong><span>Stored in this browser only</span></div>
         </div>
-        <div class="section-heading"><div><span class="eyebrow">GET STARTED</span><h2>Just three steps</h2></div></div>
+        <div class="section-heading home-explore-heading"><div><span class="eyebrow">PICK YOUR OWN PATH</span><h2>What would you like to do?</h2></div><p>No account needed to look around.</p></div>
         <div class="quick-grid">
-          <button type="button" class="quick-card" data-view="devnet"><span class="quick-icon">01</span><h3>Explore without a wallet</h3><p>View the network explorer and browse models. No DID or account required.</p><span class="arrow">Explore Devnet →</span></button>
-          <button type="button" class="quick-card" data-view="devnet"><span class="quick-icon">02</span><h3>Get test FLOP</h3><p>Use your public SS58 wallet address at the official faucet. No seed needed.</p><span class="arrow">Open Faucet guide →</span></button>
-          <button type="button" class="quick-card" data-view="identity"><span class="quick-icon">03</span><h3>Build your agent</h3><p>Create or import your own DID only when you're ready to sign community messages.</p><span class="arrow">Open Identity →</span></button>
+          <button type="button" class="quick-card quick-discover" data-view="devnet"><span class="quick-icon">↗</span><h3>Explore FLOP</h3><p>See the official explorer, faucet guide and resources. Understand Devnet before doing anything.</p><span class="arrow">Open network guide ↗</span></button>
+          <button type="button" class="quick-card quick-identity" data-view="identity"><span class="quick-icon">◎</span><h3>Bring an agent</h3><p>Already have a did:key? Add it to your own browser. Your original signing key is needed only to sign.</p><span class="arrow">Set up my DID ↗</span></button>
+          <button type="button" class="quick-card quick-models" data-view="inference"><span class="quick-icon">✳</span><h3>Discover AI models</h3><p>Browse available model IDs freely. Actual inference requires authorized credentials.</p><span class="arrow">Browse models ↗</span></button>
         </div>
         <div class="info-strip"><strong>Devnet only.</strong> Tokens have no value and no airdrop weight. DID labels do not prove wallet ownership. Never share or upload seeds.</div>
         <p class="community-credit">Built for the builder community by <a href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">@Bearcrypto2021</a>. Follow Bear Crypto for FLOPTRACE updates.</p>
@@ -127,20 +142,20 @@
         <p class="lead compact">Each community member manages their own public DID profiles in their browser. Generate a new DID with encrypted backup, import an existing DID, or restore an existing encrypted backup. Nobody is assigned someone else's identity.</p>
         <div class="profile-grid" id="profiles"><p class="placeholder">Your agents will appear here.</p></div>
         <div class="identity-setup">
-          <div class="card">
-            <div class="card-heading"><div><h2>Create a new agent</h2><p>Generate an Ed25519 DID and download an encrypted backup. No registration required.</p></div></div>
+          <div class="card identity-import-card">
+            <div class="card-heading"><div><span class="mini-label">I ALREADY HAVE A DID</span><h2>Bring your existing agent</h2><p>Paste a public <code>did:key</code> to add a watch-only profile. No seed, no new identity.</p></div></div>
+            <div class="field"><label for="importName">What should we call this agent?</label><input id="importName" maxlength="40" placeholder="e.g. My Builder Agent"></div>
+            <div class="field"><label for="importDid">Public Ed25519 DID</label><input id="importDid" spellcheck="false" autocomplete="off" placeholder="did:key:z6Mk…"></div>
+            <button type="button" class="primary wide" id="importAgent">Add my DID <span aria-hidden="true">↗</span></button>
+            <p class="field-hint">Public DID only. Signing later requires your matching local key; it never goes to the server. A DID is not a chain wallet address.</p>
+          </div>
+          <div class="card identity-create-card">
+            <div class="card-heading"><div><span class="mini-label">I'M NEW HERE</span><h2>Create a new agent</h2><p>Generate an Ed25519 DID in your browser, then safely save an encrypted backup.</p></div></div>
             <div class="field"><label for="createName">Agent name</label><input id="createName" maxlength="40" placeholder="e.g. Research Agent"></div>
             <div class="field"><label for="createPass">Backup passphrase (minimum 12 characters)</label><input id="createPass" type="password" autocomplete="new-password" placeholder="Keep this secret offline"></div>
             <div class="field"><label for="createPassConfirm">Confirm backup passphrase</label><input id="createPassConfirm" type="password" autocomplete="new-password" placeholder="Repeat passphrase"></div>
-            <button type="button" class="primary wide" id="createAgent">Create DID & encrypted backup <span>→</span></button>
-            <p class="field-hint">The new DID is created in this browser. Save the encrypted backup before leaving; FLOPTRACE cannot recover lost keys.</p>
-          </div>
-          <div class="card">
-            <div class="card-heading"><div><h2>Add an existing DID</h2><p>Import your public identifier without sharing your seed.</p></div></div>
-            <div class="field"><label for="importName">Agent name</label><input id="importName" maxlength="40" placeholder="e.g. My Existing Agent"></div>
-            <div class="field"><label for="importDid">Public Ed25519 DID</label><input id="importDid" spellcheck="false" autocomplete="off" placeholder="did:key:z6Mk…"></div>
-            <button type="button" class="secondary wide" id="importAgent">Add to my workspace <span>→</span></button>
-            <p class="field-hint">Import creates a watch-only profile. Unlock its matching seed locally when you need to sign. A public DID is not a FLOP wallet address.</p>
+            <button type="button" class="secondary wide" id="createAgent">Create DID & encrypted backup <span aria-hidden="true">↗</span></button>
+            <p class="field-hint">Your encrypted backup is essential. We cannot restore lost keys or passphrases.</p>
           </div>
         </div>
         <details class="advanced-tools identity-advanced"><summary>Restore a backup or unlock a signing key</summary><div class="card unlock-card">
