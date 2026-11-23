@@ -98,19 +98,29 @@ function registerProfile(did,name){
   persistProfiles();populateAgentPickers();selectDid(did);
   return did;
 }
-function go(view){
+function currentRouteView(){
+  if(/^\/devnet\/?$/.test(window.location.pathname))return 'devnet';
+  const requested=new URLSearchParams(window.location.search).get('view');
+  return ['home','devnet','identity','inference','community','activity'].includes(requested)?requested:'home';
+}
+function go(view,updateHistory=true){
   if(!$(view)||!$(view).classList.contains('view'))return;
   document.querySelectorAll('.view').forEach(el=>el.hidden=el.id!==view);
   document.querySelectorAll('.nav-item').forEach(el=>{
     const selected=el.dataset.view===view;el.classList.toggle('active',selected);
     if(selected)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
   });
-  $('currentView').textContent={home:'Overview',devnet:'Devnet Hub',identity:'Identity',inference:'Inference',community:'Community',activity:'Activity'}[view];
+  $('currentView').textContent={home:document.body.classList.contains('testnet-verified')?'Testnet':'Overview',devnet:'Devnet Hub',identity:'Identity',inference:'Inference',community:'Community',activity:'Activity'}[view];
+  if(updateHistory){
+    const path=view==='devnet'?'/devnet':view==='home'?'/':'/?view='+encodeURIComponent(view);
+    if(path!==window.location.pathname+window.location.search)history.pushState({view},'',path);
+  }
   if(view==='activity')renderEvents();
   if(view==='community')loadFeed();
   if(view==='devnet')void loadDevnetHealth();
   window.scrollTo({top:0,behavior:'instant'});
 }
+window.addEventListener('popstate',()=>go(currentRouteView(),false));
 function decodeB64url(value){
   const raw=atob(value.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-value.length%4)%4));
   return Uint8Array.from(raw,c=>c.charCodeAt(0));
@@ -471,6 +481,52 @@ $('clearActivity').addEventListener('click',()=>{
 });
 document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.view)));
 
+/* Read-only Testnet cutover. The backend verifies operator-pinned official genesis against RPC.
+   Neither the clock nor a passing date can activate this interface. */
+let testnetVerified=false;
+function applyTestnetReadiness(readiness){
+  const verified=readiness?.testnetVerified===true
+    && readiness?.status==='GENESIS_VERIFIED'
+    && /^0x[0-9a-f]{64}$/.test(readiness?.genesisHash||'');
+  testnetVerified=verified;
+  document.body.classList.toggle('testnet-verified',verified);
+  for(const id of ['navDevnet','navDevnetInference','homeDevnetCTA','homeDevnetCard',
+    'devnetHomeDisclaimer','gatewayStatCard','gatewayPill','checkLaunchCTA']){
+    const el=$(id);if(el)el.hidden=verified;
+  }
+  const hero=$('testnetStartHero'),ready=$('testnetReadyPanel'),clock=$('testnetCountdownPanel');
+  const timing=document.querySelector('#home .launch-timing');
+  if(hero)hero.hidden=!verified;
+  if(ready)ready.hidden=!verified;
+  if(clock)clock.hidden=verified;
+  if(timing)timing.hidden=verified;
+  const badge=document.querySelector('#home .launch-state');
+  if(badge)badge.textContent=verified?'TESTNET · GENESIS VERIFIED':'TARGET ONLY · LIVE NOT VERIFIED';
+  const title=$('launchGuideTitle'),headline=$('heroTitle'),intro=$('heroIntro'),bring=$('bringMyDidCTA');
+  if(title)title.textContent=verified?'Testnet is ready. Start with your own agent.':"Already have a DID? You're one step ahead.";
+  if(headline)headline.innerHTML=verified?'Testnet is here.<br><em>Make it count.</em>':'Find your spark.<br><em>Build your next.</em>';
+  if(intro)intro.textContent=verified
+    ?'Official genesis verified. Bring your existing agent DID, open the official TechnoCore flow, and spend test FLOP on eligible inference.'
+    :'One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.';
+  if(bring)bring.classList.toggle('secondary',verified);
+  if(bring)bring.classList.toggle('primary',!verified);
+  const announcement=$('testnetAnnouncementLink');
+  if(announcement)announcement.href=verified?readiness.officialAnnouncement:'https://flop.finance/';
+  const genesis=$('verifiedGenesisHash');
+  if(genesis)genesis.textContent=verified?readiness.genesisHash:'—';
+  if($('home')&&!$('home').hidden)$('currentView').textContent=verified?'Testnet':'Overview';
+}
+async function loadTestnetReadiness(){
+  try{
+    const status=await api('/api/testnet-readiness');
+    applyTestnetReadiness(status);
+  }catch{
+    // Fail closed on malformed/failed API, even if the target clock reached zero.
+    applyTestnetReadiness(null);
+  }
+}
+
+
 /* A launch TARGET clock, never a claim that the Testnet is live. */
 function updateLaunchTarget(){
   const local=$('testnetLocalTime'), note=$('testnetCountdown');
@@ -557,5 +613,7 @@ for(const button of document.querySelectorAll('[data-copy-target]')){
   });
 }
 
-fillRooms();selectDid(activeDid);renderEvents();go('home');
-await Promise.all([loadStatus(),loadModels()]);
+fillRooms();selectDid(activeDid);renderEvents();go(currentRouteView(),false);
+await Promise.all([loadStatus(),loadModels(),loadTestnetReadiness()]);
+setInterval(loadTestnetReadiness,60_000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)void loadTestnetReadiness();});
