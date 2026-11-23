@@ -42,8 +42,26 @@
       <section class="view" id="home" aria-label="Overview">
         <div class="eyebrow">ONE PLACE FOR YOUR AGENTS</div>
         <h1>Build with intelligence.<br><em>Keep every trace.</em></h1>
-        <p class="lead">Start exploring FLOP Devnet in seconds. Find the official faucet, browse AI models and create your own agent when you need one. No account or seed required to get started.</p>
-        <div class="home-actions"><button type="button" class="primary" data-view="devnet">Explore Devnet <span>→</span></button><button type="button" class="secondary" data-view="inference">Browse AI models</button></div>
+        <p class="lead">A simple community workspace for your existing TechnoCore DID, FLOP agent tools and network guides. Explore freely. Keep control of your own signing key.</p>
+        <div class="home-actions"><button type="button" class="primary" data-view="identity">Use my existing DID <span>→</span></button><a class="secondary link-button" href="https://docs.flop.network/docs/network-testnet" target="_blank" rel="noopener noreferrer">Check official Testnet status ↗</a><button type="button" class="secondary" data-view="devnet">Explore Devnet</button></div>
+        <section class="launch-guide" aria-labelledby="launchGuideTitle">
+          <div class="launch-head">
+            <div><span class="eyebrow">TESTNET STARTER GUIDE · FOR EVERYONE</span><h2 id="launchGuideTitle">Already have a DID? You're one step ahead.</h2><p>Keep the Ed25519 <code>did:key</code> you used on TechnoCore. Import it here as a local profile; signing later still requires your original matching key, which stays on your device.</p></div>
+            <span class="launch-state">TARGET ONLY · LIVE NOT VERIFIED</span>
+          </div>
+          <div class="launch-timing">
+            <div><small>ANNOUNCED TARGET · UTC</small><strong><time datetime="2026-11-24T07:00:00Z">24 Nov 2026 · 07:00 UTC</time></strong></div>
+            <div><small>YOUR LOCAL TIME</small><strong id="testnetLocalTime">24 Nov 2026 · 07:00 UTC</strong></div>
+          </div>
+          <p id="testnetCountdown" class="launch-countdown" role="status" aria-live="off">Launch target is not confirmation that Testnet is open.</p>
+          <ol class="launch-steps">
+            <li><strong>1 · Bring your DID</strong><span>Use Identity → Add an existing DID. No new DID or seed upload is needed to import a public identity.</span></li>
+            <li><strong>2 · Verify Testnet is live</strong><span>Use the official status page. Do not mistake Devnet activity or faucet health for Testnet launch.</span></li>
+            <li><strong>3 · Follow official onboarding</strong><span>When Testnet is confirmed open, obtain the required faucet funds and submit eligible, signed inference. DID creation alone earns nothing.</span></li>
+          </ol>
+          <div class="launch-actions"><button type="button" class="primary" data-view="identity">Import my DID →</button><a class="secondary link-button" href="https://docs.flop.network/docs/network-testnet" target="_blank" rel="noopener noreferrer">Verify Testnet status ↗</a><a class="text-link" href="https://docs.flop.network/docs/testnet-and-timeline" target="_blank" rel="noopener noreferrer">Official participation rules ↗</a></div>
+          <p class="launch-safety"><strong>Know the difference:</strong> A <code>did:key</code> is an agent identity, not an SS58 wallet address. Devnet tokens and activity carry no airdrop weight; Testnet rewards require eligible verified inference after launch. This site cannot claim rewards, enroll you, move funds or confirm on-chain settlement. Never submit a seed or private key to a claim page.</p>
+        </section>
         <div class="stats">
           <div class="stat"><small>YOUR LOCAL AGENTS</small><strong id="statAgents">0</strong><span>Create or import your own identity</span></div>
           <div class="stat"><small>GATEWAY STATUS</small><strong id="statGateway">Checking…</strong><span>Official FLOP model catalog</span></div>
@@ -60,8 +78,9 @@
       </section>
       <section class="view" id="devnet" hidden aria-label="FLOP Devnet Hub">
         <div class="eyebrow">FLOP / PUBLIC DEVNET / BUILDER RESOURCES</div>
-        <h1 class="page-title">Get started on FLOP</h1>
-        <p class="lead compact">Browse the network first. Use the official faucet when you have a public SS58 address. Build an agent only when you need to sign — no extra setup for exploring.</p>
+        <h1 class="page-title">Practice on FLOP Devnet</h1>
+        <p class="lead compact">Devnet is a place to practise, NOT the reward-bearing Testnet. Browse network data for free; request Devnet test tokens using a public SS58 wallet address, never a DID.</p>
+        <div class="devnet-testnet-link"><div><strong>Looking for the Testnet airdrop?</strong><p>Testnet launch must be verified independently. This Devnet faucet and all Devnet activity have zero airdrop weight.</p></div><a class="secondary link-button" href="https://docs.flop.network/docs/network-testnet" target="_blank" rel="noopener noreferrer">Official Testnet status ↗</a></div>
         <div class="devnet-banner"><span class="network"><span class="pulse"></span> PUBLIC DEVNET</span><span>No rewards · No airdrop weight · Chain may reset</span><a href="https://flop.finance/official/" target="_blank" rel="noopener noreferrer">Verify official links ↗</a></div>
         <div class="section-heading"><div><span class="eyebrow">GET STARTED</span><h2>Three straightforward steps</h2></div></div>
         <div class="devnet-steps">
