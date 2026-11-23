@@ -73,3 +73,26 @@ test('no public inference when owner has not enabled private access',async()=>{
     assert.equal(response.code,503);
   });
 });
+
+test('Testnet launch guide is explicit, timezone-safe and never claims live status',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
+  const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
+  assert.match(html,/id="launchGuideTitle"/);
+  assert.match(html,/id="testnetLocalTime"/);
+  assert.match(html,/id="testnetCountdown"/);
+  assert.match(html,/2026-11-24T07:00:00Z/);
+  assert.match(html,/TARGET ONLY · LIVE NOT VERIFIED/);
+  assert.match(html,/https:\/\/docs\.flop\.network\/docs\/network-testnet/);
+  assert.match(html,/Import my DID/);
+  assert.match(html,/Devnet tokens and activity carry no airdrop weight/);
+  assert.match(html,/DID creation alone earns nothing/);
+  assert.match(html,/A <code>did:key<\/code> is an agent identity, not an SS58 wallet address/);
+  assert.match(js,/new Date\('2026-11-24T07:00:00Z'\)/);
+  assert.match(js,/Intl\.DateTimeFormat/);
+  assert.match(js,/NOT proof Testnet is live/);
+  assert.match(css,/\.launch-guide\{/);
+  assert.match(css,/@media\(max-width:610px\)/);
+  assert.doesNotMatch(html,/did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG/);
+  assert.doesNotMatch(html,/did:key:z6MktbDb2dVYvfm2C8koCMxvREpyCRDD1zFPzGgEdJQ1M2AR/);
+});

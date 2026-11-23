@@ -469,6 +469,30 @@ $('clearActivity').addEventListener('click',()=>{
   message('postFeedback','Selected agent activity cleared from this browser.');
 });
 document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.view)));
+
+/* A launch TARGET clock, never a claim that the Testnet is live. */
+function updateLaunchTarget(){
+  const local=$('testnetLocalTime'),note=$('testnetCountdown');
+  if(!local||!note)return;
+  const target=new Date('2026-11-24T07:00:00Z');
+  local.textContent=new Intl.DateTimeFormat(undefined,{
+    year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'
+  }).format(target);
+  const minutes=Math.ceil((target.getTime()-Date.now())/60_000);
+  if(minutes<=0){
+    note.textContent='The announced target time has passed. This is NOT proof Testnet is live — check the official network status before acting.';
+    return;
+  }
+  const days=Math.floor(minutes/1440),hours=Math.floor((minutes%1440)/60),mins=minutes%60;
+  const parts=[];
+  if(days)parts.push(days+'d');
+  if(hours)parts.push(hours+'h');
+  if(mins||!parts.length)parts.push(mins+'m');
+  note.textContent='Target in '+parts.join(' ')+' (approximate). Only the official network status can confirm Testnet is live.';
+}
+updateLaunchTarget();
+setInterval(updateLaunchTarget,60_000);
+
 for(const id of ['inferDid','postDid']){
   $(id).addEventListener('change',()=>selectDid($(id).value));
 }

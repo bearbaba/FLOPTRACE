@@ -57,7 +57,7 @@ test('diagnostics fail safely without claiming Faucet is ready',async()=>{
 test('the page gives beginners simple actions and collapses advanced controls',async()=>{
   const page=await readFile(new URL('../index.html',import.meta.url),'utf8');
   const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
-  for(const line of ['Explore without a wallet','Get test FLOP','Build your agent','Developer tools, API, MCP & SDK','Grants not verified','id="faucetService"','id="faucetIndexer"','id="refreshFaucet"'])
+  for(const line of ['Explore FLOP','Bring an agent','Discover AI models','Developer tools, API, MCP & SDK','Grants not verified','id="faucetService"','id="faucetIndexer"','id="refreshFaucet"'])
     assert.ok(page.includes(line),line);
   assert.match(page,/advanced-tools identity-advanced/);
   assert.match(js,/validateSs58\(address\)/);
