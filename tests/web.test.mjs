@@ -81,6 +81,12 @@ test('Testnet launch guide is explicit, timezone-safe and never claims live stat
   assert.match(html,/id="launchGuideTitle"/);
   assert.match(html,/id="testnetLocalTime"/);
   assert.match(html,/id="testnetCountdown"/);
+  for(const id of ['testnetCountdownPanel','testnetCountdownClock','clockDays','clockHours','clockMinutes','clockSeconds']){
+    assert.match(html,new RegExp('id="'+id+'"'));
+  }
+  assert.match(html,/role="timer"/);
+  assert.match(html,/aria-live="off"/);
+  assert.match(js,/setInterval\(updateLaunchTarget,1000\)/);
   assert.match(html,/2026-11-24T07:00:00Z/);
   assert.match(html,/TARGET ONLY · LIVE NOT VERIFIED/);
   assert.match(html,/https:\/\/docs\.flop\.network\/docs\/network-testnet/);
@@ -88,9 +94,9 @@ test('Testnet launch guide is explicit, timezone-safe and never claims live stat
   assert.match(html,/Devnet tokens and activity carry no airdrop weight/);
   assert.match(html,/DID creation alone earns nothing/);
   assert.match(html,/A <code>did:key<\/code> is an agent identity, not an SS58 wallet address/);
-  assert.match(js,/new Date\('2026-11-24T07:00:00Z'\)/);
+  assert.match(js,/new Date\(LAUNCH_UTC\)/);
   assert.match(js,/Intl\.DateTimeFormat/);
-  assert.match(js,/NOT proof Testnet is live/);
+  assert.match(js,/Await official confirmation that Testnet is live/);
   assert.match(css,/\.launch-guide\{/);
   assert.match(css,/@media\(max-width:610px\)/);
   assert.doesNotMatch(html,/did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG/);
