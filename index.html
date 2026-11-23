@@ -69,7 +69,20 @@
             <div><small>ANNOUNCED TARGET · UTC</small><strong><time datetime="2026-11-24T07:00:00Z">24 Nov 2026 · 07:00 UTC</time></strong></div>
             <div><small>YOUR LOCAL TIME</small><strong id="testnetLocalTime">24 Nov 2026 · 07:00 UTC</strong></div>
           </div>
-          <p id="testnetCountdown" class="launch-countdown" role="status" aria-live="off">Launch target is not confirmation that Testnet is open.</p>
+          <div class="launch-clock" id="testnetCountdownPanel" data-phase="counting">
+            <div class="launch-clock-heading"><strong>Countdown to the announced target</strong><span class="clock-live"><span aria-hidden="true" class="clock-indicator"></span> LIVE CLOCK</span></div>
+            <div class="clock-grid" id="testnetCountdownClock" role="timer" aria-label="Time remaining until the announced FLOP Testnet start" aria-live="off">
+              <div class="clock-unit"><span id="clockDays" class="clock-number">--</span><span class="clock-label">DAYS</span></div>
+              <span class="clock-separator" aria-hidden="true">:</span>
+              <div class="clock-unit"><span id="clockHours" class="clock-number">--</span><span class="clock-label">HOURS</span></div>
+              <span class="clock-separator" aria-hidden="true">:</span>
+              <div class="clock-unit"><span id="clockMinutes" class="clock-number">--</span><span class="clock-label">MINUTES</span></div>
+              <span class="clock-separator" aria-hidden="true">:</span>
+              <div class="clock-unit"><span id="clockSeconds" class="clock-number">--</span><span class="clock-label">SECONDS</span></div>
+            </div>
+            <p id="testnetCountdown" class="launch-countdown" role="status" aria-live="polite">This clock shows a planned launch time — not confirmation that Testnet is live.</p>
+            <noscript><p class="launch-countdown">Enable JavaScript to see the live countdown. The announced target is 24 Nov 2026, 07:00 UTC.</p></noscript>
+          </div>
           <ol class="launch-steps">
             <li><strong>1 · Bring your DID</strong><span>Use Identity → Add an existing DID. No new DID or seed upload is needed to import a public identity.</span></li>
             <li><strong>2 · Verify Testnet is live</strong><span>Use the official status page. Do not mistake Devnet activity or faucet health for Testnet launch.</span></li>
