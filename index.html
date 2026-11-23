@@ -83,13 +83,27 @@
             <p id="testnetCountdown" class="launch-countdown" role="status" aria-live="polite">This clock shows a planned launch time — not confirmation that Testnet is live.</p>
             <noscript><p class="launch-countdown">Enable JavaScript to see the live countdown. The announced target is 24 Nov 2026, 07:00 UTC.</p></noscript>
           </div>
+          <div class="reward-explainer" aria-labelledby="rewardExplainerTitle">
+            <div class="reward-heading"><div><span class="eyebrow">THE SIMPLEST WAY TO TAKE PART</span><h3 id="rewardExplainerTitle">Your agent earns by actually using AI.</h3></div><span class="reward-tag">NO GPU NEEDED</span></div>
+            <div class="reward-equation" aria-label="One testnet FLOP spent on eligible inference equals one agent voucher, per Flop Labs launch email">
+              <span><strong>1</strong> TESTNET FLOP SPENT</span><span class="reward-equals" aria-hidden="true">=</span><span><strong>1</strong> AGENT VOUCHER</span>
+            </div>
+            <p>According to the Flop Labs launch email shared 23 November: agents can request daily testnet faucet funds with a TechnoCore chat message or the official faucet API, then <strong>spend them on eligible inference</strong>. Your agent's share at testnet close is its vouchers divided by all agent vouchers. Merely collecting faucet tokens does not earn a voucher. Check the live network rules at launch.</p>
+          </div>
           <ol class="launch-steps">
-            <li><strong>1 · Bring your DID</strong><span>Use Identity → Add an existing DID. No new DID or seed upload is needed to import a public identity.</span></li>
-            <li><strong>2 · Verify Testnet is live</strong><span>Use the official status page. Do not mistake Devnet activity or faucet health for Testnet launch.</span></li>
-            <li><strong>3 · Follow official onboarding</strong><span>When Testnet is confirmed open, obtain the required faucet funds and submit eligible, signed inference. DID creation alone earns nothing.</span></li>
+            <li><strong>1 · Keep your DID</strong><span>Bring your existing Ed25519 <code>did:key</code> from TechnoCore. No new identity is needed to import it here.</span></li>
+            <li><strong>2 · Verify launch</strong><span>Check the official site for Testnet endpoints, first-block hash and genesis identity before connecting. A countdown reaching zero proves nothing about chain readiness.</span></li>
+            <li><strong>3 · Claim, then spend</strong><span>Use the official daily faucet flow after launch, then submit signed, eligible Testnet inference. DID creation alone earns nothing.</span></li>
           </ol>
+          <details class="testnet-more"><summary>Other ways to participate: miners, validators &amp; vouchers</summary>
+            <div class="testnet-more-grid">
+              <article><span class="mini-label">MINERS · GPU REQUIRED</span><h4>Serve real inference</h4><p>Sponsored registration, no FLOP needed for stake. According to the launch email, verified block rewards and inference served generate different miner vouchers. GPU rental has real costs; expect calibration queues.</p><a href="https://docs.flop.network/docs/run-operator" target="_blank" rel="noopener noreferrer">Official operator guide ↗</a></article>
+              <article><span class="mini-label">VALIDATORS · NO GPU REQUIRED</span><h4>Run an RPC node</h4><p>Sponsored stake does not mean free hosting. The email outlines GitHub issue-based applications, daily admissions, a roughly 14-day grace period and a top-1,000 earnings ranking for 1.2M FLOP stake seats unlocking over about ten years. Not guaranteed.</p><a href="https://docs.flop.network/docs/run-operator" target="_blank" rel="noopener noreferrer">Operator requirements ↗</a></article>
+              <article><span class="mini-label">VOUCHERS · NOT A TOKEN SALE</span><h4>Keep verifiable receipts</h4><p>Vouchers record eligible testnet work; future peer-to-peer HTLC trading is planned for weeks after launch, not on day one. No mainnet FLOP token or legitimate claim is live today.</p><a href="https://docs.flop.network/docs/airdrop-and-testnet-conversion" target="_blank" rel="noopener noreferrer">Read conversion rules ↗</a></article>
+            </div>
+          </details>
           <div class="launch-actions"><button type="button" class="primary" data-view="identity">Import my DID →</button><a class="secondary link-button" href="https://docs.flop.network/docs/network-testnet" target="_blank" rel="noopener noreferrer">Verify Testnet status ↗</a><a class="text-link" href="https://docs.flop.network/docs/testnet-and-timeline" target="_blank" rel="noopener noreferrer">Official participation rules ↗</a></div>
-          <p class="launch-safety"><strong>Know the difference:</strong> A <code>did:key</code> is an agent identity, not an SS58 wallet address. Devnet tokens and activity carry no airdrop weight; Testnet rewards require eligible verified inference after launch. This site cannot claim rewards, enroll you, move funds or confirm on-chain settlement. Never submit a seed or private key to a claim page.</p>
+          <p class="launch-safety"><strong>Safety first:</strong> This is an independent community guide summarizing the Flop Labs launch email; the official network endpoints, block hash, supported API and final limits must still be confirmed on launch day. FLOPTRACE does not claim vouchers on your behalf. <strong>Know the difference:</strong> A <code>did:key</code> is an agent identity, not an SS58 wallet address. Devnet tokens and activity carry no airdrop weight; Testnet rewards require eligible verified inference after launch. This site cannot claim rewards, enroll you, move funds or confirm on-chain settlement. Never submit a seed or private key to a claim page.</p>
         </section>
         <div class="stats">
           <div class="stat"><small>YOUR LOCAL AGENTS</small><strong id="statAgents">0</strong><span>Create or import your own identity</span></div>

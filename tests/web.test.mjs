@@ -119,3 +119,29 @@ test('UTC countdown calculates days, hours, minutes and seconds correctly across
   assert.equal(getLaunchCountdown(target+60000,target).totalSeconds,0);
   assert.throws(()=>getLaunchCountdown(NaN,target),/finite timestamps/);
 });
+
+test('launch email voucher guidance is visible without promising automatic claims',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
+  for(const phrase of [
+    'Your agent earns by actually using AI.',
+    '1</strong> TESTNET FLOP SPENT',
+    '1</strong> AGENT VOUCHER',
+    'daily testnet faucet funds',
+    'eligible inference',
+    'DID creation alone earns nothing.',
+    '14-day grace period',
+    '1.2M FLOP stake seats',
+    'No mainnet FLOP token or legitimate claim is live today.',
+    'does not claim vouchers on your behalf'
+  ]){
+    assert.ok(html.includes(phrase),phrase);
+  }
+  assert.match(html,/<details class="testnet-more">/);
+  assert.match(html,/MINERS · GPU REQUIRED/);
+  assert.match(html,/VALIDATORS · NO GPU REQUIRED/);
+  assert.match(css,/\.reward-explainer\{/);
+  assert.match(css,/\.testnet-more-grid\{/);
+  assert.match(html,/href="https:\/\/docs\.flop\.network\/docs\/network-testnet"/);
+  assert.doesNotMatch(html,/did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG/);
+});

@@ -377,3 +377,38 @@ details{color:#6a7490}summary{color:#5f4ed0;font-weight:680}
   .clock-separator{font-size:17px;margin-top:24px}
 }
 @media(prefers-reduced-motion:reduce){.clock-indicator{animation:none}}
+
+
+/* Testnet participant guide — simple Agent flow, progressive disclosure for operators. */
+.reward-explainer{
+  margin-top:20px;padding:23px 24px;border-radius:21px;
+  background:linear-gradient(120deg,#e7f8f2 0%,#ecf7ff 65%,#f5ecff 100%);
+  border:1px solid #d4e8e4;color:#253955
+}
+.reward-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.reward-heading h3{font-size:clamp(20px,2.4vw,27px);letter-spacing:-.045em;line-height:1.2;margin:8px 0 0;color:#243653}
+.reward-tag{font-size:10px;font-weight:840;letter-spacing:.075em;color:#216755;border:1px solid #add9c8;padding:8px 10px;border-radius:99px;background:#fff}
+.reward-equation{display:flex;align-items:stretch;gap:12px;margin-top:20px;max-width:670px}
+.reward-equation>span:not(.reward-equals){display:flex;align-items:center;justify-content:center;gap:9px;flex:1;padding:13px 17px;background:#fff;border-radius:14px;box-shadow:0 4px 14px rgba(46,104,100,.055);font-size:12px;font-weight:820;letter-spacing:.025em;color:#38546a}
+.reward-equation strong{font-size:30px;line-height:1;color:#236d61;letter-spacing:-.055em}
+.reward-equals{align-self:center;font-size:25px;color:#3d7d77;font-weight:840}
+.reward-explainer>p{font-size:12px;color:#516b74;line-height:1.8;margin:18px 0 0;max-width:900px}
+.reward-explainer>p strong{color:#285f54}
+.launch-steps code{color:#6855ce}
+.testnet-more{border:1px solid #e2e7f2;background:#fff;border-radius:17px;margin:20px 0 22px;padding:0 19px}
+.testnet-more>summary{font-size:13px;font-weight:760;color:#5746bb;line-height:1.6;padding:17px 3px;cursor:pointer}
+.testnet-more[open]{padding-bottom:17px}
+.testnet-more-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.testnet-more-grid article{padding:17px;background:#f8f9ff;border:1px solid #e6e9f4;border-radius:14px;display:flex;flex-direction:column;gap:9px;min-width:0}
+.testnet-more-grid h4{font-size:15px;color:#263257;letter-spacing:-.025em;margin:0}
+.testnet-more-grid p{font-size:12px;line-height:1.7;color:#5f6b86;margin:0;flex:1}
+.testnet-more-grid a{font-size:12px;font-weight:760;color:#5c4ac4;margin-top:9px}
+@media(max-width:860px){.testnet-more-grid{grid-template-columns:1fr}.reward-equation>span:not(.reward-equals){font-size:11px}}
+@media(max-width:560px){
+  .reward-explainer{padding:18px 16px;border-radius:17px}
+  .reward-equation{gap:7px}
+  .reward-equation>span:not(.reward-equals){flex-direction:column;gap:4px;text-align:center;padding:12px 8px;font-size:10px;line-height:1.45}
+  .reward-equation strong{font-size:26px}
+  .reward-equals{font-size:18px}
+  .testnet-more{padding:0 13px}
+}
