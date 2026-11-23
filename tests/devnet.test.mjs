@@ -10,7 +10,8 @@ test('one unified public app contains discoverable Devnet Hub', async()=>{
   const page = await html();
   assert.match(page,/id="devnet"/);
   assert.match(page,/data-view="devnet"/);
-  assert.match(page,/Explore Devnet/);
+  assert.match(page,/Explore FLOP/);
+  assert.match(page,/Practice on FLOP Devnet/);
   assert.match(page,/PUBLIC DEVNET/);
   assert.match(page,/No rewards · No airdrop weight/);
   assert.match(page,/did:key/);
