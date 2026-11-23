@@ -189,7 +189,7 @@ a{color:inherit}a:hover{color:#5947d1}
 .quick-card p{font-size:12px;color:#596682;line-height:1.72}
 .quick-card .arrow{font-size:12px;color:#4c3cba;padding-top:24px}
 .quick-identity .arrow{color:#b14d5f}.quick-models .arrow{color:#25705e}
-.launch-guide{margin:25px 0 0;border-radius:25px;padding:27px 30px;border:1px solid #e1e5f2;background:#fff;box-shadow:0 10px 29px rgba(62,55,117,.055)}
+.launch-guide{margin:25px 0 0;border-radius:25px;padding:27px 30px;border:1px solid #e1e5f2;background:#F4F5FA;box-shadow:0 10px 29px rgba(62,55,117,.055)}
 .launch-head h2{color:#242c52;letter-spacing:-.045em;font-size:clamp(21px,2.4vw,29px);margin:9px 0}
 .launch-head p{color:#69738e;font-size:12px;max-width:750px}
 .launch-head code,.launch-safety code{color:#5744c2}
