@@ -145,3 +145,20 @@ test('launch email voucher guidance is visible without promising automatic claim
   assert.match(html,/href="https:\/\/docs\.flop\.network\/docs\/network-testnet"/);
   assert.doesNotMatch(html,/did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG/);
 });
+
+test('home onboarding distinguishes Devnet from the official Testnet launch',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
+  const hero=html.split('<div class="home-actions">')[1]?.split('</div>')[0] || '';
+  const claim=html.split('<strong>3 · Claim, then spend</strong>')[1]?.split('</li>')[0] || '';
+  assert.match(hero,/Bring my DID/);
+  assert.match(hero,/Check Testnet launch/);
+  assert.match(hero,/Explore Devnet/);
+  assert.doesNotMatch(hero,/Explore the network/);
+  assert.match(hero,/href="https:\/\/flop\.finance\/"/);
+  assert.match(claim,/Xem thông báo mở mạng/);
+  assert.match(claim,/href="https:\/\/flop\.finance\/"/);
+  assert.match(claim,/rel="noopener noreferrer"/);
+  assert.match(css,/\.launch-steps li>a\.link-button/);
+  assert.match(html,/TARGET ONLY · LIVE NOT VERIFIED/);
+});

@@ -412,3 +412,15 @@ details{color:#6a7490}summary{color:#5f4ed0;font-weight:680}
   .reward-equals{font-size:18px}
   .testnet-more{padding:0 13px}
 }
+
+
+/* Launch CTAs: make the official action obvious without confusing Devnet links. */
+.launch-steps li>a.link-button{
+  display:inline-flex;align-items:center;justify-content:center;min-height:40px;
+  margin-top:16px;padding:10px 13px;font-size:11px;line-height:1.4;
+  background:#fff;border:1px solid #cfc7f4;color:#5440bb;
+  border-radius:11px;white-space:normal;text-align:center
+}
+.launch-steps li>a.link-button:hover{background:#f0edff;border-color:#9d8eeb}
+.hero-copy .home-actions>a.link-button{display:inline-flex;align-items:center;justify-content:center}
+@media(max-width:580px){.launch-steps li>a.link-button{width:100%}}
