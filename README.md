@@ -87,3 +87,24 @@ FLOPTRACE checks the **SS58 checksum locally** when someone copies a public addr
 The read-only /api/devnet-health function fetches public GET endpoints from faucet.flop.network/health and explorer.devnet.flop.network/api/health, with short-lived edge caching. It always marks **grant availability NOT_VERIFIED**, even when service/indexer diagnostics are green. There are credible reports of /fund returning 503 during normal /health responses: https://github.com/flop-labs/network/issues/22 . This function does not attempt funds, spend tokens, process wallet secrets or repeatedly poll the faucet. Users use the official faucet themselves and verify resulting transactions on the official explorer.
 
 Automated checks cover diagnostics, checksum and onboarding copy. Live grants, transaction confirmation and stress testing remain unverified.
+
+
+## Verified Testnet cutover (prepared, intentionally OFF until official genesis)
+
+FLOPTRACE keeps its existing community homepage and Testnet target countdown until the network's **first-block hash and endpoints are officially published, independently reviewed, and matched against a live RPC response**. The target time passing alone never activates Testnet. The source of truth is the official [FLOP announcement](https://flop.finance/) and [Testnet network identity](https://docs.flop.network/docs/network-testnet).
+
+The new public GET `/api/testnet-readiness` endpoint checks all of these private operator-side settings:
+
+- `FLOPTRACE_TESTNET_RELEASE_VERIFIED=1` — manually approved only after reviewing official network release, chain spec and first-block announcement. NEVER set this early just because the clock reaches zero.
+- `FLOPTRACE_TESTNET_ANNOUNCEMENT_URL` — the reviewed primary official `https://flop.finance/...` or `https://docs.flop.network/...` release/announcement page.
+- `FLOPTRACE_TESTNET_EXPECTED_GENESIS` — the 66-character `0x`-prefixed **official** block-0 hash, pinned independently of the RPC.
+- `FLOPTRACE_TESTNET_RPC_URL` — the officially published, public `https://` HTTP JSON-RPC or `wss://` WebSocket RPC endpoint (not Devnet).
+
+For each check, the server sends `chain_getBlockHash` with block number `0`, accepts only a valid 32-byte hash and requires an exact match to the independently pinned official value. Missing config, RPC failure, a different hash, Devnet's known hash or Devnet RPC all leave the cutover **OFF**. The API is read-only, does not accept user-provided RPC endpoints or hashes, and does not hold seeds or wallet credentials. Vercel caches public status briefly; the browser checks about once per minute. After configuring these settings, redeploy and verify `/api/testnet-readiness` returns `testnetVerified: true`. Confirm the public homepage has changed and **check both routes**.
+
+When verified, the homepage defaults to Testnet, displays the checked genesis hash, hides Devnet links/cards/menu and replaces the clock with **Bắt đầu trên Testnet**, opening the officially documented [TechnoCore](https://technocore.chat/). While in-site Testnet inference, faucet and voucher verification are not implemented, the CTA must not claim those features work in FLOPTRACE.
+
+Existing Devnet tools are still available at **[/devnet](https://flops-murex.vercel.app/devnet)**. The route is a Vercel rewrite to the existing client-side `devnet` view, preserving the same functionality and avoiding a second copy of the application. Back/forward navigation and `?view=devnet` legacy deep links remain supported.
+
+**Release safety checklist:** verify FLOP-issued first-block hash separately from the selected RPC; check the supported release and operator announcement; ensure official TechnoCore can serve the announced Testnet; set environment only after approval; check status endpoint, frontend, /devnet archive and browser console; never paste private keys or auto-spend on the community website. If only WebSocket RPC is available the API uses secure `wss://`. Neither a successful JSON-RPC read nor a browser DID by itself proves a settled inference or earned voucher.
+
