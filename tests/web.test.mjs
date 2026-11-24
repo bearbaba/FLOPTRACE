@@ -91,7 +91,7 @@ test('Testnet launch guide is explicit, timezone-safe and never claims live stat
   assert.match(html,/aria-live="off"/);
   assert.match(js,/setInterval\(updateLaunchTarget,1000\)/);
   assert.match(html,/2026-11-24T07:00:00Z/);
-  assert.match(html,/TARGET ONLY · LIVE NOT VERIFIED/);
+  assert.match(html,/EARLY TESTNET ANNOUNCED · RPC CHECK PENDING/);
   assert.match(html,/https:\/\/docs\.flop\.network\/docs\/network-testnet/);
   assert.match(html,/Import my DID/);
   assert.match(html,/Devnet tokens and activity carry no airdrop weight/);
@@ -99,7 +99,7 @@ test('Testnet launch guide is explicit, timezone-safe and never claims live stat
   assert.match(html,/A <code>did:key<\/code> is an agent identity, not an SS58 wallet address/);
   assert.match(js,/new Date\(LAUNCH_UTC\)/);
   assert.match(js,/Intl\.DateTimeFormat/);
-  assert.match(js,/Await official confirmation that Testnet is live/);
+  assert.match(js,/FLOP has announced an early, unscored Testnet opening/);
   assert.match(css,/\.launch-guide\{/);
   assert.match(css,/@media\(max-width:610px\)/);
   assert.doesNotMatch(html,/did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG/);
@@ -126,7 +126,7 @@ test('launch email voucher guidance is visible without promising automatic claim
   const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
   const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
   for(const phrase of [
-    'Your agent earns by actually using AI.',
+    'How your agent earns after activation.',
     '1</strong> TESTNET FLOP SPENT',
     '1</strong> AGENT VOUCHER',
     'daily testnet faucet funds',
@@ -152,7 +152,7 @@ test('home onboarding distinguishes Devnet from the official Testnet launch',asy
   const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
   const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
   const hero=html.split('<div class="home-actions">')[1]?.split('</div>')[0] || '';
-  const claim=html.split('<strong>3 · Claim, then spend</strong>')[1]?.split('</li>')[0] || '';
+  const claim=html.split('<strong>3 · Claim, then spend (later)</strong>')[1]?.split('</li>')[0] || '';
   assert.match(hero,/Bring my DID/);
   assert.match(hero,/Check Testnet launch/);
   assert.match(hero,/Explore Devnet/);
@@ -162,7 +162,7 @@ test('home onboarding distinguishes Devnet from the official Testnet launch',asy
   assert.match(claim,/href="https:\/\/flop\.finance\/"/);
   assert.match(claim,/rel="noopener noreferrer"/);
   assert.match(css,/\.launch-steps li>a\.link-button/);
-  assert.match(html,/TARGET ONLY · LIVE NOT VERIFIED/);
+  assert.match(html,/EARLY TESTNET ANNOUNCED · RPC CHECK PENDING/);
 });
 
 test('Testnet stays planned without all verified official inputs, regardless of date',async()=>{
@@ -201,7 +201,9 @@ test('Testnet switches only if pinned official genesis matches block zero over l
     assert.equal(ready.status,'GENESIS_VERIFIED');
     assert.equal(ready.network,'testnet');
     assert.equal(ready.genesisHash,expected);
-    assert.equal(ready.startUrl,'https://technocore.chat/');
+    assert.equal(ready.startUrl,'https://ask.flop.finance/networks/testnet');
+    assert.equal(ready.rewardsActive,false);
+    assert.equal(ready.rewardStatus,'UNSCORED');
     assert.equal(seen.length,1);
     assert.equal(JSON.parse(seen[0].options.body).method,'chain_getBlockHash');
     assert.deepEqual(JSON.parse(seen[0].options.body).params,[0]);
@@ -226,7 +228,7 @@ test('Testnet home switches, yet Devnet keeps dedicated /devnet URL and no fake 
   for(const id of ['testnetStartHero','testnetReadyPanel','verifiedGenesisHash','navDevnet','homeDevnetCTA','homeDevnetCard','devnetHomeDisclaimer']){
     assert.match(html,new RegExp('id="'+id+'"'));
   }
-  assert.match(html,/href="https:\/\/technocore\.chat\/"/);
+  assert.match(html,/href="https:\/\/ask\.flop\.finance\/networks\/testnet"/);
   assert.match(html,/Browse Devnet AI models/);
   assert.match(html,/This archive is always accessible/);
   assert.match(js,/testnetVerified===true/);
@@ -239,4 +241,25 @@ test('Testnet home switches, yet Devnet keeps dedicated /devnet URL and no fake 
   assert.match(css,/\[hidden\]\{display:none!important\}/);
   assert.doesNotMatch(js,/innerHTML\s*=/);
   assert.doesNotMatch(html,/did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG/);
+});
+
+test('24 November official opening is explicitly unscored, independent from RPC verification',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
+  const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
+  const readiness=await readFile(new URL('../api/testnet-readiness.js',import.meta.url),'utf8');
+  assert.match(html,/id="testnetOpeningNotice"/);
+  assert.match(html,/LIVE · UNSCORED/);
+  assert.match(html,/zero vouchers, with no retroactive credit/);
+  assert.match(html,/https:\/\/ask\.flop\.finance\/networks\/testnet/);
+  assert.match(html,/0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800/);
+  assert.match(html,/This voucher rule is NOT ACTIVE/);
+  assert.match(html,/Do not use the shared Devnet faucet for Testnet/);
+  assert.match(html,/Scoring is not active|scoring is not active|rewards are not counting yet/i);
+  assert.match(js,/GENESIS_VERIFIED/);
+  assert.match(js,/UNSCORED/);
+  assert.match(js,/no vouchers are earned yet/);
+  assert.match(readiness,/rewardsActive:false/);
+  assert.match(readiness,/GENESIS_MISMATCH/);
+  assert.match(css,/\.testnet-opening-notice/);
 });

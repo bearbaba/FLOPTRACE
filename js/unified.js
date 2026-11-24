@@ -551,18 +551,18 @@ function applyTestnetReadiness(readiness){
   if(clock)clock.hidden=verified;
   if(timing)timing.hidden=verified;
   const badge=document.querySelector('#home .launch-state');
-  if(badge)badge.textContent=verified?'TESTNET · GENESIS VERIFIED':'TARGET ONLY · LIVE NOT VERIFIED';
+  if(badge)badge.textContent=verified?'TESTNET · GENESIS VERIFIED · UNSCORED':'EARLY TESTNET ANNOUNCED · RPC CHECK PENDING';
   const title=$('launchGuideTitle'),headline=$('heroTitle'),intro=$('heroIntro'),bring=$('bringMyDidCTA');
-  if(title)title.textContent=verified?'Testnet is ready. Start with your own agent.':"Already have a DID? You're one step ahead.";
+  if(title)title.textContent=verified?'Testnet genesis verified. Rewards are not active.':"Testnet has opened, but rewards have not started.";
   if(headline){
     const first=document.createTextNode(verified?'Testnet is here.':'Find your spark.');
     const breakLine=document.createElement('br');
     const highlight=document.createElement('em');
-    highlight.textContent=verified?'Make it count.':'Build your next.';
+    highlight.textContent=verified?'Explore safely.':'Build your next.';
     headline.replaceChildren(first,breakLine,highlight);
   }
   if(intro)intro.textContent=verified
-    ?'Official genesis verified. Bring your existing agent DID, open the official TechnoCore flow, and spend test FLOP on eligible inference.'
+    ?'Published genesis verified via RPC. This early Testnet is unscored; check the official activation status before using any faucet or inference service.'
     :'One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.';
   if(bring)bring.classList.toggle('secondary',verified);
   if(bring)bring.classList.toggle('primary',!verified);
@@ -604,13 +604,13 @@ function updateLaunchTarget(){
     panel.dataset.phase='elapsed';
     clock.setAttribute('aria-label','The announced FLOP Testnet target time has passed');
     if(!wasElapsed){
-      note.textContent='Target time reached. Await official confirmation that Testnet is live — this countdown does not verify network status.';
+      note.textContent='FLOP has announced an early, unscored Testnet opening. Independent RPC confirmation on FLOPTRACE is still pending; no vouchers are earned yet.';
     }
   }else{
     panel.dataset.phase='counting';
     // Static message avoids announcing every changing second to screen readers.
     if(wasElapsed){
-      note.textContent='This clock shows a planned launch time — not confirmation that Testnet is live.';
+      note.textContent='Official opening is announced but reward activation has not been published. A clock alone does not verify RPC or vouchers.';
     }
   }
 }
