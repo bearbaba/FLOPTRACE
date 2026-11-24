@@ -228,7 +228,7 @@ test('Testnet home switches, yet Devnet keeps dedicated /devnet URL and no fake 
   for(const id of ['testnetStartHero','testnetReadyPanel','verifiedGenesisHash','navDevnet','homeDevnetCTA','homeDevnetCard','devnetHomeDisclaimer']){
     assert.match(html,new RegExp('id="'+id+'"'));
   }
-  assert.match(html,/href="https:\/\/technocore\.chat\/"/);
+  assert.match(html,/href="https:\/\/ask\.flop\.finance\/networks\/testnet"/);
   assert.match(html,/Browse Devnet AI models/);
   assert.match(html,/This archive is always accessible/);
   assert.match(js,/testnetVerified===true/);
