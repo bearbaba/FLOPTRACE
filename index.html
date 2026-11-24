@@ -192,44 +192,57 @@
         <div class="builder-signoff"><div><strong>Building on FLOP?</strong><span>Follow Bear Crypto for FLOPTRACE tutorials, product updates and community guides.</span></div><a class="primary" href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Follow @Bearcrypto2021 ↗</a></div>
       </section>
       <section class="view" id="access" hidden aria-label="Danh sách truy cập FLOPTRACE">
-        <div class="eyebrow">FLOPTRACE / COMMUNITY ACCESS</div><h1 class="page-title">Danh sách truy cập FLOPTRACE</h1>
-        <p class="lead compact">Dùng Handle X để xin tham gia, không cần kết nối ví, ký thông điệp, nhập seed phrase hay chi phí blockchain. Quản trị viên xác minh tài khoản và xét duyệt riêng. Quyền truy cập FLOPTRACE <strong>không phải</strong> airdrop whitelist của FLOP Labs.</p>
+        <div class="eyebrow">FLOPTRACE / INVITE-ONLY ACCESS</div>
+        <h1 class="page-title">Danh sách truy cập FLOPTRACE</h1>
+        <p class="lead compact">Tham gia bằng <strong>link mời riêng một lần dùng</strong> thuộc đợt giới hạn 100 suất. Chỉ cần Handle X và CAPTCHA; không kết nối ví EVM hay ví FLOP, không ký thông điệp và không nhập seed phrase. FLOPTRACE WL không phải danh sách nhận airdrop của FLOP Labs.</p>
         <div class="card access-card">
-          <div class="card-heading"><div><h2>Đăng ký tham gia</h2><p>Bước 1: Nhập Handle X. Bước 2: Giải CAPTCHA. Bước 3: Gửi đơn và chờ duyệt.</p></div><span class="badge subtle" id="accessBadge">CHECKING</span></div>
-          <div class="field"><label for="accessHandle">Handle X của bạn</label><input id="accessHandle" maxlength="16" placeholder="@yourhandle" autocapitalize="off" autocomplete="off" spellcheck="false"></div>
-          <div id="accessCaptcha" class="access-captcha" aria-label="CAPTCHA đăng ký"></div>
-          <button type="button" class="primary wide" id="accessApply" disabled>Đăng ký tham gia →</button>
-          <p id="accessFeedback" class="identity-inline-feedback" role="status" aria-live="polite">Đang kiểm tra hệ thống đăng ký…</p>
-          <p class="field-hint">CAPTCHA hạn chế bot, nhưng không xác minh bạn sở hữu Handle X. Chỉ quản trị viên mới có quyền duyệt. Không tự động cấp quyền hay điểm thưởng.</p>
+          <div class="card-heading">
+            <div><h2>Đợt mời thành viên</h2><p id="accessSlotsText">Đang kiểm tra suất còn lại…</p></div>
+            <span class="badge subtle" id="accessBadge">CHECKING</span>
+          </div>
+          <div class="access-slots-track"><div class="access-slots-fill" id="accessSlotsFill"></div></div>
+          <p class="field-hint">Mỗi link chỉ kích hoạt một thành viên, tối đa 100 người mỗi đợt. Quản trị viên có thể mở đợt tiếp theo sau khi hết suất hoặc đóng đợt hiện tại.</p>
         </div>
         <div class="card access-card">
-          <div class="card-heading"><div><h2>Đã được duyệt? Nhập mã mời</h2><p>Sau khi xác minh sở hữu Handle X, quản trị viên sẽ gửi mã riêng qua kênh an toàn. Không chia sẻ mã này công khai.</p></div></div>
-          <p id="accessMember" class="statusline">Chưa đăng nhập bằng mã thành viên.</p>
-          <div class="field"><label for="accessInvite">Mã mời cá nhân</label><input type="password" id="accessInvite" autocomplete="one-time-code" placeholder="Mã mời do quản trị viên gửi riêng"></div>
-          <div class="row"><button type="button" id="accessRedeem" class="secondary" disabled>Kích hoạt quyền thành viên</button><button type="button" id="accessLogout" class="secondary" hidden>Đăng xuất</button></div>
+          <div class="card-heading"><div><h2>Kích hoạt link mời</h2><p>1 · Mở link riêng  2 · Nhập Handle X  3 · Giải CAPTCHA  4 · Kích hoạt</p></div></div>
+          <div class="field"><label for="accessInvite">Mã mời cá nhân</label><input type="password" id="accessInvite" autocomplete="off" placeholder="Tự điền khi mở link mời; hoặc dán mã mời"></div>
+          <div class="field"><label for="accessHandle">Handle X của bạn</label><input id="accessHandle" maxlength="16" placeholder="@yourhandle" autocapitalize="off" autocomplete="off" spellcheck="false"></div>
+          <div id="accessCaptcha" class="access-captcha" aria-label="CAPTCHA xác minh đăng ký"></div>
+          <button type="button" class="primary wide" id="accessJoin" disabled>Kích hoạt suất thành viên →</button>
+          <p id="accessFeedback" class="identity-inline-feedback" role="status" aria-live="polite">Đang kiểm tra hệ thống lời mời…</p>
+          <p id="accessMember" class="statusline">Chưa có phiên thành viên đang hoạt động.</p>
+          <div class="row"><button type="button" id="accessLogout" class="secondary" hidden>Đăng xuất</button></div>
+          <p class="field-hint">Handle X không tự chứng minh quyền sở hữu tài khoản. Mỗi link mời là một quyền truy cập; không đăng công khai, không chuyển nhượng. Nếu chưa có link, hãy liên hệ <a href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer" class="text-link">Bear Crypto trên X</a>.</p>
         </div>
         <details class="access-admin-tools">
-          <summary>Quản trị viên · Duyệt và thu hồi quyền</summary>
+          <summary>Quản trị viên · Tạo 100 link và quản lý thành viên</summary>
           <div class="card access-card">
-            <p class="field-hint">Đăng nhập quản trị trên thiết bị tin cậy. Mật khẩu quản trị không được ghi vào localStorage; máy chủ kiểm tra phiên riêng với CAPTCHA.</p>
+            <p class="field-hint">Đăng nhập trên thiết bị tin cậy bằng mật khẩu quản trị và CAPTCHA; không dùng ví, khóa riêng hay chữ ký blockchain. Mã mời chỉ hiển thị một lần khi tạo.</p>
             <div id="accessAdminLogin">
               <div class="field"><label for="accessAdminSecret">Mật khẩu quản trị</label><input id="accessAdminSecret" type="password" autocomplete="off" placeholder="Admin passphrase"></div>
               <div id="accessAdminCaptcha" class="access-captcha" aria-label="CAPTCHA quản trị"></div>
               <button type="button" class="secondary" id="accessAdminSignIn" disabled>Đăng nhập quản trị</button>
             </div>
             <div id="accessAdminPanel" hidden>
-              <button type="button" class="secondary" id="accessAdminRefresh">Làm mới đơn tham gia</button>
-              <div id="accessApplicationList" class="access-applications" aria-live="polite"></div>
+              <div class="row access-admin-actions">
+                <button type="button" class="primary" id="accessIssueBatch">Tạo đợt 100 link mời</button>
+                <button type="button" class="secondary" id="accessCloseBatch">Đóng đợt hiện tại</button>
+                <button type="button" class="secondary" id="accessAdminRefresh">Danh sách thành viên</button>
+              </div>
               <section class="access-invitation" id="accessInvitation" hidden>
-                <strong>Mã mời chỉ hiển thị một lần</strong>
-                <p>Chỉ gửi riêng cho chủ tài khoản X đã xác minh. Nếu mất, tạo lại mã mời.</p>
-                <code id="accessInvitationValue" class="wrap"></code>
-                <button type="button" class="secondary" id="accessCopyInvitation">Sao chép mã mời</button>
+                <strong>100 link mời riêng · Mỗi link chỉ dùng một lần</strong>
+                <p>Hãy tải ngay danh sách link và gửi từng link riêng cho người bạn mời. Sau khi đóng trang, hệ thống không thể hiển thị lại mã gốc.</p>
+                <textarea id="accessInvitationValue" readonly rows="8" spellcheck="false" aria-label="Danh sách 100 link mời"></textarea>
+                <div class="row">
+                  <button type="button" class="secondary" id="accessDownloadInvites">Tải 100 link (.txt)</button>
+                  <button type="button" class="secondary" id="accessCopyInvitation">Sao chép toàn bộ link</button>
+                </div>
               </section>
+              <div id="accessApplicationList" class="access-applications" aria-live="polite"></div>
             </div>
           </div>
         </details>
-        <p class="field-hint access-explainer">Khách vẫn đọc được hướng dẫn và thông tin mạng. Các trang công cụ trong FLOPTRACE mở sau khi xác thực mã mời. API có giới hạn lượt gọi và phải xác minh phiên thành viên tại máy chủ. Không có công cụ tự tạo voucher, faucet trùng lặp hay giao dịch chi tiêu tự động.</p>
+        <p class="field-hint access-explainer">Chức năng xem tài liệu và thông tin Testnet vẫn công khai. Các API dành cho thành viên được kiểm tra quyền và giới hạn lượt ở máy chủ; không thể vượt hạn mức 100 suất bằng thao tác trên trình duyệt. Không có quyền nhận voucher FLOP tự động.</p>
       </section>
       <section class="view" id="identity" hidden aria-label="Identity">
         <div class="eyebrow">01 / IDENTITY</div><h1 class="page-title">Your agents</h1>
