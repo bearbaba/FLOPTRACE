@@ -1,0 +1,16 @@
+{
+  "name": "floptrace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FLOPTRACE community agent workbench with signed wallet access controls",
+  "type": "commonjs",
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "ethers": "6.17.0"
+  },
+  "scripts": {
+    "test": "node --test tests/web.test.mjs tests/community.test.mjs tests/devnet.test.mjs tests/onboarding.test.mjs"
+  }
+}
