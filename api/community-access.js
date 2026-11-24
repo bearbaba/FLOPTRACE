@@ -1,7 +1,7 @@
 // Wallet-free FLOPTRACE membership: 100 unique invitation links per batch.
 // Each link grants at most ONE membership, only after Turnstile succeeds.
 // All seat counting, consumption, and revocation happen atomically in Redis.
-const {randomUUID}=require('node:crypto');
+const {randomUUID,timingSafeEqual}=require('node:crypto');
 const a=require('../lib/community-access');
 const fail=(res,status,message)=>res.status(status).json({error:message});
 function parseBody(req){
@@ -57,8 +57,8 @@ async function handler(req,res){
       await a.verifyCaptcha(b.captchaToken,'floptrace_join',req);
       const hash=a.digest(code),batchId=await a.redis('GET',a.key('invite:',hash));
       if(!batchId)return fail(res,401,'This invite link is used, expired or invalid.');
-      const now=new Date().toISOString(),token=a.randomToken(),expires=Date.now()+a.MEMBER_TTL*1000;
-      const member={id:randomUUID(),handle,status:'ACTIVE',batchId,joinedAt:now,updatedAt:now};
+      const now=new Date().toISOString(),token=a.randomToken(),recoveryCode=a.randomToken(),expires=Date.now()+a.MEMBER_TTL*1000;
+      const member={id:randomUUID(),handle,status:'ACTIVE',batchId,recoveryHash:a.digest(recoveryCode),joinedAt:now,updatedAt:now};
       const session=JSON.stringify({handle,expires});
       const audit=JSON.stringify({action:'join',handle,batchId,time:now});
       const count=Number(await a.redis('EVAL',a.CLAIM_LUA,7,
@@ -69,8 +69,26 @@ async function handler(req,res){
       if(!Number.isSafeInteger(count)||count<1||count>100)
         return fail(res,409,'Invitation no longer has an available seat.');
       res.setHeader('Set-Cookie',a.cookie(a.COOKIE,token,a.MEMBER_TTL));
-      return res.status(200).json({isMember:true,handle,claimed:count,capacity:100,
-        message:'Your FLOPTRACE member access is active. This is not an FLOP airdrop whitelist.'});
+      return res.status(200).json({isMember:true,handle,claimed:count,capacity:100,recoveryCode,
+        message:'Member access activated. Save the private recovery code: it is shown only once. This is not an FLOP airdrop whitelist.'});
+    }
+    if(action==='return-login'){
+      await a.rateLimit('return-ip:'+ip,10,3600);
+      const handle=a.handle(b.handle);
+      await a.rateLimit('return-handle:'+handle,6,3600);
+      const code=String(b.recoveryCode||'').trim().toLowerCase();
+      if(!/^[a-f0-9]{64}$/.test(code))return fail(res,401,'Invalid member recovery code.');
+      await a.verifyCaptcha(b.captchaToken,'floptrace_join',req);
+      const stored=a.parse(await a.redis('GET',a.key('member:',handle)));
+      if(!stored||stored.status!=='ACTIVE'||! /^[a-f0-9]{64}$/.test(stored.recoveryHash||'')){
+        return fail(res,401,'Member not active or recovery code invalid.');
+      }
+      if(!timingSafeEqual(Buffer.from(a.digest(code),'hex'),Buffer.from(stored.recoveryHash,'hex')))
+        return fail(res,401,'Member not active or recovery code invalid.');
+      const token=a.randomToken(),expires=Date.now()+a.MEMBER_TTL*1000;
+      await a.redis('SET',a.key('session:',a.digest(token)),JSON.stringify({handle,expires}),'EX',a.MEMBER_TTL);
+      res.setHeader('Set-Cookie',a.cookie(a.COOKIE,token,a.MEMBER_TTL));
+      return res.status(200).json({isMember:true,handle,message:'Member access restored; no slot consumed.'});
     }
     if(action==='admin-login'){
       await a.rateLimit('admin-login:'+ip,5,3600);
