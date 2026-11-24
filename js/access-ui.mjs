@@ -21,6 +21,12 @@ async function post(action,body={}){
 }
 function render(){
   $('accessBadge').textContent=state.isMember?'MEMBER':state.configured?'INVITE ONLY':'SETUP REQUIRED';
+  const entry=$('memberEntry');
+  entry.textContent=state.isMember?'Mở công cụ':'Kích hoạt link mời';
+  entry.dataset.view=state.isMember?'identity':'access';
+  show('accessJoinFields',!state.isMember);
+  show('accessOpenTools',state.isMember);
+  document.querySelector('.access-return-tools').hidden=state.isMember;
   const slots=state.slots||{};
   const claimed=Number(slots.claimed)||0;
   const size=Number(slots.capacity)||100;
@@ -43,7 +49,8 @@ function render(){
   }
   if(!state.configured)note('Đang chuẩn bị. Chưa có cấu hình lưu thành viên và CAPTCHA nên hệ thống không nhận link hay cấp quyền. Không cần kết nối ví.',true);
   else if(state.isMember)note('Đã kích hoạt thành viên. Các chức năng riêng vẫn được máy chủ xác minh trước mỗi yêu cầu.');
-  else note('Mở một link mời riêng, điền Handle X và giải CAPTCHA để kích hoạt một suất. Không cần ký ví.');
+  else if($('accessInvite').value)note('Link mời đã được điền. Nhập Handle X và giải CAPTCHA để kích hoạt.');
+  else note('Bạn chưa có link? Liên hệ Bear Crypto trên X qua liên kết bên dưới. Nếu đã là thành viên, chọn Khôi phục quyền truy cập.');
 }
 async function refresh(){
   try{
@@ -75,7 +82,7 @@ export async function activateAccessCaptcha(){
   if(!state.configured||!state.siteKey)return;
   try{
     const widget=await loadTurnstile();
-    if(joinWidget===null&&!$('access').hidden){
+    if(joinWidget===null&&!state.isMember&&!$('access').hidden){
       joinWidget=widget.render('#accessCaptcha',{sitekey:state.siteKey,action:'floptrace_join',theme:'light',size:'flexible'});
     }
     const admin=document.querySelector('.access-admin-tools');

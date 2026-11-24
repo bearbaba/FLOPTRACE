@@ -3,9 +3,9 @@ on:
   push:
     paths:
       - 'index.html'
-      - 'js/unified.js'
-      - 'js/did-utils.mjs'
-      - 'js/ss58-utils.mjs'
+      - 'js/*.js'
+      - 'js/*.mjs'
+      - 'lib/**'
       - 'css/unified.css'
       - 'legacy/**'
       - 'api/**'
@@ -14,7 +14,9 @@ on:
   pull_request:
     paths:
       - 'index.html'
-      - 'js/unified.js'
+      - 'js/*.js'
+      - 'js/*.mjs'
+      - 'lib/**'
       - 'css/unified.css'
       - 'legacy/**'
       - 'api/**'
@@ -35,4 +37,4 @@ jobs:
       - run: node --check api/status.js
       - run: node --check api/models.js
       - run: node --check api/infer.js
-      - run: node --test tests/web.test.mjs tests/community.test.mjs tests/devnet.test.mjs tests/onboarding.test.mjs
+      - run: node --test tests/*.test.mjs

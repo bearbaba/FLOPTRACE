@@ -49,7 +49,7 @@
             <p class="lead" id="heroIntro">One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.</p>
             <div class="home-actions">
               <a id="testnetStartHero" class="primary link-button" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer" hidden>Xem trạng thái Testnet ↗</a>
-              <button type="button" class="primary" data-view="access">Đăng ký tham gia <span aria-hidden="true">↗</span></button>
+              <button type="button" class="primary" id="memberEntry" data-view="access">Kích hoạt link mời</button>
               <button type="button" class="secondary" id="bringMyDidCTA" data-view="identity">Bring my DID <span aria-hidden="true">↗</span></button>
               <a class="secondary link-button prelaunch-only" id="checkLaunchCTA" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Check official FLOP Testnet launch announcement">Check Testnet launch ↗</a>
               <button type="button" class="secondary prelaunch-only" id="homeDevnetCTA" data-view="devnet">Explore Devnet <span aria-hidden="true">→</span></button>
@@ -204,11 +204,14 @@
           <p class="field-hint">Mỗi link chỉ kích hoạt một thành viên, tối đa 100 người mỗi đợt. Quản trị viên có thể mở đợt tiếp theo sau khi hết suất hoặc đóng đợt hiện tại.</p>
         </div>
         <div class="card access-card">
+          <div id="accessJoinFields">
           <div class="card-heading"><div><h2>Kích hoạt link mời</h2><p>1 · Mở link riêng  2 · Nhập Handle X  3 · Giải CAPTCHA  4 · Kích hoạt</p></div></div>
           <div class="field"><label for="accessInvite">Mã mời cá nhân</label><input type="password" id="accessInvite" autocomplete="off" placeholder="Tự điền khi mở link mời; hoặc dán mã mời"></div>
           <div class="field"><label for="accessHandle">Handle X của bạn</label><input id="accessHandle" maxlength="16" placeholder="@yourhandle" autocapitalize="off" autocomplete="off" spellcheck="false"></div>
           <div id="accessCaptcha" class="access-captcha" aria-label="CAPTCHA xác minh đăng ký"></div>
           <button type="button" class="primary wide" id="accessJoin" disabled>Kích hoạt suất thành viên →</button>
+          </div>
+          <button type="button" class="primary" id="accessOpenTools" data-view="identity" hidden>Mở công cụ</button>
           <p id="accessFeedback" class="identity-inline-feedback" role="status" aria-live="polite">Đang kiểm tra hệ thống lời mời…</p>
           <p id="accessMember" class="statusline">Chưa có phiên thành viên đang hoạt động.</p>
           <section class="access-invitation" id="accessRecovery" hidden aria-label="Mã khôi phục quyền thành viên">
@@ -219,7 +222,7 @@
           </section>
           <div class="row"><button type="button" id="accessLogout" class="secondary" hidden>Đăng xuất</button></div>
           <details class="access-return-tools">
-            <summary>Đã là thành viên? Đăng nhập lại bằng mã khôi phục</summary>
+            <summary>Đã là thành viên? Khôi phục quyền truy cập</summary>
             <div class="field"><label for="accessReturnHandle">Handle X đã đăng ký</label><input id="accessReturnHandle" placeholder="@yourhandle" autocapitalize="off" autocomplete="off"></div>
             <div class="field"><label for="accessReturnCode">Mã khôi phục thành viên</label><input id="accessReturnCode" type="password" autocomplete="off" placeholder="Mã 64 ký tự đã lưu"></div>
             <div id="accessReturnCaptcha" class="access-captcha" aria-label="CAPTCHA đăng nhập lại"></div>
