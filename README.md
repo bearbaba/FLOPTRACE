@@ -5,6 +5,43 @@ FLOPTRACE is an independent FLOP Devnet community builder application. It is **n
 **Public app:** https://flops-murex.vercel.app/
 **Source:** https://github.com/bearbaba/FLOPTRACE
 
+## FLOPTRACE invitation-only community access (100 slots per batch)
+
+**Public source and public website. Private, server-side member access. No wallet connection or blockchain signature required.**
+
+The new **Danh sách truy cập FLOPTRACE** page (`/?view=access`) supports a 100-seat invite batch. Each member receives a **different randomly generated 256-bit invitation link**. The administrator sends links privately; a public shared 100-use link is intentionally *not* used because it is easy to forward, scrape or exhaust.
+
+### Member journey
+
+1. The administrator signs in using a strong, secret server-side administrator passphrase and Cloudflare Turnstile CAPTCHA. They click **Tạo đợt 100 link mời** and immediately download the 100 private URLs as a TXT file. Plaintext codes are **never stored in Redis or committed**.
+2. A recipient opens their personal `https://flops-murex.vercel.app/?view=access#invite=...` URL. The secret stays in the URL fragment, never the HTTP request; browser JavaScript consumes and removes the fragment from history.
+3. The recipient enters an X handle (`@name`), completes Cloudflare Turnstile and clicks **Kích hoạt suất thành viên**. CAPTCHA is verified on the server (success, exact hostname and action). It does **not** verify that the user owns the X account. Invite secrecy, private distribution and manual administrator controls are still necessary.
+4. Redis Lua atomically ensures the invitation exists, is unused and belongs to the current open batch; the handle is not already registered, the batch has less than 100 claims, and that the invite is consumed exactly once. The session is stored in Redis with an HttpOnly, Secure, SameSite=Strict cookie. Backend membership is checked on every protected API call.
+5. New members receive a separate random **private recovery code** **once**. They must save it offline. They can return later with their handle, recovery code and CAPTCHA, without spending another invitation slot. A copied or stolen recovery code may grant access, so never share it.
+6. The admin can see member status, revoke access (which invalidates existing session authorization on the next server check), and close the current batch early if links are leaked. They can open another 100-seat batch after the previous one is fully claimed, closed or expired. An unredeemed invitation expires after **14 days**.
+
+**Important limits:** 100 slots means up to 100 *successful admissions per batch*, not 100 unique humans. A determined Sybil user can still operate multiple X handles and obtain multiple links. Private invite distribution and admin review remain essential. FLOPTRACE WL only controls the community tool; it does not grant FLOP Testnet tokens, airdrop eligibility or vouchers. No user wallet, seed phrase, DID signing key or chain transaction is required for this registration.
+
+### Required Vercel Production environment variables
+
+| Key | Use |
+|---|---|
+| `UPSTASH_REDIS_REST_URL` | HTTPS REST endpoint of a persistent Redis database |
+| `UPSTASH_REDIS_REST_TOKEN` | Redis REST credential, **server only** |
+| `TURNSTILE_SITE_KEY` | Public Cloudflare Turnstile site key, bound to `flops-murex.vercel.app` |
+| `TURNSTILE_SECRET_KEY` | Turnstile Siteverify secret, **server only** |
+| `FLOPTRACE_ADMIN_PASSPHRASE` | Strong, unique administrator passphrase of at least 24 characters, **server only** |
+
+Do not put any of these secrets in GitHub, browser storage or chat. Configure them on Vercel Production through the account dashboard, then redeploy. The access endpoint is **fail-closed** when any required setting is absent: no applications, member sessions, invitation issuance or protected inference is available. The existing read-only FLOP documentation and status pages remain public.
+
+### Protected functionality
+
+`POST /api/infer` requires current approved member status plus per-member limits (default 12/hour and 60/day) on the server; this is **additional to** the separate, default-off `FLOPTRACE_ENABLE_INFERENCE=1`, `FLOPTRACE_SPEND_CAP_ACK=1` and `FLOP_API_KEY` provider configuration. These flags must not be set until an independently verifiable, provider-enforced spending cap is active. Voucher verification, wallet signing and Testnet faucet claims are **not implemented** by this access system.
+
+`GET /api/community-access` reports whether the access system is configured and the current public 100-seat count; `GET ...?view=members` requires the admin session. Admin batch creation returns all 100 plaintext links **once**, not a permanent public export. The Redis Lua scripts enforce claims atomically, but a live concurrency/security test on a configured Redis instance is required before inviting real members.
+
+---
+
 ## FLOP Devnet Hub (public release)
 
 The unified web includes a Devnet Hub with read-only, official developer resources:
