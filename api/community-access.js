@@ -78,7 +78,7 @@ async function handler(req,res){
       await a.rateLimit('return-handle:'+handle,6,3600);
       const code=String(b.recoveryCode||'').trim().toLowerCase();
       if(!/^[a-f0-9]{64}$/.test(code))return fail(res,401,'Invalid member recovery code.');
-      await a.verifyCaptcha(b.captchaToken,'floptrace_join',req);
+      await a.verifyCaptcha(b.captchaToken,'floptrace_return',req);
       const stored=a.parse(await a.redis('GET',a.key('member:',handle)));
       if(!stored||stored.status!=='ACTIVE'||! /^[a-f0-9]{64}$/.test(stored.recoveryHash||'')){
         return fail(res,401,'Member not active or recovery code invalid.');
