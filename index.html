@@ -289,7 +289,7 @@
             <div class="field"><label for="model">Model <button class="inline-button" id="refreshModels" type="button">↻ Refresh</button></label><select id="model" required><option value="">Loading models…</option></select></div>
             <div class="field"><label for="system">System instruction <span class="muted">(optional)</span></label><input id="system" maxlength="1000" value="Answer clearly, accurately and concisely."></div>
             <div class="field"><label for="prompt">Prompt</label><textarea id="prompt" rows="6" maxlength="5000" required placeholder="What would you like your agent to do?"></textarea></div>
-            <details class="credentials"><summary>Access settings (server-protected)</summary><p class="field-hint">When the app owner enables inference on Vercel, enter the private access passcode here. This is not your DID seed or FLOP API key.</p><input type="password" id="accessToken" autocomplete="off" placeholder="Private workbench passcode"></details>
+            <p class="field-hint">Yêu cầu phiên thành viên đã kích hoạt bằng mã mời từ <button type="button" class="inline-button" data-view="access">Danh sách truy cập FLOPTRACE</button>. Máy chủ xác minh WL và hạn mức; không cần kết nối hoặc ký ví.</p>
             <button type="submit" class="primary wide" id="runInference">Run inference <span>→</span></button>
             <p class="statusline" id="inferFeedback" role="status" aria-live="polite">Checking gateway access…</p>
           </form>
