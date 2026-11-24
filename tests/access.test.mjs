@@ -40,7 +40,7 @@ test('100 single-use invite links: X handle + CAPTCHA without EVM or SS58 signat
   const ui=await readFile(new URL('../js/access-ui.mjs',import.meta.url),'utf8');
   for(const id of ['accessHandle','accessInvite','accessJoin','accessSlotsText','accessIssueBatch','accessCloseBatch','accessRecoveryValue','accessReturnLogin'])
     assert.ok(html.includes('id="'+id+'"'),id);
-  assert.match(ui,/\/\?view=access#invite=/i);
+  assert.match(ui,/readPrivateInviteFromLink/);
   assert.match(ui,/history\.replaceState/);
   assert.match(ui,/floptrace_join/);
   assert.match(ui,/floptrace_return/);
