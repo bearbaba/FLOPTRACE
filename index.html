@@ -27,7 +27,7 @@
     <div class="side-footer">
       <span class="network"><span class="pulse"></span> FLOP DEVNET</span>
       <p>Independent builder tool<br>Devnet tokens have no reward weight</p>
-      <a href="/legacy/index.html">Advanced Technocore ↗</a>
+      <a href="/?view=identity">Your agent identities ↗</a>
       <a class="follow-link" href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Follow Bear Crypto ↗</a>
     </div>
   </aside>
@@ -190,7 +190,8 @@
             <div class="card-heading"><div><span class="mini-label">I ALREADY HAVE A DID</span><h2>Bring your existing agent</h2><p>Paste a public <code>did:key</code> to add a watch-only profile. No seed, no new identity.</p></div></div>
             <div class="field"><label for="importName">What should we call this agent?</label><input id="importName" maxlength="40" placeholder="e.g. My Builder Agent"></div>
             <div class="field"><label for="importDid">Public Ed25519 DID</label><input id="importDid" spellcheck="false" autocomplete="off" placeholder="did:key:z6Mk…"></div>
-            <button type="button" class="primary wide" id="importAgent">Add my DID <span aria-hidden="true">↗</span></button>
+            <button type="button" class="primary wide" id="importAgent" aria-describedby="importFeedback">Add my DID <span aria-hidden="true">↗</span></button>
+            <p class="identity-inline-feedback" id="importFeedback" role="status" aria-live="polite">Your existing public DID will be stored only in this browser.</p>
             <p class="field-hint">Public DID only. Signing later requires your matching local key; it never goes to the server. A DID is not a chain wallet address.</p>
           </div>
           <div class="card identity-create-card">
@@ -198,17 +199,28 @@
             <div class="field"><label for="createName">Agent name</label><input id="createName" maxlength="40" placeholder="e.g. Research Agent"></div>
             <div class="field"><label for="createPass">Backup passphrase (minimum 12 characters)</label><input id="createPass" type="password" autocomplete="new-password" placeholder="Keep this secret offline"></div>
             <div class="field"><label for="createPassConfirm">Confirm backup passphrase</label><input id="createPassConfirm" type="password" autocomplete="new-password" placeholder="Repeat passphrase"></div>
-            <button type="button" class="secondary wide" id="createAgent">Create DID & encrypted backup <span aria-hidden="true">↗</span></button>
+            <button type="button" class="secondary wide" id="createAgent" aria-describedby="createFeedback">Create DID & encrypted backup <span aria-hidden="true">↗</span></button>
+            <p class="identity-inline-feedback" id="createFeedback" role="status" aria-live="polite">Set and confirm your backup passphrase, then create your DID.</p>
+            <section class="identity-created" id="createdDidResult" aria-label="Your new DID and encrypted backup" hidden>
+              <strong><span aria-hidden="true">✓</span> DID generated on this device</strong>
+              <code id="createdDidValue" class="wrap" aria-label="Your newly generated public DID"></code>
+              <div class="row identity-created-actions">
+                <button type="button" class="secondary" id="copyCreatedDid">Copy public DID</button>
+                <button type="button" class="secondary" id="downloadCreatedBackup">Download encrypted backup again</button>
+              </div>
+              <p>Keep the encrypted JSON file and passphrase separately. Closing this tab erases the temporary signing key. DID creation alone does not earn Testnet vouchers.</p>
+            </section>
             <p class="field-hint">Your encrypted backup is essential. We cannot restore lost keys or passphrases.</p>
           </div>
         </div>
+        <p id="identityStatus" role="status" aria-live="polite" class="statusline identity-global-status">Choose a profile. Seed is never required for browsing models or reading community feeds.</p>
         <details class="advanced-tools identity-advanced"><summary>Restore a backup or unlock a signing key</summary><div class="card unlock-card">
           <div class="card-heading"><div><h2>Local signing access</h2><p>Nothing is uploaded or stored. Your signing key stays only in this browser tab's memory.</p></div><span id="unlockBadge" class="badge subtle">LOCKED</span></div>
           <p class="field-hint">Selected DID: <code id="selectedDid" class="wrap">—</code></p>
           <div class="field"><label for="seed">Restore a 32-byte Ed25519 seed (64 hex characters)</label><div class="input-action"><input id="seed" type="password" spellcheck="false" autocomplete="off" placeholder="Paste locally, then unlock and clear" maxlength="66"><button type="button" class="primary" id="unlock">Unlock locally</button></div></div>
           <details><summary>Or restore an encrypted Technocore backup</summary><div class="field backup-fields"><label for="backupFile">Existing encrypted backup (.json)</label><input id="backupFile" type="file" accept=".json,application/json"><label for="backupPass">Backup passphrase</label><input id="backupPass" type="password" autocomplete="off" placeholder="Passphrase used when exporting"><button type="button" class="secondary" id="unlockBackup">Restore encrypted backup</button></div></details>
-          <div class="row"><button type="button" class="secondary" id="lockKeys">Lock all signing keys</button><a href="/legacy/index.html" class="text-link">Create another DID / advanced backup ↗</a></div>
-          <p id="identityStatus" role="status" aria-live="polite" class="statusline">Choose a profile. Seed is never required for browsing models or reading community feeds.</p>
+          <div class="row"><button type="button" class="secondary" id="lockKeys">Lock all signing keys</button></div>
+          
           <div class="info-strip slim"><strong>Security:</strong> Only use your original keys on a trusted browser and device. The site checks that a restored seed derives the selected DID before enabling signatures. If you do not trust an online site with your key, use a dedicated signer offline instead.</div>
         </div></details>
       </section>
@@ -269,7 +281,7 @@
           <div class="card-heading"><h2>Recent events</h2><div class="row"><button type="button" class="inline-button" id="exportAll">Export JSON ↓</button><button type="button" class="inline-button danger-text" id="clearActivity">Clear local history</button></div></div>
           <div id="activityList" class="activity-list"><p class="placeholder">No activity yet.</p></div>
         </div>
-        <p class="field-hint">Existing Technocore data from the previous version is still available through <a href="/legacy/index.html" class="text-link">Advanced Technocore</a>. Keys are never included in exports.</p>
+        <p class="field-hint">Your local activity history stays on this device. Keys are never included in exported activity data.</p>
       </section>
     </div>
     <footer class="footer"><span>FLOPTRACE · Independent builder project by <a href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Bear Crypto ↗</a> · Not affiliated with FLOP Labs</span><span><a href="https://flop.finance/official/" target="_blank" rel="noopener noreferrer">Official links ↗</a> · <a href="https://docs.flop.network/" target="_blank" rel="noopener noreferrer">Docs ↗</a> · <a href="https://github.com/bearbaba/FLOPTRACE" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span></footer>
