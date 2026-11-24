@@ -4,7 +4,7 @@
 const $=id=>document.getElementById(id);
 const endpoint='/api/community-access';
 let state={configured:false,isMember:false,isAdmin:false,handle:null,siteKey:null};
-let changed=()=>{},joinWidget=null,adminWidget=null,loadingTurnstile=null;
+let changed=()=>{},joinWidget=null,adminWidget=null,returnWidget=null,loadingTurnstile=null;
 export function memberToolsAllowed(){return state.isMember===true;}
 function show(id,value){const el=$(id);if(el)el.hidden=!value;}
 function note(value,bad=false){
@@ -82,6 +82,10 @@ export async function activateAccessCaptcha(){
     if(adminWidget===null&&admin?.open){
       adminWidget=widget.render('#accessAdminCaptcha',{sitekey:state.siteKey,action:'floptrace_admin',theme:'light',size:'flexible'});
     }
+    const returning=document.querySelector('.access-return-tools');
+    if(returnWidget===null&&returning?.open){
+      returnWidget=widget.render('#accessReturnCaptcha',{sitekey:state.siteKey,action:'floptrace_return',theme:'light',size:'flexible'});
+    }
   }catch(error){note(error.message,true);}
 }
 function readPrivateInviteFromLink(){
@@ -103,12 +107,50 @@ async function join(){
     $('accessInvite').value='';
     $('accessHandle').value='';
     await refresh();
-    note('Kích hoạt thành công cho @'+result.handle+'. Đã sử dụng '+result.claimed+'/100 suất. Không cần kết nối ví.');
+    if(/^[a-f0-9]{64}$/.test(result.recoveryCode||'')){
+      $('accessRecoveryValue').textContent=result.recoveryCode;
+      show('accessRecovery',true);
+    }
+    note('Đã kích hoạt cho @'+result.handle+' ('+result.claimed+'/100 suất). QUAN TRỌNG: tải ngay mã khôi phục để đăng nhập lại sau này. Không cần ví.');
   }catch(error){note(error.message||'Không kích hoạt được link.',true);}
   finally{button.disabled=!state.configured||state.isMember;captchaReset(joinWidget);}
 }
 async function logout(){
-  try{await post('logout');await refresh();}catch(error){note(error.message||'Không đăng xuất được.',true);}
+  if($('accessRecoveryValue').textContent&&!confirm('Bạn đã tải mã khôi phục riêng chưa? Sau khi đăng xuất, mã sẽ biến mất khỏi trang.'))return;
+  try{
+    await post('logout');
+    $('accessRecoveryValue').textContent='';show('accessRecovery',false);
+    await refresh();
+  }catch(error){note(error.message||'Không đăng xuất được.',true);}
+}
+async function returnLogin(){
+  const button=$('accessReturnLogin');button.disabled=true;
+  try{
+    const captchaToken=captchaValue(returnWidget);
+    if(!captchaToken)throw Error('Giải CAPTCHA đăng nhập lại trước.');
+    const handle=$('accessReturnHandle').value.trim();
+    const recoveryCode=$('accessReturnCode').value.trim();
+    const result=await post('return-login',{handle,recoveryCode,captchaToken});
+    $('accessReturnCode').value='';
+    await refresh();
+    note('Đăng nhập lại thành công cho @'+result.handle+'. Không chiếm thêm suất mời.');
+  }catch(error){note(error.message||'Đăng nhập lại không thành công.',true);}
+  finally{button.disabled=false;captchaReset(returnWidget);}
+}
+function downloadRecovery(){
+  const code=$('accessRecoveryValue').textContent.trim();
+  if(!/^[a-f0-9]{64}$/.test(code))return;
+  const url=URL.createObjectURL(new Blob([
+    'FLOPTRACE — PRIVATE MEMBER RECOVERY CODE\\n',
+    'Keep this file secure. Anyone holding the code and your X handle can sign in.\\n',
+    'Never share this code publicly. It is not a blockchain key.\\n\\n',
+    code,'\\n'
+  ],{type:'text/plain;charset=utf-8'}));
+  const link=document.createElement('a');
+  link.href=url;link.download='FLOPTRACE-MEMBER-RECOVERY-PRIVATE.txt';document.body.append(link);
+  try{link.click();}
+  finally{link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+  note('Đã bắt đầu tải mã khôi phục. Kiểm tra file đã được lưu và giữ riêng tư.');
 }
 async function adminLogin(){
   const button=$('accessAdminSignIn');button.disabled=true;
@@ -201,6 +243,8 @@ export async function setupCommunityAccess(callback){
   readPrivateInviteFromLink();
   $('accessJoin').addEventListener('click',join);
   $('accessLogout').addEventListener('click',logout);
+  $('accessReturnLogin').addEventListener('click',returnLogin);
+  $('accessDownloadRecovery').addEventListener('click',downloadRecovery);
   $('accessAdminSignIn').addEventListener('click',adminLogin);
   $('accessIssueBatch').addEventListener('click',issueBatch);
   $('accessCloseBatch').addEventListener('click',closeBatch);
@@ -208,6 +252,7 @@ export async function setupCommunityAccess(callback){
   $('accessCopyInvitation').addEventListener('click',copyInvites);
   $('accessDownloadInvites').addEventListener('click',downloadInvites);
   document.querySelector('.access-admin-tools').addEventListener('toggle',()=>{void activateAccessCaptcha();});
+  document.querySelector('.access-return-tools').addEventListener('toggle',()=>{void activateAccessCaptcha();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refresh();});
   await refresh();
   if(!$('access').hidden)await activateAccessCaptcha();
