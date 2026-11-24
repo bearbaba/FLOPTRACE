@@ -506,3 +506,20 @@ body.testnet-verified .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .opening-proof code{font:600 11px/1.7 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;word-break:break-all;color:#654272}
 body.testnet-verified .testnet-opening-notice{border-color:#c9e1d6;background:#eff9f4}
 @media(max-width:600px){.testnet-opening-notice{padding:17px 15px}.opening-links{flex-direction:column;align-items:stretch}.opening-links>a{width:100%}}
+
+
+/* Member access: publicly readable guides; server-controlled WL for private tools. */
+.wl-card{margin:17px 0 22px;background:#fff;border:1px solid #e2e6f2;border-radius:21px}
+.wl-address{font:600 13px/1.6 ui-monospace,Consolas,monospace;word-break:break-all;color:#4b5685;background:#f6f6fc;border:1px solid #e5e6f0;border-radius:11px;padding:13px 15px}
+.wl-controls{margin:16px 0 12px}.wl-controls button{min-width:180px}
+.wl-card .identity-inline-feedback{margin-bottom:12px}
+.wl-card .card-heading{align-items:start}.wl-card .card-heading p{color:#63718c}
+.wl-member-list{margin:19px 0;display:grid;gap:12px}
+.wl-member{padding:17px;background:#f6f6fc;border:1px solid #e3e6f3;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.wl-member strong{font-size:14px;color:#303754}.wl-member code{word-break:break-all;color:#57638b;font-size:11px}
+.wl-member small{font-weight:780;color:#5c4cb8;font-size:10px}
+.wl-member .row>button{min-height:36px;font-size:11px}
+.wl-rotate{border-top:1px solid #e0e4f0;padding-top:16px}
+.wl-rotate h3{font-size:15px;color:#303754}.wl-rotate p{font-size:12px;color:#6d7591}
+.wl-scope{padding:14px 16px;border:1px solid #e5e5f1;background:#f9f8ff;border-radius:12px}
+@media(max-width:640px){.wl-card{padding:17px}.wl-controls{flex-direction:column;align-items:stretch}.wl-controls button{width:100%}}
