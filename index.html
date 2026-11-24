@@ -18,6 +18,7 @@
     <div class="side-label">WORKSPACE</div>
     <nav class="nav" aria-label="Main navigation">
       <button class="nav-item active" data-view="home" aria-current="page"><span>◫</span> Overview</button>
+      <button class="nav-item" data-view="access"><span>◇</span> Danh sách truy cập</button>
       <button class="nav-item" id="navDevnet" data-view="devnet"><span>⬡</span> Devnet Hub</button>
       <button class="nav-item" data-view="identity"><span>◎</span> Identity</button>
       <button class="nav-item" id="navDevnetInference" data-view="inference"><span>✧</span> Inference</button>
@@ -48,7 +49,8 @@
             <p class="lead" id="heroIntro">One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.</p>
             <div class="home-actions">
               <a id="testnetStartHero" class="primary link-button" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer" hidden>Xem trạng thái Testnet ↗</a>
-              <button type="button" class="primary" id="bringMyDidCTA" data-view="identity">Bring my DID <span aria-hidden="true">↗</span></button>
+              <button type="button" class="primary" data-view="access">Đăng ký tham gia <span aria-hidden="true">↗</span></button>
+              <button type="button" class="secondary" id="bringMyDidCTA" data-view="identity">Bring my DID <span aria-hidden="true">↗</span></button>
               <a class="secondary link-button prelaunch-only" id="checkLaunchCTA" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Check official FLOP Testnet launch announcement">Check Testnet launch ↗</a>
               <button type="button" class="secondary prelaunch-only" id="homeDevnetCTA" data-view="devnet">Explore Devnet <span aria-hidden="true">→</span></button>
             </div>
@@ -188,6 +190,46 @@
         </details>
         <div class="info-strip"><strong>Verification boundary.</strong> FLOPTRACE currently offers model discovery, links and local unverified inference receipts. It does not create a FLOP chain wallet, submit transactions, attest PoUI or award points. Never enter a seed phrase on a website to claim Devnet rewards.</div>
         <div class="builder-signoff"><div><strong>Building on FLOP?</strong><span>Follow Bear Crypto for FLOPTRACE tutorials, product updates and community guides.</span></div><a class="primary" href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Follow @Bearcrypto2021 ↗</a></div>
+      </section>
+      <section class="view" id="access" hidden aria-label="Danh sách truy cập FLOPTRACE">
+        <div class="eyebrow">FLOPTRACE / COMMUNITY ACCESS</div><h1 class="page-title">Danh sách truy cập FLOPTRACE</h1>
+        <p class="lead compact">Dùng Handle X để xin tham gia, không cần kết nối ví, ký thông điệp, nhập seed phrase hay chi phí blockchain. Quản trị viên xác minh tài khoản và xét duyệt riêng. Quyền truy cập FLOPTRACE <strong>không phải</strong> airdrop whitelist của FLOP Labs.</p>
+        <div class="card access-card">
+          <div class="card-heading"><div><h2>Đăng ký tham gia</h2><p>Bước 1: Nhập Handle X. Bước 2: Giải CAPTCHA. Bước 3: Gửi đơn và chờ duyệt.</p></div><span class="badge subtle" id="accessBadge">CHECKING</span></div>
+          <div class="field"><label for="accessHandle">Handle X của bạn</label><input id="accessHandle" maxlength="16" placeholder="@yourhandle" autocapitalize="off" autocomplete="off" spellcheck="false"></div>
+          <div id="accessCaptcha" class="access-captcha" aria-label="CAPTCHA đăng ký"></div>
+          <button type="button" class="primary wide" id="accessApply" disabled>Đăng ký tham gia →</button>
+          <p id="accessFeedback" class="identity-inline-feedback" role="status" aria-live="polite">Đang kiểm tra hệ thống đăng ký…</p>
+          <p class="field-hint">CAPTCHA hạn chế bot, nhưng không xác minh bạn sở hữu Handle X. Chỉ quản trị viên mới có quyền duyệt. Không tự động cấp quyền hay điểm thưởng.</p>
+        </div>
+        <div class="card access-card">
+          <div class="card-heading"><div><h2>Đã được duyệt? Nhập mã mời</h2><p>Sau khi xác minh sở hữu Handle X, quản trị viên sẽ gửi mã riêng qua kênh an toàn. Không chia sẻ mã này công khai.</p></div></div>
+          <p id="accessMember" class="statusline">Chưa đăng nhập bằng mã thành viên.</p>
+          <div class="field"><label for="accessInvite">Mã mời cá nhân</label><input type="password" id="accessInvite" autocomplete="one-time-code" placeholder="Mã mời do quản trị viên gửi riêng"></div>
+          <div class="row"><button type="button" id="accessRedeem" class="secondary" disabled>Kích hoạt quyền thành viên</button><button type="button" id="accessLogout" class="secondary" hidden>Đăng xuất</button></div>
+        </div>
+        <details class="access-admin-tools">
+          <summary>Quản trị viên · Duyệt và thu hồi quyền</summary>
+          <div class="card access-card">
+            <p class="field-hint">Đăng nhập quản trị trên thiết bị tin cậy. Mật khẩu quản trị không được ghi vào localStorage; máy chủ kiểm tra phiên riêng với CAPTCHA.</p>
+            <div id="accessAdminLogin">
+              <div class="field"><label for="accessAdminSecret">Mật khẩu quản trị</label><input id="accessAdminSecret" type="password" autocomplete="off" placeholder="Admin passphrase"></div>
+              <div id="accessAdminCaptcha" class="access-captcha" aria-label="CAPTCHA quản trị"></div>
+              <button type="button" class="secondary" id="accessAdminSignIn" disabled>Đăng nhập quản trị</button>
+            </div>
+            <div id="accessAdminPanel" hidden>
+              <button type="button" class="secondary" id="accessAdminRefresh">Làm mới đơn tham gia</button>
+              <div id="accessApplicationList" class="access-applications" aria-live="polite"></div>
+              <section class="access-invitation" id="accessInvitation" hidden>
+                <strong>Mã mời chỉ hiển thị một lần</strong>
+                <p>Chỉ gửi riêng cho chủ tài khoản X đã xác minh. Nếu mất, tạo lại mã mời.</p>
+                <code id="accessInvitationValue" class="wrap"></code>
+                <button type="button" class="secondary" id="accessCopyInvitation">Sao chép mã mời</button>
+              </section>
+            </div>
+          </div>
+        </details>
+        <p class="field-hint access-explainer">Khách vẫn đọc được hướng dẫn và thông tin mạng. Các trang công cụ trong FLOPTRACE mở sau khi xác thực mã mời. API có giới hạn lượt gọi và phải xác minh phiên thành viên tại máy chủ. Không có công cụ tự tạo voucher, faucet trùng lặp hay giao dịch chi tiêu tự động.</p>
       </section>
       <section class="view" id="identity" hidden aria-label="Identity">
         <div class="eyebrow">01 / IDENTITY</div><h1 class="page-title">Your agents</h1>
