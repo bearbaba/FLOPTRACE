@@ -18,6 +18,7 @@
     <div class="side-label">WORKSPACE</div>
     <nav class="nav" aria-label="Main navigation">
       <button class="nav-item active" data-view="home" aria-current="page"><span>◫</span> Overview</button>
+      <button class="nav-item" id="navAccess" data-view="access"><span>◇</span> Danh sách truy cập</button>
       <button class="nav-item" id="navDevnet" data-view="devnet"><span>⬡</span> Devnet Hub</button>
       <button class="nav-item" data-view="identity"><span>◎</span> Identity</button>
       <button class="nav-item" id="navDevnetInference" data-view="inference"><span>✧</span> Inference</button>
@@ -48,7 +49,8 @@
             <p class="lead" id="heroIntro">One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.</p>
             <div class="home-actions">
               <a id="testnetStartHero" class="primary link-button" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer" hidden>Xem trạng thái Testnet ↗</a>
-              <button type="button" class="primary" id="bringMyDidCTA" data-view="identity">Bring my DID <span aria-hidden="true">↗</span></button>
+              <button type="button" class="primary" data-view="access">Đăng ký tham gia <span aria-hidden="true">↗</span></button>
+              <button type="button" class="secondary" id="bringMyDidCTA" data-view="identity">Bring my DID <span aria-hidden="true">↗</span></button>
               <a class="secondary link-button prelaunch-only" id="checkLaunchCTA" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Check official FLOP Testnet launch announcement">Check Testnet launch ↗</a>
               <button type="button" class="secondary prelaunch-only" id="homeDevnetCTA" data-view="devnet">Explore Devnet <span aria-hidden="true">→</span></button>
             </div>
@@ -188,6 +190,40 @@
         </details>
         <div class="info-strip"><strong>Verification boundary.</strong> FLOPTRACE currently offers model discovery, links and local unverified inference receipts. It does not create a FLOP chain wallet, submit transactions, attest PoUI or award points. Never enter a seed phrase on a website to claim Devnet rewards.</div>
         <div class="builder-signoff"><div><strong>Building on FLOP?</strong><span>Follow Bear Crypto for FLOPTRACE tutorials, product updates and community guides.</span></div><a class="primary" href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Follow @Bearcrypto2021 ↗</a></div>
+      </section>
+      <section class="view" id="access" hidden aria-label="Danh sách truy cập FLOPTRACE">
+        <div class="eyebrow">FLOPTRACE / MEMBER ACCESS</div>
+        <h1 class="page-title">Danh sách truy cập FLOPTRACE</h1>
+        <p class="lead compact">Website và mã nguồn vẫn công khai. Các công cụ dành cho thành viên được bảo vệ bằng ví EVM, chữ ký đăng nhập và phê duyệt của quản trị viên. Whitelist này <strong>không phải whitelist airdrop FLOP</strong> và không đảm bảo phần thưởng.</p>
+        <div class="card wl-card">
+          <div class="card-heading"><div><h2>Đăng nhập bằng chữ ký ví</h2><p>Không cần nạp tiền. Chữ ký chỉ xác minh quyền sở hữu ví, không chuyển token hay ký giao dịch FLOP.</p></div><span id="wlBadge" class="badge subtle">CHECKING</span></div>
+          <p class="wl-address" id="wlAddress">Chưa kết nối ví</p>
+          <p id="wlFeedback" class="identity-inline-feedback" role="status" aria-live="polite">Đang kiểm tra khả năng đăng ký...</p>
+          <div class="row wl-controls">
+            <button type="button" class="primary" id="wlLogin">Kết nối ví & ký đăng nhập</button>
+            <button type="button" class="secondary" id="wlLogout" hidden>Đăng xuất</button>
+          </div>
+          <p class="field-hint">Ví EVM chỉ là danh tính thành viên của FLOPTRACE. Đây không phải địa chỉ tài khoản FLOP Testnet và không thay thế Ed25519 DID. Hỗ trợ ví EVM thông thường có chức năng personal_sign; chưa hỗ trợ ví hợp đồng ERC-1271.</p>
+        </div>
+        <div class="card wl-card" id="wlApplySection" hidden>
+          <div class="card-heading"><div><h2>Đăng ký tham gia cộng đồng</h2><p>Đăng ký không tự cấp quyền. Quản trị viên sẽ kiểm tra và duyệt từng thành viên; một thành viên chỉ có một ví đang hoạt động.</p></div></div>
+          <div class="field"><label for="wlDisplayName">Tên hiển thị (không bắt buộc)</label><input id="wlDisplayName" maxlength="50" placeholder="Tên thành viên cộng đồng"></div>
+          <button id="wlApply" type="button" class="primary">Gửi yêu cầu tham gia</button>
+          <p class="field-hint">Nếu đổi ví, ví mới phải ký đăng nhập và gửi đơn trước. Quản trị viên chuyển quyền từ ví cũ sang ví mới và thu hồi ví cũ.</p>
+        </div>
+        <div class="card wl-card" id="wlAdminSection" hidden>
+          <div class="card-heading"><div><h2>Quản trị Danh sách truy cập</h2><p>Chỉ hiển thị cho ví quản trị đã ký xác thực. Duyệt, thu hồi và thay ví đều được thực hiện phía máy chủ.</p></div></div>
+          <button type="button" id="wlRefreshMembers" class="secondary">Làm mới danh sách</button>
+          <div id="wlMemberList" class="wl-member-list" aria-live="polite"></div>
+          <div class="wl-rotate">
+            <h3>Chuyển quyền sang ví mới</h3>
+            <p>Ví mới cần tự ký đăng nhập và nộp đơn trước khi quản trị viên chuyển quyền.</p>
+            <div class="field"><label for="wlOldWallet">Ví thành viên hiện tại</label><input id="wlOldWallet" placeholder="0x..." autocomplete="off" spellcheck="false"></div>
+            <div class="field"><label for="wlNewWallet">Ví mới đã nộp đơn</label><input id="wlNewWallet" placeholder="0x..." autocomplete="off" spellcheck="false"></div>
+            <button type="button" id="wlRotate" class="secondary">Chuyển & thu hồi ví cũ</button>
+          </div>
+        </div>
+        <p class="field-hint wl-scope">Chức năng đọc trạng thái Testnet và tài liệu FLOP vẫn mở cho mọi người. Tạo DID là hoạt động cục bộ; API tính phí, faucet và inference chỉ mở khi có WL hợp lệ và hạ tầng chính thức sẵn sàng. Không tạo hoặc cấp voucher tự động.</p>
       </section>
       <section class="view" id="identity" hidden aria-label="Identity">
         <div class="eyebrow">01 / IDENTITY</div><h1 class="page-title">Your agents</h1>
