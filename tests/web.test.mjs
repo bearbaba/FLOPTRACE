@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import './identity-create.test.mjs'; // Keep real Ed25519 onboarding tests inside the existing CI test command.
+import './identity-create.test.mjs';
+import './access.test.mjs'; // Keep real Ed25519 onboarding tests inside the existing CI test command.
 import {LAUNCH_UTC,getLaunchCountdown} from '../js/launch-clock.mjs';
 import statusHandler from '../api/status.js';
 import modelsHandler from '../api/models.js';
@@ -43,21 +44,47 @@ test('public models proxy filters IDs without leaking upstream details',async()=
     assert.equal(response.code,200);assert.deepEqual(response.body.data,[{id:'sample/model'}]);
   }finally{globalThis.fetch=before;}
 });
-test('inference blocks unauthenticated and cross-origin requests',async()=>{
-  await withEnv({FLOPTRACE_ENABLE_INFERENCE:'1',FLOPTRACE_SPEND_CAP_ACK:'1',FLOP_API_KEY:'upstream-key',FLOPTRACE_ACCESS_TOKEN:'my-passcode'},async()=>{
-    const body={model:'sample/model',prompt:'Hello'};
-    const a=res();await inferHandler(req('POST',body),a);assert.equal(a.code,401);
-    const b=res();await inferHandler(req('POST',body,{authorization:'Bearer my-passcode',origin:'https://evil.example'}),b);assert.equal(b.code,403);
-    const c=res();await inferHandler(req('POST',{...body,did:'did:key:zBogus'},{authorization:'Bearer my-passcode'}),c);assert.equal(c.code,400);
+test('private inference rejects guests and cross-site callers, even with all spending flags set',async()=>{
+  await withEnv({
+    FLOPTRACE_ENABLE_INFERENCE:'1',FLOPTRACE_SPEND_CAP_ACK:'1',FLOP_API_KEY:'upstream-key',
+    UPSTASH_REDIS_REST_URL:'https://example.upstash.io',UPSTASH_REDIS_REST_TOKEN:'dev-token',
+    TURNSTILE_SITE_KEY:'test-site-key',TURNSTILE_SECRET_KEY:'test-secret-key',
+    FLOPTRACE_ADMIN_PASSPHRASE:'long-test-passphrase-24characters'
+  },async()=>{
+    const before=globalThis.fetch;
+    globalThis.fetch=async(url)=>{if(String(url).includes('upstash'))return {ok:true,json:async()=>({result:null})};throw Error('Should not call gateway');};
+    try{
+      const body={model:'sample/model',prompt:'Hello'};
+      const guest=res();await inferHandler(req('POST',body),guest);assert.equal(guest.code,403);
+      const origin=res();await inferHandler(req('POST',body,{origin:'https://evil.example'}),origin);assert.equal(origin.code,403);
+    }finally{globalThis.fetch=before;}
   });
 });
-test('successful mocked gateway response is explicitly NOT VERIFIED',async()=>{
-  await withEnv({FLOPTRACE_ENABLE_INFERENCE:'1',FLOPTRACE_SPEND_CAP_ACK:'1',FLOP_API_KEY:'upstream-key',FLOPTRACE_ACCESS_TOKEN:'my-passcode'},async()=>{
+test('approved X-handle membership gates an actual mocked gateway response and retains UNVERIFIED proof',async()=>{
+  const token='a'.repeat(64),member='research_builder';
+  const session={handle:member,expires:Date.now()+3600000};
+  await withEnv({
+    FLOPTRACE_ENABLE_INFERENCE:'1',FLOPTRACE_SPEND_CAP_ACK:'1',FLOP_API_KEY:'upstream-key',
+    UPSTASH_REDIS_REST_URL:'https://example.upstash.io',UPSTASH_REDIS_REST_TOKEN:'dev-token',
+    TURNSTILE_SITE_KEY:'test-site-key',TURNSTILE_SECRET_KEY:'test-secret-key',
+    FLOPTRACE_ADMIN_PASSPHRASE:'long-test-passphrase-24characters'
+  },async()=>{
     const before=globalThis.fetch;let sent;
-    globalThis.fetch=async(url,options)=>{sent={url,options};return {ok:true,json:async()=>({id:'test-inference',choices:[{message:{content:'Mocked answer'}}]})};};
+    globalThis.fetch=async(url,options)=>{
+      if(String(url).includes('example.upstash.io')){
+        const [command,key]=JSON.parse(options.body);
+        if(command==='GET'&&String(key).includes('session:'))return{ok:true,json:async()=>({result:JSON.stringify(session)})};
+        if(command==='GET'&&String(key).includes('member:'))return{ok:true,json:async()=>({result:JSON.stringify({id:'m-1',handle:member,status:'ACTIVE'})})};
+        return{ok:true,json:async()=>({result:1})};
+      }
+      sent={url,options};
+      return{ok:true,json:async()=>({id:'test-inference',choices:[{message:{content:'Mocked answer'}}]})};
+    };
     try{
       const response=res();
-      await inferHandler(req('POST',{model:'sample/model',prompt:'Hello',did:'did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG'},{authorization:'Bearer my-passcode',origin:'https://flops-murex.vercel.app'}),response);
+      await inferHandler(req('POST',{
+        model:'sample/model',prompt:'Hello',did:'did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG'
+      },{cookie:'__Host-floptrace_access='+token,origin:'https://flops-murex.vercel.app'}),response);
       assert.equal(response.code,200);
       assert.equal(response.body.output,'Mocked answer');
       assert.equal(response.body.receipt.proofStatus,'NOT_VERIFIED');
@@ -66,7 +93,7 @@ test('successful mocked gateway response is explicitly NOT VERIFIED',async()=>{
       assert.ok(sent.url.endsWith('/chat/completions'));
       assert.equal(JSON.stringify(response.body).includes('upstream-key'),false);
       assert.equal(JSON.stringify(response.body.receipt).includes('Hello'),false);
-      const requestBody=JSON.parse(sent.options.body);assert.equal(requestBody.max_tokens,512);
+      assert.equal(JSON.parse(sent.options.body).max_tokens,512);
     }finally{globalThis.fetch=before;}
   });
 });
