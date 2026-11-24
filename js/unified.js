@@ -279,7 +279,7 @@ async function loadStatus(){
     inferenceEnabled=!!status.inferenceEnabled;
     $('inferStatus').textContent=inferenceEnabled?'PRIVATE ACCESS':'DISCOVERY ONLY';
     message('inferFeedback',inferenceEnabled
-      ?'Inference is enabled for authorized users. Enter the private access passcode under Access settings.'
+      ?'Inference is enabled only for approved, signed-in WL members; per-member rate and provider spending limits apply.'
       :'Models can be browsed; inference is disabled until the site owner securely configures API access and a spending cap.');
     $('runInference').disabled=!inferenceEnabled;
   }catch{
@@ -351,12 +351,10 @@ $('inferForm').addEventListener('submit',async event=>{
   event.preventDefault();
   if(!inferenceEnabled)return message('inferFeedback','Private inference is disabled; use model discovery for now.','error');
   if(!gatewayReady)return message('inferFeedback','Refresh gateway models first.','error');
-  const access=$('accessToken').value;
-  if(!access)return message('inferFeedback','Enter your private workbench passcode under Access settings. Do not enter a seed or your FLOP API key.','error');
   const form=$('runInference');form.disabled=true;message('inferFeedback','Sending a bounded request to FLOP Gateway…');$('inferenceOutput').textContent='Processing…';
   try{
     const result=await api('/api/infer',{
-      method:'POST',headers:{'content-type':'application/json',Authorization:'Bearer '+access},
+      method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',
       body:JSON.stringify({model:$('model').value,system:$('system').value,prompt:$('prompt').value.trim(),did:activeDid||null})
     });
     $('inferenceOutput').textContent=result.output;latestReceipt=result.receipt;
