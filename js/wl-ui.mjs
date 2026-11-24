@@ -4,7 +4,7 @@ const $=id=>document.getElementById(id);
 const route='/api/wl';
 let state={configured:false,signedIn:false,approved:false,isAdmin:false,status:'CHECKING',wallet:null};
 let onAccessChanged=()=>{};
-export function memberToolsAllowed(){return !state.configured||state.approved||state.isAdmin;}
+export function memberToolsAllowed(){return !!state.configured&&(!!state.approved||!!state.isAdmin);}
 function show(id,yes){const el=$(id);if(el)el.hidden=!yes;}
 function note(text,error=false){
   const el=$('wlFeedback');if(!el)return;
@@ -38,7 +38,7 @@ function render(){
   show('wlAdminSection',!!state.isAdmin);
   const privateButtons=document.querySelectorAll('.nav-item[data-view="identity"],.nav-item[data-view="inference"],.nav-item[data-view="community"],.nav-item[data-view="activity"]');
   for(const el of privateButtons)el.hidden=!memberToolsAllowed();
-  if(!state.configured)note('Danh sách truy cập chưa được kích hoạt vì máy chủ chưa có kho lưu thành viên và ví quản trị. Không ai được tự cấp WL. Tính năng DID cục bộ vẫn truy cập được trong giai đoạn chuẩn bị.',true);
+  if(!state.configured)note('Danh sách truy cập chưa được kích hoạt vì máy chủ chưa có kho lưu thành viên và ví quản trị. Không ai được tự cấp WL. Các công cụ dành cho thành viên được tạm khóa an toàn đến khi WL được cấu hình; dữ liệu DID cục bộ cũ không bị xóa.',true);
   else if(state.approved)note('Ví đã được quản trị viên duyệt. Những API được mở vẫn kiểm tra quyền WL và hạn mức ở phía máy chủ.');
   else if(state.isAdmin)note('Đã xác thực bằng ví quản trị. Bạn có thể xem hồ sơ và duyệt thành viên; quyền inference vẫn cần trạng thái member ACTIVE.');
   else if(state.status==='PENDING')note('Đơn của ví này đang chờ quản trị viên xem xét. Không được sử dụng các API dành riêng cho thành viên.');
@@ -128,4 +128,5 @@ export async function setupWL(callback){
   $('wlRotate').addEventListener('click',rotate);
   await refresh();
   if(state.isAdmin)void list();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refresh();});
 }
