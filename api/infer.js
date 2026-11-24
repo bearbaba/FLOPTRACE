@@ -1,4 +1,5 @@
-const {createHash,timingSafeEqual}=require('node:crypto');
+const {createHash}=require('node:crypto');
+const access=require('../lib/community-access');
 const GATEWAY='https://api.flop.network/v1/chat/completions';
 // Validate any public Ed25519 did:key. No community member has a privileged preset DID.
 const BASE58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -13,19 +14,13 @@ function validDid(did) {
   return bytes.length===34&&bytes[0]===0xed&&bytes[1]===0x01;
 }
 const digest=x=>createHash('sha256').update(x,'utf8').digest('hex');
-function authorized(req,secret){
-  const provided=String(req.headers.authorization||'').replace(/^Bearer /i,'');
-  const a=Buffer.from(provided),b=Buffer.from(secret);
-  return a.length===b.length && a.length>0 && timingSafeEqual(a,b);
-}
 module.exports=async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
   res.setHeader('X-Content-Type-Options','nosniff');
   res.setHeader('Referrer-Policy','no-referrer');
   if(req.method!=='POST') return res.status(405).json({error:'POST only'});
   const key=process.env.FLOP_API_KEY||'';
-  const secret=process.env.FLOPTRACE_ACCESS_TOKEN||'';
-  const enabled=process.env.FLOPTRACE_ENABLE_INFERENCE==='1'&&process.env.FLOPTRACE_SPEND_CAP_ACK==='1'&&!!key&&!!secret;
+  const enabled=process.env.FLOPTRACE_ENABLE_INFERENCE==='1'&&process.env.FLOPTRACE_SPEND_CAP_ACK==='1'&&!!key&&access.configured();
   if(!enabled) return res.status(503).json({error:'Private inference is disabled by the site owner. Model browsing remains available.'});
   const origin=req.headers.origin;
   if(origin){
@@ -34,7 +29,12 @@ module.exports=async function handler(req,res){
       if(!['http:','https:'].includes(u.protocol)||u.host!==req.headers.host) return res.status(403).json({error:'Cross-origin requests blocked'});
     }catch{return res.status(403).json({error:'Invalid origin'});}
   }
-  if(!authorized(req,secret))return res.status(401).json({error:'Incorrect workbench access passcode'});
+  try{
+    const member=await access.requireMember(req);
+    await access.consumeInferenceQuota(member.id);
+  }catch(error){
+    return res.status(error.statusCode||503).json({error:error.statusCode?error.message:'Membership service unavailable; no inference was sent.'});
+  }
   const body=typeof req.body==='string'?(()=>{try{return JSON.parse(req.body);}catch{return null;}})():req.body;
   if(!body||typeof body!=='object'||Array.isArray(body)) return res.status(400).json({error:'Invalid JSON request'});
   const {did=null,model,prompt,system=''}=body;
