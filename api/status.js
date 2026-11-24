@@ -1,3 +1,4 @@
+const {configured:wlConfigured}=require('../lib/community-access');
 module.exports = function handler(req,res) {
   res.setHeader('Cache-Control','no-store');
   res.setHeader('X-Content-Type-Options','nosniff');
@@ -5,10 +6,10 @@ module.exports = function handler(req,res) {
   const ready = process.env.FLOPTRACE_ENABLE_INFERENCE==='1'
     && process.env.FLOPTRACE_SPEND_CAP_ACK==='1'
     && !!process.env.FLOP_API_KEY
-    && !!process.env.FLOPTRACE_ACCESS_TOKEN;
+    && wlConfigured();
   return res.status(200).json({
     app:'FLOPTRACE',network:'devnet',inferenceEnabled:ready,identityMode:'LOCAL_ONLY',
-    proofVerification:false,apiKeyExposed:false,
+    proofVerification:false,apiKeyExposed:false,accessListConfigured:wlConfigured(),
     message:ready?'Authenticated inference available':'Model discovery only; private inference is disabled'
   });
 };
