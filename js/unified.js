@@ -1,5 +1,6 @@
 import {isValidEd25519Did,normalizedProfiles,addProfile,removeProfile} from './did-utils.mjs';
 import {createLocalIdentity} from './identity-create.mjs';
+import {setupCommunityAccess,memberToolsAllowed,activateAccessCaptcha} from './access-ui.mjs';
 import {validateSs58} from './ss58-utils.mjs';
 import { LAUNCH_UTC, getLaunchCountdown } from './launch-clock.mjs';
 const $ = id => document.getElementById(id);
@@ -111,16 +112,17 @@ function registerProfile(did,name){
 function currentRouteView(){
   if(/^\/devnet\/?$/.test(window.location.pathname))return 'devnet';
   const requested=new URLSearchParams(window.location.search).get('view');
-  return ['home','devnet','identity','inference','community','activity'].includes(requested)?requested:'home';
+  return ['home','devnet','access','identity','inference','community','activity'].includes(requested)?requested:'home';
 }
 function go(view,updateHistory=true){
   if(!$(view)||!$(view).classList.contains('view'))return;
+  if(['identity','inference','community','activity'].includes(view)&&!memberToolsAllowed())view='access';
   document.querySelectorAll('.view').forEach(el=>el.hidden=el.id!==view);
   document.querySelectorAll('.nav-item').forEach(el=>{
     const selected=el.dataset.view===view;el.classList.toggle('active',selected);
     if(selected)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
   });
-  $('currentView').textContent={home:document.body.classList.contains('testnet-verified')?'Testnet':'Overview',devnet:'Devnet Hub',identity:'Identity',inference:'Inference',community:'Community',activity:'Activity'}[view];
+  $('currentView').textContent={home:document.body.classList.contains('testnet-verified')?'Testnet':'Overview',devnet:'Devnet Hub',access:'Danh sách truy cập',identity:'Identity',inference:'Inference',community:'Community',activity:'Activity'}[view];
   if(updateHistory){
     const path=view==='devnet'?'/devnet':view==='home'?'/':'/?view='+encodeURIComponent(view);
     if(path!==window.location.pathname+window.location.search)history.pushState({view},'',path);
@@ -128,6 +130,7 @@ function go(view,updateHistory=true){
   if(view==='activity')renderEvents();
   if(view==='community')loadFeed();
   if(view==='devnet')void loadDevnetHealth();
+  if(view==='access')void activateAccessCaptcha();
   window.scrollTo({top:0,behavior:'instant'});
 }
 window.addEventListener('popstate',()=>go(currentRouteView(),false));
@@ -670,6 +673,10 @@ for(const button of document.querySelectorAll('[data-copy-target]')){
 }
 
 fillRooms();selectDid(activeDid);renderEvents();go(currentRouteView(),false);
-await Promise.all([loadStatus(),loadModels(),loadTestnetReadiness()]);
+await Promise.all([loadStatus(),loadModels(),loadTestnetReadiness(),setupCommunityAccess(()=>{
+  const route=currentRouteView();
+  if(memberToolsAllowed()&&['identity','inference','community','activity'].includes(route)&&$('access')&&!$('access').hidden)go(route,false);
+  if(!memberToolsAllowed()&&['identity','inference','community','activity'].some(id=>$(id)&&!$(id).hidden))go('access');
+})]);
 setInterval(loadTestnetReadiness,60_000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void loadTestnetReadiness();});
