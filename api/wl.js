@@ -1,4 +1,3 @@
-const {verifyMessage}=require('ethers');
 const wl=require('../lib/wl');
 const {randomUUID,createHash}=require('node:crypto');
 const reject=(res,code,error)=>res.status(code).json({error});
@@ -57,7 +56,7 @@ async function handler(req,res){
       const record=wl.parse(await wl.redis('GETDEL',wl.key('nonce:',n)));
       if(!record||record.expires<Date.now())return reject(res,401,'Challenge expired or already consumed.');
       let signer;
-      try{signer=wl.wallet(verifyMessage(record.message,signature));}
+      try{signer=wl.wallet(require('ethers').verifyMessage(record.message,signature));}
       catch{return reject(res,401,'Invalid wallet signature.');}
       if(signer!==record.wallet)return reject(res,401,'Signature belongs to a different wallet.');
       const token=wl.sessionToken(),expires=Date.now()+wl.SESSION_SECONDS*1000;
