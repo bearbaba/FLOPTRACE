@@ -65,7 +65,7 @@ async function handler(req,res){
         a.key('invite:',hash),a.key('member:',handle),a.key('batch:',batchId),
         a.key('session:',a.digest(token)),a.key('audit'),a.key('current-batch'),a.key('members'),
         batchId,JSON.stringify(member),session,a.MEMBER_TTL,audit,handle));
-      if(count===2)return fail(res,409,'This X handle is already registered. Request an administrator review.');
+      if(count===-2)return fail(res,409,'This X handle is already registered. Request an administrator review.');
       if(!Number.isSafeInteger(count)||count<1||count>100)
         return fail(res,409,'Invitation no longer has an available seat.');
       res.setHeader('Set-Cookie',a.cookie(a.COOKIE,token,a.MEMBER_TTL));
