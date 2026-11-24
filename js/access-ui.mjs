@@ -1,69 +1,72 @@
-// No wallet connections or signatures. X handle + CAPTCHA submits a pending request.
-// A separately delivered secret invitation is needed to activate member rights.
+// Wallet-free FLOPTRACE WL. Admission requires a random one-use invitation
+// (1 seat of a 100-seat batch), a public X handle, and a verified CAPTCHA.
+// The server is the only authority: all privileged APIs validate session cookies.
 const $=id=>document.getElementById(id);
 const endpoint='/api/community-access';
 let state={configured:false,isMember:false,isAdmin:false,handle:null,siteKey:null};
-let readyCallback=()=>{},joinWidget=null,adminWidget=null,loadingTurnstile=null;
+let changed=()=>{},joinWidget=null,adminWidget=null,loadingTurnstile=null;
 export function memberToolsAllowed(){return state.isMember===true;}
-function show(id,visible){const el=$(id);if(el)el.hidden=!visible;}
-function say(value,bad=false){
-  const el=$('accessFeedback');el.textContent=value;
-  el.classList.toggle('error',bad);el.classList.toggle('good',!bad);
+function show(id,value){const el=$(id);if(el)el.hidden=!value;}
+function note(value,bad=false){
+  $('accessFeedback').textContent=value;
+  $('accessFeedback').classList.toggle('error',bad);
+  $('accessFeedback').classList.toggle('good',!bad);
 }
-async function post(action,fields={}){
-  const r=await fetch(endpoint,{method:'POST',credentials:'same-origin',cache:'no-store',
-    headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...fields})});
-  const data=await r.json().catch(()=>({}));
-  if(!r.ok)throw Error(data.error||'Request failed ('+r.status+').');
-  return data;
+async function post(action,body={}){
+  const response=await fetch(endpoint,{method:'POST',credentials:'same-origin',cache:'no-store',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...body})});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(result.error||'Request failed ('+response.status+').');
+  return result;
+}
+function render(){
+  $('accessBadge').textContent=state.isMember?'MEMBER':state.configured?'INVITE ONLY':'SETUP REQUIRED';
+  const slots=state.slots||{};
+  const claimed=Number(slots.claimed)||0;
+  const size=Number(slots.capacity)||100;
+  $('accessSlotsText').textContent=!state.configured?'Hệ thống lời mời chưa kích hoạt':
+    slots.closed?'Đợt hiện tại đã đóng':
+    slots.active?claimed+' / '+size+' suất đã sử dụng · '+Math.max(0,size-claimed)+' suất còn lại':
+      'Chưa có đợt lời mời đang mở';
+  $('accessSlotsFill').style.width=Math.min(100,Math.max(0,claimed/size*100))+'%';
+  $('accessMember').textContent=state.isMember?'Đã đăng nhập thành viên @'+state.handle+'.':
+    'Chưa có phiên thành viên đang hoạt động.';
+  $('accessJoin').disabled=!state.configured||state.isMember;
+  $('accessAdminSignIn').disabled=!state.configured;
+  show('accessLogout',!!state.isMember||!!state.isAdmin);
+  show('accessAdminLogin',!state.isAdmin);
+  show('accessAdminPanel',!!state.isAdmin);
+  $('accessIssueBatch').disabled=!state.isAdmin||!!(slots.active&&slots.remaining>0);
+  $('accessCloseBatch').disabled=!state.isAdmin||!slots.active||!slots.remaining;
+  for(const el of document.querySelectorAll('.nav-item[data-view="identity"],.nav-item[data-view="inference"],.nav-item[data-view="community"],.nav-item[data-view="activity"]')){
+    el.hidden=!memberToolsAllowed();
+  }
+  if(!state.configured)note('Đang chuẩn bị. Chưa có cấu hình lưu thành viên và CAPTCHA nên hệ thống không nhận link hay cấp quyền. Không cần kết nối ví.',true);
+  else if(state.isMember)note('Đã kích hoạt thành viên. Các chức năng riêng vẫn được máy chủ xác minh trước mỗi yêu cầu.');
+  else note('Mở một link mời riêng, điền Handle X và giải CAPTCHA để kích hoạt một suất. Không cần ký ví.');
 }
 async function refresh(){
   try{
-    const r=await fetch(endpoint,{cache:'no-store',credentials:'same-origin'});
-    if(!r.ok)throw Error('Membership service unreachable');
-    state=await r.json();
+    const response=await fetch(endpoint,{credentials:'same-origin',cache:'no-store'});
+    if(!response.ok)throw Error('Membership service unavailable');
+    state=await response.json();
   }catch{state={configured:false,isMember:false,isAdmin:false,handle:null,siteKey:null};}
-  render();
-  readyCallback();
+  render();changed();
 }
-function render(){
-  $('accessBadge').textContent=state.isMember?'MEMBER':state.configured?'APPLICATIONS OPEN':'SETUP REQUIRED';
-  $('accessMember').textContent=state.isMember
-    ?'Đã kích hoạt quyền thành viên FLOPTRACE cho @'+state.handle+'.'
-    :'Chưa có phiên thành viên được xác thực trên thiết bị này.';
-  show('accessLogout',state.isMember||state.isAdmin);
-  show('accessAdminLogin',!state.isAdmin);
-  show('accessAdminPanel',!!state.isAdmin);
-  $('accessRedeem').disabled=!state.configured||state.isMember;
-  $('accessApply').disabled=!state.configured;
-  $('accessAdminSignIn').disabled=!state.configured;
-  for(const node of document.querySelectorAll('.nav-item[data-view="identity"],.nav-item[data-view="inference"],.nav-item[data-view="community"],.nav-item[data-view="activity"]')){
-    node.hidden=!memberToolsAllowed();
-  }
-  if(!state.configured)say('Danh sách truy cập chưa kích hoạt: thiếu cấu hình CAPTCHA, dữ liệu thành viên hoặc mật khẩu quản trị trên máy chủ. Không cần kết nối ví. Không có quyền nào được cấp khi hệ thống chưa sẵn sàng.',true);
-  else if(state.isMember)say('Quyền thành viên đã hoạt động. API được bảo vệ vẫn kiểm tra phiên và hạn mức trước mỗi yêu cầu.');
-  else say('Nhập Handle X, hoàn thành CAPTCHA và gửi đơn. Quản trị viên xác minh tài khoản trước khi cấp mã riêng.');
-}
-function getCaptcha(id){
-  if(!window.turnstile||id===null)return '';
-  return window.turnstile.getResponse(id)||'';
-}
-function resetCaptcha(id){if(window.turnstile&&id!==null)window.turnstile.reset(id);}
+function captchaValue(widget){return widget!==null&&window.turnstile?window.turnstile.getResponse(widget)||'':'';}
+function captchaReset(widget){if(widget!==null&&window.turnstile)window.turnstile.reset(widget);}
 async function loadTurnstile(){
   if(window.turnstile)return window.turnstile;
   if(loadingTurnstile)return loadingTurnstile;
   loadingTurnstile=new Promise((resolve,reject)=>{
     const script=document.createElement('script');
     script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    script.async=true;script.defer=true;
+    script.async=true;
     script.addEventListener('load',()=>{
-      const check=()=>{
-        if(window.turnstile)resolve(window.turnstile);
-        else reject(Error('CAPTCHA widget could not initialize.'));
-      };
-      check();
+      if(window.turnstile)resolve(window.turnstile);
+      else reject(Error('CAPTCHA chưa khởi tạo được.'));
     },{once:true});
-    script.addEventListener('error',()=>reject(Error('CAPTCHA service could not be loaded.')),{once:true});
+    script.addEventListener('error',()=>reject(Error('Không tải được dịch vụ CAPTCHA.')),{once:true});
     document.head.append(script);
   });
   return loadingTurnstile;
@@ -71,120 +74,142 @@ async function loadTurnstile(){
 export async function activateAccessCaptcha(){
   if(!state.configured||!state.siteKey)return;
   try{
-    const turnstile=await loadTurnstile();
-    if(joinWidget===null&&$('accessCaptcha')&&!$('access').hidden){
-      joinWidget=turnstile.render('#accessCaptcha',{sitekey:state.siteKey,action:'floptrace_join',theme:'light',size:'flexible'});
+    const widget=await loadTurnstile();
+    if(joinWidget===null&&!$('access').hidden){
+      joinWidget=widget.render('#accessCaptcha',{sitekey:state.siteKey,action:'floptrace_join',theme:'light',size:'flexible'});
     }
-    const details=document.querySelector('.access-admin-tools');
-    if(adminWidget===null&&details?.open){
-      adminWidget=turnstile.render('#accessAdminCaptcha',{sitekey:state.siteKey,action:'floptrace_admin',theme:'light',size:'flexible'});
+    const admin=document.querySelector('.access-admin-tools');
+    if(adminWidget===null&&admin?.open){
+      adminWidget=widget.render('#accessAdminCaptcha',{sitekey:state.siteKey,action:'floptrace_admin',theme:'light',size:'flexible'});
     }
-  }catch(error){say(error.message,true);}
+  }catch(error){note(error.message,true);}
 }
-async function apply(){
-  const b=$('accessApply');b.disabled=true;
-  try{
-    const token=getCaptcha(joinWidget);
-    if(!token)throw Error('Vui lòng giải CAPTCHA trước khi gửi đơn.');
-    const result=await post('apply',{handle:$('accessHandle').value,captchaToken:token});
-    say(result.status==='PENDING'?'Đã nhận đơn. Quản trị viên sẽ xét duyệt và gửi mã mời riêng sau khi xác minh tài khoản X.':'Handle X này đã có yêu cầu trước đó. Liên hệ quản trị viên để xác minh.');
-    $('accessHandle').value='';
-  }catch(error){say(error.message||'Không gửi được đơn.',true);}
-  finally{b.disabled=!state.configured;resetCaptcha(joinWidget);}
+function readPrivateInviteFromLink(){
+  const found=window.location.hash.match(/^#invite=([a-f0-9]{64})$/i);
+  if(!found)return;
+  $('accessInvite').value=found[1];
+  // Strip secret fragment from history immediately; fragment never hits HTTP or referrer.
+  history.replaceState(history.state,'',window.location.pathname+window.location.search);
 }
-async function redeem(){
-  const b=$('accessRedeem');b.disabled=true;
+async function join(){
+  const button=$('accessJoin');
+  button.disabled=true;
   try{
-    const result=await post('redeem',{inviteCode:$('accessInvite').value.trim()});
+    const inviteCode=$('accessInvite').value.trim(),handle=$('accessHandle').value.trim();
+    if(!/^[a-f0-9]{64}$/i.test(inviteCode))throw Error('Bạn cần một link mời riêng còn hiệu lực.');
+    const captchaToken=captchaValue(joinWidget);
+    if(!captchaToken)throw Error('Vui lòng giải CAPTCHA để kích hoạt.');
+    const result=await post('join',{inviteCode,handle,captchaToken});
     $('accessInvite').value='';
+    $('accessHandle').value='';
     await refresh();
-    say('Kích hoạt thành công cho @'+result.handle+'. Không cần ký ví.',false);
-  }catch(error){say(error.message||'Không kích hoạt được mã mời.',true);}
-  finally{b.disabled=!state.configured||state.isMember;}
+    note('Kích hoạt thành công cho @'+result.handle+'. Đã sử dụng '+result.claimed+'/100 suất. Không cần kết nối ví.');
+  }catch(error){note(error.message||'Không kích hoạt được link.',true);}
+  finally{button.disabled=!state.configured||state.isMember;captchaReset(joinWidget);}
 }
 async function logout(){
-  try{await post('logout');await refresh();}catch(error){say(error.message,true);}
+  try{await post('logout');await refresh();}catch(error){note(error.message||'Không đăng xuất được.',true);}
 }
 async function adminLogin(){
-  const b=$('accessAdminSignIn');b.disabled=true;
+  const button=$('accessAdminSignIn');button.disabled=true;
   try{
-    const token=getCaptcha(adminWidget);
-    if(!token)throw Error('Quản trị viên cần giải CAPTCHA trước khi đăng nhập.');
-    await post('admin-login',{passphrase:$('accessAdminSecret').value,captchaToken:token});
+    const captchaToken=captchaValue(adminWidget);
+    if(!captchaToken)throw Error('Quản trị viên cần giải CAPTCHA trước.');
+    await post('admin-login',{passphrase:$('accessAdminSecret').value,captchaToken});
     $('accessAdminSecret').value='';
-    await refresh();await listApplications();
-    say('Quản trị viên đã đăng nhập. Kiểm tra quyền sở hữu X handle trước khi cấp mã mời.');
-  }catch(error){say(error.message||'Không đăng nhập được.',true);}
-  finally{b.disabled=!state.configured;resetCaptcha(adminWidget);}
+    await refresh();
+    await listMembers();
+    note('Quản trị viên đã đăng nhập. Có thể tạo 100 link mời riêng và xem suất còn lại.');
+  }catch(error){note(error.message||'Không đăng nhập được.',true);}
+  finally{button.disabled=!state.configured;captchaReset(adminWidget);}
 }
-function element(tag,textValue='',className=''){
-  const e=document.createElement(tag);e.textContent=String(textValue);
-  if(className)e.className=className;
-  return e;
+function node(tag,value='',cls=''){
+  const x=document.createElement(tag);x.textContent=String(value);if(cls)x.className=cls;
+  return x;
 }
-function clearInvitation(){
-  $('accessInvitationValue').textContent='';
-  show('accessInvitation',false);
-}
-async function review(action,handle){
-  if(action==='approve'&&!confirm('Bạn đã xác minh người nộp đơn sở hữu tài khoản X @'+handle+'? Mã mời sẽ cấp quyền truy cập FLOPTRACE.'))return;
-  if(action==='revoke'&&!confirm('Thu hồi ngay quyền của @'+handle+'? Các phiên thành viên sẽ mất quyền ở API.'))return;
-  if(action==='reissue'&&!confirm('Tạo lại mã mời @'+handle+'? Mã cũ sẽ không còn hiệu lực.'))return;
+async function issueBatch(){
+  if(!confirm('Tạo 100 link mời bí mật (mỗi link 1 suất)? Hãy tải danh sách ngay sau khi tạo; hệ thống không lưu mã gốc.'))return;
+  const button=$('accessIssueBatch');button.disabled=true;
   try{
-    const data=await post(action,{handle});
-    clearInvitation();
-    if(data.inviteCode){
-      $('accessInvitationValue').textContent=data.inviteCode;
-      show('accessInvitation',true);
-      say('Đã tạo mã mời cho @'+handle+'. Chỉ gửi RIÊNG cho chủ tài khoản X đã xác minh. Mã không lưu trên trình duyệt.');
-    }else say('Đã thu hồi quyền của @'+handle+'.');
-    await listApplications();
-  }catch(error){say(error.message||'Không cập nhật được thành viên.',true);}
+    const result=await post('issue-batch');
+    if(!Array.isArray(result.links)||result.links.length!==100)throw Error('Server did not return exactly 100 invitation links.');
+    $('accessInvitationValue').value=result.links.join('\n');
+    show('accessInvitation',true);
+    await refresh();
+    note('Đã tạo đợt 100 suất. Hãy tải file TXT ngay và chỉ gửi từng link riêng cho người được mời.');
+  }catch(error){note(error.message||'Không thể mở đợt mời.',true);}
+  finally{button.disabled=false;}
 }
-async function listApplications(){
-  const root=$('accessApplicationList');root.replaceChildren(element('p','Đang tải đơn tham gia…'));
+async function closeBatch(){
+  if(!confirm('Đóng đợt hiện tại? Mọi link chưa dùng trong đợt này sẽ không còn kích hoạt được.'))return;
   try{
-    const r=await fetch(endpoint+'?view=applications',{credentials:'same-origin',cache:'no-store'});
-    const data=await r.json().catch(()=>({}));
-    if(!r.ok)throw Error(data.error||'Danh sách không có sẵn.');
+    await post('close-batch');
+    $('accessInvitationValue').value='';show('accessInvitation',false);
+    await refresh();
+    note('Đã đóng đợt. Bạn có thể tạo đợt 100 link mới.');
+  }catch(error){note(error.message||'Không đóng được đợt.',true);}
+}
+async function reviewRevoke(handle){
+  if(!confirm('Thu hồi quyền của @'+handle+'? Phiên đang sử dụng cũng sẽ bị chặn tại API.'))return;
+  try{
+    await post('revoke',{handle});
+    note('Đã thu hồi quyền của @'+handle+'.');
+    await listMembers();
+  }catch(error){note(error.message||'Không thu hồi được quyền.',true);}
+}
+async function listMembers(){
+  const root=$('accessApplicationList');
+  root.replaceChildren(node('p','Đang tải thành viên…'));
+  try{
+    const response=await fetch(endpoint+'?view=members',{credentials:'same-origin',cache:'no-store'});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw Error(data.error||'Không thể xem danh sách.');
     root.replaceChildren();
-    if(!data.members?.length){root.append(element('p','Chưa có đơn tham gia.'));return;}
-    for(const m of data.members){
-      const article=element('article','','access-application');
-      const link=element('a','@'+m.handle);link.href='https://x.com/'+encodeURIComponent(m.handle);
-      link.target='_blank';link.rel='noopener noreferrer';article.append(link);
-      article.append(element('small','Trạng thái: '+m.status));
-      const actions=element('div','','row');
-      if(m.status==='PENDING'){
-        const b=element('button','Đã xác minh X · Duyệt');b.type='button';b.className='primary';b.addEventListener('click',()=>review('approve',m.handle));actions.append(b);
-      }else if(m.status==='APPROVED'){
-        const b=element('button','Tạo lại mã mời');b.type='button';b.className='secondary';b.addEventListener('click',()=>review('reissue',m.handle));actions.append(b);
+    if(!data.members?.length){root.append(node('p','Chưa có thành viên.'));return;}
+    for(const member of data.members){
+      const card=node('article','','access-application');
+      const x=node('a','@'+member.handle);
+      x.href='https://x.com/'+encodeURIComponent(member.handle);
+      x.target='_blank';x.rel='noopener noreferrer';card.append(x);
+      card.append(node('small','Trạng thái: '+member.status));
+      if(member.status==='ACTIVE'){
+        const button=node('button','Thu hồi quyền');button.type='button';button.className='secondary';
+        button.addEventListener('click',()=>reviewRevoke(member.handle));
+        card.append(button);
       }
-      if(['APPROVED','ACTIVE'].includes(m.status)){
-        const b=element('button','Thu hồi');b.type='button';b.className='secondary';
-        b.addEventListener('click',()=>review('revoke',m.handle));actions.append(b);
-      }
-      article.append(actions);root.append(article);
+      root.append(card);
     }
-  }catch(error){root.replaceChildren(element('p',error.message||'Không tải được đơn.'));}
+  }catch(error){root.replaceChildren(node('p',error.message));}
 }
-async function copyInvitation(){
-  const value=$('accessInvitationValue').textContent.trim();
-  if(!value)return;
-  try{await navigator.clipboard.writeText(value);say('Mã đã sao chép. Gửi riêng tới chủ tài khoản X đã xác minh, không đăng công khai.');}
-  catch{say('Không thể sao chép tự động. Chọn mã hiển thị và sao chép thủ công.',true);}
+function inviteText(){return $('accessInvitationValue').value.trim();}
+async function copyInvites(){
+  if(!inviteText())return;
+  try{await navigator.clipboard.writeText(inviteText());note('Đã sao chép danh sách. Không đăng 100 link lên trang công khai.');}
+  catch{note('Không sao chép tự động được; chọn toàn bộ nội dung và sao chép.',true);}
+}
+function downloadInvites(){
+  const content=inviteText();if(!content)return;
+  const link=document.createElement('a'),blob=new Blob([content+'\n'],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  link.href=url;link.download='FLOPTRACE-100-private-invites.txt';document.body.append(link);
+  try{link.click();}
+  finally{link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+  note('Đã bắt đầu tải danh sách 100 link; hãy xác nhận file được lưu trước khi rời trang.');
 }
 export async function setupCommunityAccess(callback){
-  readyCallback=typeof callback==='function'?callback:()=>{};
-  $('accessApply').addEventListener('click',apply);
-  $('accessRedeem').addEventListener('click',redeem);
+  changed=typeof callback==='function'?callback:()=>{};
+  readPrivateInviteFromLink();
+  $('accessJoin').addEventListener('click',join);
   $('accessLogout').addEventListener('click',logout);
   $('accessAdminSignIn').addEventListener('click',adminLogin);
-  $('accessAdminRefresh').addEventListener('click',listApplications);
-  $('accessCopyInvitation').addEventListener('click',copyInvitation);
+  $('accessIssueBatch').addEventListener('click',issueBatch);
+  $('accessCloseBatch').addEventListener('click',closeBatch);
+  $('accessAdminRefresh').addEventListener('click',listMembers);
+  $('accessCopyInvitation').addEventListener('click',copyInvites);
+  $('accessDownloadInvites').addEventListener('click',downloadInvites);
   document.querySelector('.access-admin-tools').addEventListener('toggle',()=>{void activateAccessCaptcha();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refresh();});
   await refresh();
   if(!$('access').hidden)await activateAccessCaptcha();
-  if(state.isAdmin)void listApplications();
+  if(state.isAdmin)void listMembers();
 }
