@@ -527,3 +527,15 @@ body.testnet-verified .testnet-opening-notice{border-color:#c9e1d6;background:#e
 .access-invitation p{font-size:12px;line-height:1.7;color:#7c653e}
 .access-invitation code{display:block;margin:12px 0;padding:12px;border:1px solid #e8c98f;background:white;border-radius:9px;overflow-wrap:anywhere;font-size:12px;color:#393c5b;user-select:text}
 @media(max-width:610px){.access-card{padding:17px}.access-application .row{flex-direction:column;align-items:stretch}.access-application .row button{width:100%}}
+
+
+/* Batch invitations: 100 seats, no wallet signatures or transferable paid tokens. */
+.access-slots-track{height:9px;border-radius:999px;overflow:hidden;background:#ebeaf5;margin:15px 0 10px}
+.access-slots-fill{height:100%;width:0;background:linear-gradient(90deg,#7868cf,#b5a6ed);border-radius:999px;transition:width .2s ease}
+.access-admin-actions{gap:10px;flex-wrap:wrap;margin:12px 0 20px}
+.access-return-tools{margin:15px 0;border:1px solid #e4e3f3;border-radius:12px;padding:14px;background:#fbfaff}
+.access-return-tools summary{font-size:12px;font-weight:750;color:#5944aa}
+.access-return-tools[open]>.field{margin-top:12px}
+#accessRecoveryValue{overflow-wrap:anywhere;display:block;font-size:12px;color:#5d477a;margin:13px 0;padding:12px;background:#fff;border-radius:9px}
+#accessInvitationValue{width:100%;resize:vertical;min-height:145px;background:white;border:1px solid #e8cfad;border-radius:9px;padding:12px;color:#4e466c;font:11px/1.6 ui-monospace,Consolas,monospace}
+@media(max-width:650px){.access-admin-actions{flex-direction:column;align-items:stretch}.access-admin-actions button{width:100%}}
