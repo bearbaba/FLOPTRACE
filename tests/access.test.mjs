@@ -123,11 +123,11 @@ test('claim uses atomic server-side LUA for one seat and never trusts the browse
       assert.equal(callArgs[2],7);
       assert.ok(JSON.stringify(callArgs).includes('test-batch'));
       assert.ok(!JSON.stringify(callArgs).includes(success.body.recoveryCode),'server persists only recovery hash');
-      claimResult=2;
+      claimResult=-2;
       const duplicate=res();await handler(input,duplicate);assert.equal(duplicate.code,409);
-      claimResult=3;
+      claimResult=-3;
       const full=res();await handler(input,full);assert.equal(full.code,409);
-      claimResult=0;
+      claimResult=-1;
       const reused=res();await handler(input,reused);assert.equal(reused.code,409);
     }finally{globalThis.fetch=old;}
   });
