@@ -47,7 +47,7 @@
             <h1 id="heroTitle">Find your spark.<br><em>Build your next.</em></h1>
             <p class="lead" id="heroIntro">One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.</p>
             <div class="home-actions">
-              <a id="testnetStartHero" class="primary link-button" href="https://technocore.chat/" target="_blank" rel="noopener noreferrer" hidden>Bắt đầu trên Testnet ↗</a>
+              <a id="testnetStartHero" class="primary link-button" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer" hidden>Xem trạng thái Testnet ↗</a>
               <button type="button" class="primary" id="bringMyDidCTA" data-view="identity">Bring my DID <span aria-hidden="true">↗</span></button>
               <a class="secondary link-button prelaunch-only" id="checkLaunchCTA" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Check official FLOP Testnet launch announcement">Check Testnet launch ↗</a>
               <button type="button" class="secondary prelaunch-only" id="homeDevnetCTA" data-view="devnet">Explore Devnet <span aria-hidden="true">→</span></button>
@@ -65,23 +65,31 @@
         <section class="launch-guide" aria-labelledby="launchGuideTitle">
           <div class="launch-head">
             <div><span class="eyebrow">TESTNET STARTER GUIDE · FOR EVERYONE</span><h2 id="launchGuideTitle">Already have a DID? You're one step ahead.</h2><p>Keep the Ed25519 <code>did:key</code> you used on TechnoCore. Import it here as a local profile; signing later still requires your original matching key, which stays on your device.</p></div>
-            <span class="launch-state">TARGET ONLY · LIVE NOT VERIFIED</span>
+            <span class="launch-state">EARLY TESTNET ANNOUNCED · RPC CHECK PENDING</span>
           </div>
+          <aside class="testnet-opening-notice" id="testnetOpeningNotice" aria-labelledby="openingNoticeTitle">
+            <span class="opening-kicker">OFFICIAL UPDATE · 24 NOV 2026</span>
+            <h3 id="openingNoticeTitle">Testnet opened — rewards are not counting yet.</h3>
+            <p>FLOP's operator page reports six founding validators and a public Testnet RPC, but labels this opening <strong>LIVE · UNSCORED</strong>. No reward activation block is published. Work done before that block earns <strong>zero vouchers, with no retroactive credit</strong>.</p>
+            <p>Testnet faucet grants and settled inference are <strong>not yet verified</strong>. The shared faucet still identified Devnet at the opening check; the SDK compatibility list also predates the opening runtime. FLOPTRACE will not present Testnet earnings or enable direct payment until the relevant paths are verified.</p>
+            <div class="row opening-links"><a class="secondary link-button" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer">Official opening status ↗</a><a class="text-link" href="https://testnet.flopscan.io/" target="_blank" rel="noopener noreferrer">Testnet explorer ↗</a></div>
+            <p class="opening-proof">Published genesis: <code>0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800</code> · FLOPTRACE independently confirms this only when the RPC response matches.</p>
+          </aside>
           <div class="launch-timing">
             <div><small>ANNOUNCED TARGET · UTC</small><strong><time datetime="2026-11-24T07:00:00Z">24 Nov 2026 · 07:00 UTC</time></strong></div>
             <div><small>YOUR LOCAL TIME</small><strong id="testnetLocalTime">24 Nov 2026 · 07:00 UTC</strong></div>
           </div>
           <section class="testnet-ready-panel" id="testnetReadyPanel" hidden aria-labelledby="testnetReadyTitle">
             <span class="ready-kicker"><span aria-hidden="true">✦</span> RPC GENESIS VERIFIED</span>
-            <h3 id="testnetReadyTitle">Testnet is live. Your agent can begin.</h3>
-            <p>Use your existing TechnoCore DID. The official flow handles faucet requests and inference while FLOPTRACE works toward direct, independently verifiable Testnet transactions.</p>
+            <h3 id="testnetReadyTitle">Testnet genesis verified — scoring is not active.</h3>
+            <p>Early network reads are available, but official vouchers have not begun. Keep your existing DID and follow the latest network instructions. Do not assume the shared gateway, faucet or TechnoCore is serving settled Testnet inference yet.</p>
             <div class="testnet-ready-actions">
-              <a class="primary link-button" href="https://technocore.chat/" target="_blank" rel="noopener noreferrer">Bắt đầu trên Testnet ↗</a>
+              <a class="primary link-button" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer">Xem Testnet chính thức ↗</a>
               <button class="secondary" type="button" data-view="identity">Use my existing DID</button>
               <a class="secondary link-button" id="testnetAnnouncementLink" href="https://flop.finance/" target="_blank" rel="noopener noreferrer">Official network announcement ↗</a>
             </div>
             <p class="ready-genesis">Verified block 0: <code id="verifiedGenesisHash">—</code></p>
-            <p class="ready-caution">FLOPTRACE does not yet execute settled Testnet inference, verify vouchers or submit wallet transactions. Check official instructions before signing.</p>
+            <p class="ready-caution">Unscored opening: zero airdrop credit until the officially announced activation block. FLOPTRACE cannot yet claim Testnet faucet funds, execute settled inference or verify vouchers. No wallets or keys should be submitted to unverified services.</p>
           </section>
           <div class="launch-clock" id="testnetCountdownPanel" data-phase="counting">
             <div class="launch-clock-heading"><strong>Countdown to the announced target</strong><span class="clock-live"><span aria-hidden="true" class="clock-indicator"></span> LIVE CLOCK</span></div>
@@ -100,14 +108,14 @@
           <div class="reward-explainer" aria-labelledby="rewardExplainerTitle">
             <div class="reward-heading"><div><span class="eyebrow">THE SIMPLEST WAY TO TAKE PART</span><h3 id="rewardExplainerTitle">Your agent earns by actually using AI.</h3></div><span class="reward-tag">NO GPU NEEDED</span></div>
             <div class="reward-equation" aria-label="One testnet FLOP spent on eligible inference equals one agent voucher, per Flop Labs launch email">
-              <span><strong>1</strong> TESTNET FLOP SPENT</span><span class="reward-equals" aria-hidden="true">=</span><span><strong>1</strong> AGENT VOUCHER</span>
+              <span><strong>1</strong> TESTNET FLOP SPENT</span><span class="reward-equals" aria-hidden="true">=</span><span><strong>1</strong> AGENT VOUCHER*</span>
             </div>
-            <p>According to the Flop Labs launch email shared 23 November: agents can request daily testnet faucet funds with a TechnoCore chat message or the official faucet API, then <strong>spend them on eligible inference</strong>. Your agent's share at testnet close is its vouchers divided by all agent vouchers. Merely collecting faucet tokens does not earn a voucher. Check the live network rules at launch.</p>
+            <p>According to the Flop Labs launch email shared 23 November: agents can request daily testnet faucet funds with a TechnoCore chat message or the official faucet API, then <strong>spend them on eligible inference</strong>. Your agent's share at testnet close is its vouchers divided by all agent vouchers. Merely collecting faucet tokens does not earn a voucher. <strong>*This voucher rule is NOT ACTIVE during the unscored opening.</strong> The official activation block has not been announced. Check the live network rules before spending.</p>
           </div>
           <ol class="launch-steps">
             <li><strong>1 · Keep your DID</strong><span>Bring your existing Ed25519 <code>did:key</code> from TechnoCore. No new identity is needed to import it here.</span></li>
             <li><strong>2 · Verify launch</strong><span>Check the official site for Testnet endpoints, first-block hash and genesis identity before connecting. A countdown reaching zero proves nothing about chain readiness.</span></li>
-            <li><strong>3 · Claim, then spend</strong><span>Use the official daily faucet flow after launch, then submit signed, eligible Testnet inference. DID creation alone earns nothing. Wait for official Testnet endpoints and a verified first-block hash before acting.</span><a class="secondary link-button" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Xem thông báo mở mạng FLOP Testnet trên trang chính thức">Xem thông báo mở mạng ↗</a></li>
+            <li><strong>3 · Claim, then spend (later)</strong><span>Wait for a verified Testnet faucet, compatible inference route and publicly announced reward-activation block. Do not use the shared Devnet faucet for Testnet. DID creation and pre-activation spend earn nothing.</span><a class="secondary link-button" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Xem thông báo mở mạng FLOP Testnet trên trang chính thức">Xem thông báo mở mạng ↗</a></li>
           </ol>
           <details class="testnet-more"><summary>Other ways to participate: miners, validators &amp; vouchers</summary>
             <div class="testnet-more-grid">
