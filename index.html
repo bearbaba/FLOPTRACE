@@ -211,7 +211,20 @@
           <button type="button" class="primary wide" id="accessJoin" disabled>Kích hoạt suất thành viên →</button>
           <p id="accessFeedback" class="identity-inline-feedback" role="status" aria-live="polite">Đang kiểm tra hệ thống lời mời…</p>
           <p id="accessMember" class="statusline">Chưa có phiên thành viên đang hoạt động.</p>
+          <section class="access-invitation" id="accessRecovery" hidden aria-label="Mã khôi phục quyền thành viên">
+            <strong>Giữ lại mã đăng nhập thành viên — hiển thị duy nhất lần này</strong>
+            <p>Mã này giúp đăng nhập lại khi phiên hết hạn, mà không cần thêm link mời, ví hay chữ ký. Chỉ lưu ở nơi riêng tư; người khác biết mã có thể đăng nhập thay bạn.</p>
+            <code id="accessRecoveryValue"></code>
+            <button type="button" class="secondary" id="accessDownloadRecovery">Tải mã khôi phục (.txt)</button>
+          </section>
           <div class="row"><button type="button" id="accessLogout" class="secondary" hidden>Đăng xuất</button></div>
+          <details class="access-return-tools">
+            <summary>Đã là thành viên? Đăng nhập lại bằng mã khôi phục</summary>
+            <div class="field"><label for="accessReturnHandle">Handle X đã đăng ký</label><input id="accessReturnHandle" placeholder="@yourhandle" autocapitalize="off" autocomplete="off"></div>
+            <div class="field"><label for="accessReturnCode">Mã khôi phục thành viên</label><input id="accessReturnCode" type="password" autocomplete="off" placeholder="Mã 64 ký tự đã lưu"></div>
+            <div id="accessReturnCaptcha" class="access-captcha" aria-label="CAPTCHA đăng nhập lại"></div>
+            <button type="button" class="secondary" id="accessReturnLogin">Đăng nhập lại</button>
+          </details>
           <p class="field-hint">Handle X không tự chứng minh quyền sở hữu tài khoản. Mỗi link mời là một quyền truy cập; không đăng công khai, không chuyển nhượng. Nếu chưa có link, hãy liên hệ <a href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer" class="text-link">Bear Crypto trên X</a>.</p>
         </div>
         <details class="access-admin-tools">
