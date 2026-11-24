@@ -1,4 +1,5 @@
 import {isValidEd25519Did,normalizedProfiles,addProfile,removeProfile} from './did-utils.mjs';
+import {createLocalIdentity} from './identity-create.mjs';
 import {validateSs58} from './ss58-utils.mjs';
 import { LAUNCH_UTC, getLaunchCountdown } from './launch-clock.mjs';
 const $ = id => document.getElementById(id);
@@ -12,6 +13,8 @@ let activeDid=DID_PROFILES.some(p=>p.did===localStorage.getItem(KEY_ACTIVE))
 const unlocked=new Map();
 let inferenceEnabled=false, gatewayReady=false,latestReceipt=null,pendingPostId=null;
 let publicModels=[];
+// Only an encrypted backup can be re-downloaded; no raw seed or passphrase is stored.
+let recentEncryptedBackup=null;
 const enc=new TextEncoder();
 function message(id,text,variant=''){
   const el=$(id);if(!el)return;
@@ -94,8 +97,15 @@ function renderProfiles(){
   }
 }
 function registerProfile(did,name){
-  DID_PROFILES=addProfile(DID_PROFILES,{did,name});
-  persistProfiles();populateAgentPickers();selectDid(did);
+  const next=addProfile(DID_PROFILES,{did,name});
+  try{
+    localStorage.setItem(KEY_PROFILES,JSON.stringify(next));
+  }catch{
+    throw new Error('This browser blocked local profile storage. Allow site storage (or exit private mode) and try again.');
+  }
+  DID_PROFILES=next;
+  $('statAgents').textContent=String(DID_PROFILES.length);
+  populateAgentPickers();selectDid(did);
   return did;
 }
 function currentRouteView(){
@@ -181,40 +191,74 @@ $('unlockBackup').addEventListener('click',async()=>{
     message('identityStatus',error.message||'Could not open encrypted backup','error');
   }finally{$('unlockBackup').disabled=false;}
 });
+function identityFeedback(field,description,variant=''){
+  message(field,description,variant);
+  message('identityStatus',description,variant);
+}
 $('importAgent').addEventListener('click',()=>{
   const did=$('importDid').value.trim(),name=$('importName').value.trim();
+  if(!isValidEd25519Did(did))return identityFeedback('importFeedback','Paste your complete public Ed25519 did:key (not a wallet address).','error');
   try{
-    registerProfile(did,name||'Imported Agent');
+    if(DID_PROFILES.some(p=>p.did===did)){
+      selectDid(did);
+      identityFeedback('importFeedback','This DID is already saved here. Profile selected — no need to recreate it.','good');
+    }else{
+      registerProfile(did,name||'Imported Agent');
+      identityFeedback('importFeedback','Your public DID is saved in this browser. Import does not create or restore its private signing key.','good');
+    }
     $('importDid').value='';$('importName').value='';
-    message('identityStatus','Public DID added locally. To sign, unlock it using its matching seed.','good');
-  }catch(error){message('identityStatus',error.message,'error');}
+  }catch(error){identityFeedback('importFeedback',error.message||'Unable to add DID','error');}
 });
 $('createAgent').addEventListener('click',async()=>{
+  const button=$('createAgent');
   const name=$('createName').value.trim()||'My Agent';
   const pass=$('createPass').value,again=$('createPassConfirm').value;
-  $('createPass').value='';$('createPassConfirm').value='';
-  if(pass.length<12||pass!==again)return message('identityStatus','Enter a matching backup passphrase of at least 12 characters.','error');
-  $('createAgent').disabled=true;
+  if(pass.length<12)return identityFeedback('createFeedback','Choose a backup passphrase with at least 12 characters.','error');
+  if(pass!==again)return identityFeedback('createFeedback','The confirmation does not match. Check both passphrases and retry.','error');
+  button.disabled=true;
+  identityFeedback('createFeedback','Creating and locally verifying your DID and encrypted backup…');
   try{
-    if(!crypto.subtle||!crypto.subtle.generateKey)throw new Error('Secure browser cryptography is unavailable.');
-    const pair=await crypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
-    const pubJwk=await crypto.subtle.exportKey('jwk',pair.publicKey);
-    const privJwk=await crypto.subtle.exportKey('jwk',pair.privateKey);
-    const publicBytes=decodeB64url(pubJwk.x);
-    const seed=decodeB64url(privJwk.d);
-    if(seed.length!==32)throw new Error('Unsupported Ed25519 key format.');
-    const seedHex=Array.from(seed,b=>b.toString(16).padStart(2,'0')).join('');
-    const did=window.CryptoUtil.didFromPub(publicBytes);
-    const backup=await window.CryptoUtil.encryptBackup(seedHex,did,pass);
-    seed.fill(0);
-    // Never persist an unencrypted seed. The encrypted backup must be retained by its owner.
-    download('floptrace-'+did.slice(-9)+'-ENCRYPTED.json',backup);
+    const {did,backup,signingKey}=await createLocalIdentity(pass,{webCrypto:crypto,cryptoUtil:window.CryptoUtil});
+    const filename='floptrace-'+did.slice(-9)+'-ENCRYPTED.json';
+    recentEncryptedBackup={did,filename,backup};
+    $('createdDidValue').textContent=did;
+    $('createdDidResult').hidden=false;
+    // Persist public DID only after the encrypted backup is ready.
     registerProfile(did,name);
-    await unlockSeed(seedHex);
+    unlocked.set(did,signingKey);
+    selectDid(did);
     $('createName').value='';
-    message('identityStatus','Agent created and unlocked. An encrypted backup download was initiated. Confirm you have saved the file and passphrase before closing the tab.','good');
-  }catch(error){message('identityStatus',error.message||'Unable to create an identity','error');}
-  finally{$('createAgent').disabled=false;}
+    let downloadMessage='Your DID was created, signed and verified locally. Encrypted backup download started; confirm the JSON file is saved before closing this tab.';
+    try{download(filename,backup);}
+    catch{
+      downloadMessage='Your DID is created, but the backup download could not start automatically. Use “Download encrypted backup again” below before closing this tab.';
+    }
+    identityFeedback('createFeedback',downloadMessage,'good');
+  }catch(error){
+    identityFeedback('createFeedback',error?.message||'Could not create a DID. Try an updated browser with HTTPS and enabled storage.','error');
+  }finally{
+    $('createPass').value='';$('createPassConfirm').value='';
+    button.disabled=false;
+  }
+});
+$('copyCreatedDid').addEventListener('click',async()=>{
+  const did=$('createdDidValue').textContent.trim();
+  if(!isValidEd25519Did(did))return;
+  try{
+    await navigator.clipboard.writeText(did);
+    identityFeedback('createFeedback','Public DID copied. Only share the public DID, never its private key or backup passphrase.','good');
+  }catch{
+    identityFeedback('createFeedback','Clipboard access was blocked. Select the public DID shown above and copy it manually.','error');
+  }
+});
+$('downloadCreatedBackup').addEventListener('click',()=>{
+  if(!recentEncryptedBackup)return identityFeedback('createFeedback','No backup is available in this tab. Restore an existing encrypted backup if needed.','error');
+  try{
+    download(recentEncryptedBackup.filename,recentEncryptedBackup.backup);
+    identityFeedback('createFeedback','Encrypted backup download started again. Check that the file was saved.','good');
+  }catch{
+    identityFeedback('createFeedback','Your browser blocked the download. Allow downloads for FLOPTRACE and try again.','error');
+  }
 });
 $('lockKeys').addEventListener('click',()=>{
   unlocked.clear();$('seed').value='';$('backupPass').value='';
@@ -325,8 +369,14 @@ $('inferForm').addEventListener('submit',async event=>{
 });
 function download(filename,data){
   const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
-  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.append(a);
+  try{a.click();}
+  finally{
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),30_000);
+  }
 }
 $('exportReceipt').addEventListener('click',()=>{if(latestReceipt)download('floptrace-inference-receipt.json',latestReceipt);});
 function savedRooms(){const rooms=snapshot(KEY_ROOMS,[]);return Array.isArray(rooms)?rooms.filter(s=>typeof s==='string'&&/^[a-z0-9][a-z0-9_-]{0,47}$/.test(s)).slice(0,15):[];}
