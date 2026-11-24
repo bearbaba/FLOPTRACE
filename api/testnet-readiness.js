@@ -68,7 +68,7 @@ async function verifyTestnet(env=process.env){
   const announcement=safeAnnouncementUrl(env.FLOPTRACE_TESTNET_ANNOUNCEMENT_URL||'');
   const base={testnetVerified:false,network:'devnet',status:'AWAITING_VERIFIED_LAUNCH',
     officialAnnouncement:'https://flop.finance/',
-    startUrl:null,genesisHash:null,
+    startUrl:null,genesisHash:null,rewardsActive:false,rewardStatus:'UNSCORED',
     message:'Testnet not verified. Keep using the public launch guide; Devnet activity does not count.'};
   if(env.FLOPTRACE_TESTNET_RELEASE_VERIFIED!=='1'||!HASH.test(expected||'')
     ||String(expected).toLowerCase()===DEVNET_GENESIS||!rpc||!announcement){
@@ -80,8 +80,8 @@ async function verifyTestnet(env=process.env){
       message:'Official Testnet identity does not match the RPC block-0 hash. Do not connect.'};
     return {testnetVerified:true,network:'testnet',status:'GENESIS_VERIFIED',
       genesisHash:actual.toLowerCase(),officialAnnouncement:announcement,
-      startUrl:'https://technocore.chat/',
-      message:'Official release reviewed and block-0 genesis verified via the configured RPC. FLOPTRACE does not execute inference or verify vouchers.'};
+      startUrl:'https://ask.flop.finance/networks/testnet',rewardsActive:false,rewardStatus:'UNSCORED',
+      message:'Block-0 genesis verified over the configured RPC. FLOP Testnet opening is unscored: no vouchers are being awarded. FLOPTRACE cannot submit settled Testnet inference.'};
   }catch{
     return {...base,status:'RPC_UNAVAILABLE',message:'Testnet genesis could not be independently verified through the configured RPC.'};
   }
