@@ -454,3 +454,37 @@ body.testnet-verified .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .testnet-ready-actions>a,.testnet-ready-actions>button{width:100%;min-height:44px}
   body.testnet-verified .stats,body.testnet-verified .quick-grid{grid-template-columns:1fr}
 }
+
+
+/* DID onboarding feedback must be visible without opening the Advanced panel. */
+.identity-inline-feedback{
+  font-size:12px;line-height:1.65;margin:12px 1px 0;
+  padding:10px 12px;border-radius:11px;color:#596581;
+  background:#f1f2fa;border:1px solid #e1e5f3
+}
+.identity-inline-feedback.good{color:#1c6b57;background:#ebfaf3;border-color:#a7dec8}
+.identity-inline-feedback.error{color:#9a3048;background:#fff0f2;border-color:#f1c0ca;font-weight:690}
+.identity-global-status{
+  border:1px solid #dcdff0;border-radius:12px;padding:13px 15px;
+  background:#f6f6ff;color:#485376;line-height:1.7;margin:20px 0 0
+}
+.identity-global-status.good{background:#ecfaf3;border-color:#b5dfc9;color:#226954}
+.identity-global-status.error{background:#fff0f2;border-color:#edc1cc;color:#9a3048}
+.identity-created{
+  margin:16px 0 8px;padding:16px;border:1px solid #b1e0c6;
+  border-radius:15px;background:#f0fbf5
+}
+.identity-created>strong{color:#226d58;font-size:13px;display:block;margin-bottom:10px}
+.identity-created>code{
+  display:block;overflow-wrap:anywhere;word-break:break-word;
+  font:600 11px/1.75 ui-monospace,Consolas,monospace;
+  padding:12px;border:1px solid #d4e9dc;background:#fff;border-radius:10px;color:#34475a;
+  user-select:text
+}
+.identity-created-actions{margin-top:12px}
+.identity-created-actions button{
+  flex:1;min-width:130px;padding:10px 12px;min-height:39px;
+  font-size:11px;border:1px solid #bdd9cd;color:#285d50;background:#fff
+}
+.identity-created>p{color:#5b6c75;line-height:1.65;font-size:11px;margin:13px 0 0}
+@media(max-width:600px){.identity-created-actions{flex-direction:column;align-items:stretch}.identity-created-actions button{width:100%}}
