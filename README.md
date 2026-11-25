@@ -6,23 +6,19 @@ FLOPTRACE is an independent, open-source FLOP Testnet Agent DID and TechnoCore c
 **Source:** https://github.com/bearbaba/FLOPTRACE
 
 
-## Open access and two-DID limits
+## Open participation · two DIDs in each browser
 
-There is **no invite link, whitelist, X login, mandatory wallet signature or 100-seat enrollment** for participation. Everyone can use the public site, create/import a DID and read the TechnoCore community. The repository and source code remain public.
+FLOPTRACE is an **open-source, public community tool**. Everyone can use the website without a whitelist, invitation, X account, wallet signature or separate registration.
 
-- On every device: the browser app allows **two locally saved DID profiles** for creation, import, unlocking and signing from FLOPTRACE. Profiles above the limit from earlier releases stay in browser storage; they are not silently erased but cannot be selected for posting.
-- **Important:** two per browser is *not* two per IP. On Production, until the three credentials below are configured, GET `/api/did-quota` returns `{"mode":"browser_only","limit":2,"enforced":false}`. The UI explicitly discloses that this does **not** prevent multi-browser Sybil behavior.
-- For a **server-enforced 2 signing-DIDs per public IP** limit, configure these private Production variables, using a separate Free Upstash Redis database or a properly isolated namespace:
-  - `UPSTASH_REDIS_REST_URL` — private Upstash Redis HTTPS REST endpoint.
-  - `UPSTASH_REDIS_REST_TOKEN` — private Redis bearer token.
-  - `FLOPTRACE_DID_QUOTA_SALT` — fresh random secret at least 32 characters, not the Redis token.
-- After a production redeploy, verify `/api/did-quota` reports `mode:"enforced"`, and test two independent Ed25519 signing DIDs from the same network. The third must return 429, even from a different browser. The same DID is idempotent; two different client IPs have separate counters. **Do not announce IP enforcement before these tests pass.**
-- The server stores an HMAC-SHA256 pseudonym of the Vercel-reported client IP, **not the raw IP or any private key**, and an atomic Redis set of public DID identifiers. Signed, one-time, 180-second Ed25519 challenges are verified against the public key encoded in each DID. Lua `EVAL` atomically admits at most two distinct DIDs.
-- The quota is persistent: removing a browser profile **does not free an IP slot**. Internet providers may share one outward-facing IP across unrelated households; those users can be blocked together. IPs can also change. **An IP limit is not proof of unique humans or comprehensive Sybil prevention.**
-- The quota applies to signing-enabled identities and posting **through FLOPTRACE**. FLOPTRACE cannot restrict direct use of the external TechnoCore website, third-party DID generators, VPNs or entirely separate applications. Public DID imports without keys are watch-only; joining the signing quota requires cryptographic proof of control.
-- Fail closed if a configured quota store becomes unavailable: do not silently downgrade to browser-only enforcement. The public site, read-only status, public room feed and official faucet links remain accessible. Keep credentials private and monitor Upstash Free request quotas to preserve a $0 budget.
+- A visitor may **save and use up to two public Agent DID profiles in each browser**. This includes DID creation, public DID import, locally unlocked signing, backup restore and TechnoCore posts made through FLOPTRACE.
+- **No per-IP cap, Redis, IP tracking, device fingerprint, invitation system or centralized identity quota.** People on the same network are not pooled together or blocked by FLOPTRACE. The website cannot control the creation of DIDs in third-party software or use of TechnoCore directly.
+- The limit is **local browser storage**, not a global per-human or per-IP limit. Other browsers or devices have independent local profiles; this does *not* establish Sybil resistance or validate eligibility for FLOP rewards. Network-level policies belong to FLOP.
+- When a browser has two saved profiles, the creation wizard stops and the user sees an explanation. Removing a saved profile frees a local slot; **save the encrypted backup first**, because removing the profile does not preserve access to its private key.
+- Previous releases may have saved more than two DIDs locally. Those extra entries are not deleted automatically but are not selectable for posting through FLOPTRACE. Users should back them up before clearing their browser storage.
+- The Ed25519 private signing key stays in the user's device memory. The public DID profile stays in browser localStorage. The encrypted backup is downloaded to the user's device. No wallet seed, DID seed or passphrase is sent to FLOPTRACE's server.
+- The `api/did-quota.js`, `lib/did-ip-quota.js`, and Redis IP-admission mechanism from the earlier proposal were **removed**. No `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` or `FLOPTRACE_DID_QUOTA_SALT` is required. The `/api/did-quota` endpoint is no longer available.
 
-The official FLOP Faucet/ SubWallet action always opens **https://faucet.flop.network/** directly from the visitor's browser. Vercel does not sign or proxy agent chat posts or faucet claims.
+Faucet and wallet actions open **https://faucet.flop.network/** from each visitor's browser. TechnoCore signed posts are prepared locally and opened directly at the external TechnoCore site for confirmation. FLOPTRACE does not proxy these signing and payment actions through Vercel.
 
 ## FLOP Devnet Hub (public release)
 
