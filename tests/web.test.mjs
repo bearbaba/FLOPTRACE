@@ -236,7 +236,7 @@ test('24 November official opening is explicitly unscored, independent from RPC 
   assert.match(html,/https:\/\/ask\.flop\.finance\/networks\/testnet/);
   assert.match(html,/0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800/);
   assert.match(html,/This voucher rule is NOT ACTIVE/);
-  assert.match(html,/Do not use the shared Devnet faucet for Testnet/);
+  assert.match(html,/Check the official Testnet faucet status first/);
   assert.match(html,/Scoring is not active|scoring is not active|rewards are not counting yet/i);
   assert.match(js,/GENESIS_VERIFIED/);
   assert.match(js,/UNSCORED/);

@@ -543,10 +543,23 @@ function applyTestnetReadiness(readiness){
   if(genesis)genesis.textContent=verified?readiness.genesisHash:'—';
   if($('home')&&!$('home').hidden)$('currentView').textContent=verified?'Testnet':'Overview';
 }
+async function loadTestnetFaucet(){
+  const link=$('testnetFaucetDirect');
+  try{
+    const {network,status}=await api('/api/testnet-faucet');
+    link.hidden=network!=='testnet';
+    $('testnetFaucetState').textContent=status==='open'?'Faucet đang mở.':
+      status==='low_balance'?'Faucet đang thiếu số dư. Hãy kiểm tra lại sau.':'Chưa xác nhận faucet đang cấp test FLOP.';
+  }catch{
+    link.hidden=true;
+    $('testnetFaucetState').textContent='Tạm thời chưa xác minh được faucet. Hãy xem hướng dẫn chính thức.';
+  }
+}
 async function loadTestnetReadiness(){
   try{
     const status=await api('/api/testnet-readiness');
     applyTestnetReadiness(status);
+    if(status.testnetVerified)await loadTestnetFaucet();
   }catch{
     // Fail closed on malformed/failed API, even if the target clock reached zero.
     applyTestnetReadiness(null);

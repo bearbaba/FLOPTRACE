@@ -11,7 +11,7 @@ module.exports=async function handler(req,res) {
   res.setHeader('Cache-Control','public, s-maxage=50, stale-while-revalidate=100');
   if(req.method!=='GET') return res.status(405).json({error:'GET only'});
   const [faucet,explorer]=await Promise.all([
-    readHealth('https://faucet.flop.network/health'),
+    readHealth('https://faucet.devnet.flop.network/health'),
     readHealth('https://explorer.devnet.flop.network/api/health')
   ]);
   const service=faucet?.status==='ok'&&faucet?.connected===true?'reachable':faucet?'degraded':'unknown';
@@ -25,6 +25,6 @@ module.exports=async function handler(req,res) {
     headLag:lag,
     grantAvailability:'NOT_VERIFIED',
     note:'Service health and explorer progress do not prove that faucet /fund succeeds. Check the official faucet for actual grants.',
-    officialFaucet:'https://faucet.flop.network'
+    officialFaucet:'https://faucet.devnet.flop.network'
   });
 };

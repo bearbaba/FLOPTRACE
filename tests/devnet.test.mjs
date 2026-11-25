@@ -24,7 +24,7 @@ test('all public developer URLs are official, and affiliate call-to-action is cl
   const page=await html();
   const official=[
     'https://explorer.devnet.flop.network',
-    'https://faucet.flop.network',
+    'https://faucet.devnet.flop.network',
     'https://api.flop.network/v1/models',
     'https://mcp.flop.network/mcp',
     'https://docs.flop.network/',
