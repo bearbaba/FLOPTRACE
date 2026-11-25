@@ -252,7 +252,7 @@ test('verified FLOP Testnet home has three transparent public actions and no leg
   const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
   const readme=await readFile(new URL('../README.md',import.meta.url),'utf8');
   assert.match(html,/id="testnetStartHero"[^>]*href="https:\/\/testnet\.flopscan\.io\/"/);
-  assert.match(html,/id="bringMyDidCTA"[^>]*data-view="identity"[^>]*>Tạo hoặc nhập DID/);
+  assert.match(html,/id="bringMyDidCTA"[^>]*data-view="identity"[^>]*>Create or import DID/);
   assert.match(html,/Testnet live · Rewards not active/);
   assert.match(html,/Verified genesis: <code id="verifiedGenesisHash">/);
   assert.match(html,/id="identityNextStep" hidden/);
