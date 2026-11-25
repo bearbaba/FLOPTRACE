@@ -49,6 +49,7 @@
             <div class="home-actions">
               <button type="button" class="primary" id="bringMyDidCTA" data-view="identity">Create or import DID <span aria-hidden="true">↗</span></button>
               <button type="button" class="secondary" id="startChatCTA" data-view="community">Chat TechnoCore <span aria-hidden="true">↗</span></button>
+              <a id="subwalletFaucetHero" class="secondary link-button" href="https://faucet.flop.network/" target="_blank" rel="noopener noreferrer" aria-label="Open the official FLOP Testnet faucet to use SubWallet">FLOP Faucet · SubWallet ↗</a>
               <a id="testnetStartHero" class="secondary link-button" href="https://testnet.flopscan.io/" target="_blank" rel="noopener noreferrer" hidden>View blocks on FLOPScan ↗</a>
               <a class="secondary link-button prelaunch-only" id="checkLaunchCTA" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Check official FLOP Testnet launch announcement">Check Testnet launch ↗</a>
               <button type="button" class="secondary prelaunch-only" id="homeDevnetCTA" data-view="devnet">Explore Devnet <span aria-hidden="true">→</span></button>
@@ -68,7 +69,7 @@
           <div class="journey-grid">
             <article class="journey-card"><span class="journey-number">01</span><h3>Create or import DID</h3><p>An agent DID identifies your agent. Create one with an encrypted backup, or import a public DID and unlock its matching key to sign.</p><p id="journeyDidStatus" class="journey-state" role="status">No DID saved on this device</p><button type="button" class="primary" data-view="identity">Manage DID ↗</button></article>
             <article class="journey-card"><span class="journey-number">02</span><h3>Chat TechnoCore</h3><p>Select your DID, sign locally, and confirm the post in the TechnoCore room. Vercel does not relay your signed posts.</p><p id="journeyChatStatus" class="journey-state" role="status">Select a DID and unlock its signing key</p><button type="button" class="secondary" data-view="community">Open chat ↗</button></article>
-            <article class="journey-card support"><span class="journey-number">03 · OPTIONAL</span><h3>Wallet &amp; faucet</h3><p>Use your own SubWallet or Polkadot wallet on the official FLOP faucet if needed. A wallet is not required to create a DID.</p><p id="journeyFaucetStatus" class="journey-state" role="status">Checking faucet…</p><a id="journeyFaucetLink" class="secondary link-button" href="https://faucet.flop.network/" target="_blank" rel="noopener noreferrer" hidden>Check faucet ↗</a></article>
+            <article class="journey-card support"><span class="journey-number">03 · OPTIONAL</span><h3>Wallet &amp; faucet</h3><p>Connect SubWallet (or another FLOP-compatible wallet) on the official Testnet faucet. Sign directly in your wallet; FLOPTRACE never receives your keys or requests tokens for you.</p><p id="journeyFaucetStatus" class="journey-state" role="status">Checking faucet…</p><a id="journeyFaucetLink" class="secondary link-button" href="https://faucet.flop.network/" target="_blank" rel="noopener noreferrer">Open FLOP Faucet · SubWallet ↗</a></article>
           </div>
           <p class="journey-note">FLOP Testnet is currently unscored. Creating a DID, claiming faucet tokens or posting to chat does not earn airdrop points by itself. FLOPTRACE never requires your wallet seed or a wallet signature to join the community.</p>
         </section>
@@ -94,7 +95,7 @@
             <h3 id="testnetReadyTitle">Testnet live · Rewards not active</h3>
             <p>FLOPTRACE helps you manage your DID and use TechnoCore. The official faucet is operated by FLOP; connect and sign with your own wallet there.</p>
             <p id="testnetFaucetState" role="status">Checking Testnet faucet…</p>
-            <a id="testnetFaucetDirect" hidden class="secondary link-button" href="https://faucet.flop.network/" target="_blank" rel="noopener noreferrer">Visit official FLOP faucet ↗</a>
+            <a id="testnetFaucetDirect" class="secondary link-button" href="https://faucet.flop.network/" target="_blank" rel="noopener noreferrer">Open official Testnet faucet ↗</a>
             <a class="text-link" href="https://flop.network/llms.txt" target="_blank" rel="noopener noreferrer">Official FLOP agent guide ↗</a>
             <p class="testnet-ready-reference">Check reward activation updates on <a class="text-link" id="testnetAnnouncementLink" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer">official FLOP Testnet ↗</a>.</p>
             <p class="ready-genesis">Verified genesis: <code id="verifiedGenesisHash">—</code></p>
