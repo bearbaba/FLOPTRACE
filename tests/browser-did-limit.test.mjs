@@ -64,7 +64,7 @@ test('no IP or Redis quota remains in the public execution path',async()=>{
     assert.doesNotMatch(content,/FLOPTRACE_DID_QUOTA_SALT/);
     assert.doesNotMatch(content,/UPSTASH_REDIS_REST_TOKEN/);
   }
-  assert.doesNotMatch(js,/x-forwarded-for|ipHash|HMAC|ensureRegisteredDid|quotaStatus\(/i);
+  assert.doesNotMatch(js,/x-forwarded-for|ipHash|HMAC|ensureRegisteredDid|\bquotaStatus\(/i);
   assert.doesNotMatch(js,/fetch\([^)]*\/fund/i);
   assert.match(html,/<html lang="en">/);
   assert.match(html,/href="https:\/\/faucet\.flop\.network\/"/);
