@@ -46,11 +46,11 @@ async function quotaStatus(did=''){
   const url='/api/did-quota'+(did?'?did='+encodeURIComponent(did):'');
   return api(url);
 }
-async function ensureNewDidCapacity(){
+async function ensureNewDidCapacity(did=''){ 
   if(DID_PROFILES.length>=MAX_LOCAL_DIDS)
     throw Error('Only two DIDs can be added to this browser. Existing backups are not deleted.');
-  const status=await quotaStatus();
-  if(status.mode==='enforced'&&status.remaining<1)
+  const status=await quotaStatus(did);
+  if(status.mode==='enforced'&&status.remaining<1&&!status.registered)
     throw Error('This public IP has already registered two signing DIDs. Shared Wi-Fi or mobile networks may count together.');
   if(status.mode!=='enforced'&&status.mode!=='browser_only')
     throw Error('DID quota status is unavailable. Try again later.');
@@ -267,7 +267,7 @@ $('unlockBackup').addEventListener('click',async()=>{
     const did=decrypted.did||obj.did;
     if(!isValidEd25519Did(did))throw new Error('This file does not contain a valid public Ed25519 DID.');
     if(!DID_PROFILES.some(p=>p.did===did)){
-      await ensureNewDidCapacity();
+      await ensureNewDidCapacity(did);
       inserted=did;registerProfile(did,'Restored Agent');
     }else selectDid(did);
     await unlockSeed(decrypted.seed_hex);
@@ -292,7 +292,7 @@ $('importAgent').addEventListener('click',async()=>{
       selectDid(did);
       identityFeedback('importFeedback','This DID is already saved here. Profile selected — no need to recreate it.','good');
     }else{
-      await ensureNewDidCapacity();
+      await ensureNewDidCapacity(did);
       registerProfile(did,name||'Imported Agent');
       identityFeedback('importFeedback','Your public DID is saved in this browser. Import does not create or restore its private signing key.','good');
     }
