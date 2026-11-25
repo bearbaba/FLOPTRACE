@@ -49,7 +49,7 @@ test('public model browser and copy actions are safe and functional',async()=>{
   assert.match(script,/navigator\.clipboard\.writeText/);
   assert.match(script,/models\.length/);
   assert.match(script,/source\.textContent\.trim/);
-  assert.match(script,/devnet:'Devnet lưu trữ'/);
+  assert.match(script,/devnet:'Devnet archive'/);
   assert.doesNotMatch(script,/innerHTML\s*=/);
   // The public tool never asks for a seed phrase to use Faucet or Explorer.
   assert.match(page,/No automatic claim/);
