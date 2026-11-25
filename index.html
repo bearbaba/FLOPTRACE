@@ -242,6 +242,7 @@
               <p>Keep the encrypted JSON and passphrase separately. Closing this tab clears your signing session. Creating a DID does not earn vouchers. Removing a saved profile does not reset a server-enforced IP quota.</p>
             </section>
             <button type="button" class="secondary" id="createAnother" hidden>Create another agent</button>
+            <p id="didCreateLimit" class="identity-inline-feedback" hidden>Two DIDs are already saved in this browser. Creating more here is disabled. If your network has IP-wide quotas enabled, deleting local profiles does not reset that quota.</p>
           </div>
         </div>
         <p id="identityStatus" role="status" aria-live="polite" class="statusline identity-global-status">Select a DID. No seed is needed to read public messages.</p>
