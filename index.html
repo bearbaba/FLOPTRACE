@@ -124,7 +124,7 @@
           <ol class="launch-steps">
             <li><strong>1 · Keep your DID</strong><span>Bring your existing Ed25519 <code>did:key</code> from TechnoCore. No new identity is needed to import it here.</span></li>
             <li><strong>2 · Verify launch</strong><span>Check the official site for Testnet endpoints, first-block hash and genesis identity before connecting. A countdown reaching zero proves nothing about chain readiness.</span></li>
-            <li><strong>3 · Claim, then spend (later)</strong><span>Check the official Testnet faucet status first. Testnet inference and voucher activation are pending. DID creation alone earns nothing. Pre-activation spend also earns nothing.</span><a class="secondary link-button" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Xem thông báo mở mạng FLOP Testnet trên trang chính thức">Xem thông báo mở mạng ↗</a></li>
+            <li><strong>3 · Claim, then spend (later)</strong><span>Check the official Testnet faucet status first. Testnet inference and voucher activation are pending. DID creation alone earns nothing. Pre-activation spend also earns nothing.</span><a class="secondary link-button" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="View network announcement FLOP Testnet trên trang chính thức">View network announcement ↗</a></li>
           </ol>
           <details class="testnet-more"><summary>Other ways to participate: miners, validators &amp; vouchers</summary>
             <div class="testnet-more-grid">
@@ -281,20 +281,20 @@
             <div class="field"><label for="postDid">Signing DID</label><select id="postDid"></select></div>
             <div class="field"><label for="postText">Your message</label><textarea id="postText" rows="6" required maxlength="1600" placeholder="Write an original update or message…"></textarea></div>
             <button type="submit" id="publish" class="primary wide">Sign &amp; open confirmation <span>↗</span></button>
-            <p class="statusline" id="postFeedback" role="status" aria-live="polite">Cần mở khóa DID trên thiết bị trước khi ký. Your message sẽ nằm trong liên kết TechnoCore.</p>
+            <p class="statusline" id="postFeedback" role="status" aria-live="polite">Unlock your DID locally before signing. Your message will appear in the TechnoCore confirmation link.</p>
             <div class="row"><button id="checkPost" type="button" class="secondary" hidden>Check pending post</button><a id="manualSignedLink" class="text-link" href="#" hidden target="_blank" rel="noopener noreferrer">Open signed link ↗</a></div>
             <div class="info-strip slim">A confirmation tab is not proof of publication. FLOPTRACE marks the post confirmed only after a matching readback from the room feed; check before resending.</div>
           </form>
         </div>
       </section>
       <section class="view" id="activity" hidden aria-label="Activity">
-        <div class="eyebrow">03 / LOCAL LOG</div><h1 class="page-title">Activity hoạt động</h1>
-        <p class="lead compact">Activity tin đã ký và kết quả xác minh được lưu trên thiết bị này. Chưa có bằng chứng thì không ghi thành công.</p>
+        <div class="eyebrow">03 / LOCAL LOG</div><h1 class="page-title">Activity &amp; receipts</h1>
+        <p class="lead compact">Signed posts and their verification results are stored on your device. Nothing is marked successful without evidence.</p>
         <div class="card">
           <div class="card-heading"><h2>Recent activity</h2><div class="row"><button type="button" class="inline-button" id="exportAll">Export JSON ↓</button><button type="button" class="inline-button danger-text" id="clearActivity">Clear local history</button></div></div>
           <div id="activityList" class="activity-list"><p class="placeholder">No activity yet.</p></div>
         </div>
-        <p class="field-hint">Activity nằm trên thiết bị; khi xuất JSON không bao gồm khóa riêng.</p>
+        <p class="field-hint">Activity stays on this device. Private keys are never included in exported JSON.</p>
       </section>
     </div>
     <footer class="footer"><span>FLOPTRACE · Independent builder project by <a href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Bear Crypto ↗</a> · Not affiliated with FLOP Labs</span><span><a href="https://flop.finance/official/" target="_blank" rel="noopener noreferrer">Official links ↗</a> · <a href="https://docs.flop.network/" target="_blank" rel="noopener noreferrer">Docs ↗</a> · <a href="https://github.com/bearbaba/FLOPTRACE" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span></footer>
