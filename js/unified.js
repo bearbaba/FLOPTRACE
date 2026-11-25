@@ -228,8 +228,8 @@ $('createAgent').addEventListener('click',async()=>{
   const button=$('createAgent');
   const name=$('createName').value.trim()||'My Agent';
   const pass=$('createPass').value,again=$('createPassConfirm').value;
-  if(pass.length<12)return identityFeedback('createFeedback','Choose a backup passphrase with at least 12 characters.','error');
-  if(pass!==again)return identityFeedback('createFeedback','The confirmation does not match. Check both passphrases and retry.','error');
+  if(pass.length<12)return identityFeedback('createFeedback','Enter a new password of at least 12 characters to protect your agent backup.','error');
+  if(pass!==again)return identityFeedback('createFeedback','The two backup passwords must match. Enter the same password in both fields.','error');
   button.disabled=true;
   identityFeedback('createFeedback','Creating and locally verifying your DID and encrypted backup…');
   try{
