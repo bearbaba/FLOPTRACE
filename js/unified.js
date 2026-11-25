@@ -42,64 +42,18 @@ function persistProfiles(){
 function allowedLocalDid(did){
   return DID_PROFILES.slice(0,MAX_LOCAL_DIDS).some(p=>p.did===did);
 }
-async function quotaStatus(did=''){
-  const url='/api/did-quota'+(did?'?did='+encodeURIComponent(did):'');
-  return api(url);
-}
-async function ensureNewDidCapacity(did=''){ 
+function ensureNewDidCapacity(){
   if(DID_PROFILES.length>=MAX_LOCAL_DIDS)
-    throw Error('Only two DIDs can be added to this browser. Existing backups are not deleted.');
-  const status=await quotaStatus(did);
-  if(status.mode==='enforced'&&status.remaining<1&&!status.registered)
-    throw Error('This public IP has already registered two signing DIDs. Shared Wi-Fi or mobile networks may count together.');
-  if(status.mode!=='enforced'&&status.mode!=='browser_only')
-    throw Error('DID quota status is unavailable. Try again later.');
-  return status;
+    throw Error('This browser already has two saved DIDs. Remove a local profile to add another. Keep a backup before removing any DID.');
 }
-async function ensureRegisteredDid(did,signingKey){
-  const status=await quotaStatus(did);
-  if(status.mode==='browser_only'){
-    if(DID_PROFILES.length>=MAX_LOCAL_DIDS&&!allowedLocalDid(did))
-      throw Error('This browser already has two DIDs.');
-    return true;
-  }
-  if(status.mode!=='enforced')throw Error('DID quota service unavailable.');
-  if(status.registered)return true;
-  if(status.remaining<1)throw Error('This public IP has already registered two DIDs. Shared networks count together.');
-  const challenge=await api('/api/did-quota',{
-    method:'POST',headers:{'content-type':'application/json'},
-    body:JSON.stringify({action:'challenge',did})
-  });
-  if(challenge.did!==did||typeof challenge.message!=='string'||typeof challenge.nonce!=='string')
-    throw Error('Unexpected DID quota signing challenge.');
-  const signature=b64url(await crypto.subtle.sign('Ed25519',signingKey,enc.encode(challenge.message)));
-  const result=await api('/api/did-quota',{
-    method:'POST',headers:{'content-type':'application/json'},
-    body:JSON.stringify({action:'register',did,nonce:challenge.nonce,signature})
-  });
-  if(!result.registered)throw Error('DID quota registration was not confirmed.');
-  void refreshDidQuotaStatus();
-  return true;
+function assertDidUsage(did){
+  if(!allowedLocalDid(did))
+    throw Error('Only the two saved DID profiles on this browser can sign through FLOPTRACE.');
 }
-async function assertDidUsage(did){
-  if(!allowedLocalDid(did))throw Error('Only the first two saved DID profiles can be used on this browser.');
-  const status=await quotaStatus(did);
-  if(status.mode==='enforced'&&!status.registered)
-    throw Error('This DID is not registered for the current IP. Unlock your DID on this device first.');
-  if(status.mode!=='enforced'&&status.mode!=='browser_only')
-    throw Error('DID quota service is unavailable.');
-}
-async function refreshDidQuotaStatus(){
+function refreshDidQuotaStatus(){
   const el=$('didQuotaStatus');
-  if(!el)return;
-  try{
-    const status=await quotaStatus();
-    el.textContent=status.mode==='enforced'
-      ?'IP limit active: '+status.used+' of 2 DID slots used on this public IP. Shared networks count together.'
-      :'Browser limit active: up to 2 DID profiles here. IP-wide protection requires the persistent quota service.';
-  }catch{
-    el.textContent='Quota service temporarily unavailable. Existing public profiles remain on your device.';
-  }
+  if(el)el.textContent=DID_PROFILES.length+' of '+MAX_LOCAL_DIDS+
+    ' DID profiles saved in this browser. No IP tracking, invite link or server registration.';
 }
 function populateAgentPickers(){
   const el=$('postDid');
@@ -146,6 +100,7 @@ function selectDid(did){
 }
 function renderProfiles(){
   const limitReached=DID_PROFILES.length>=MAX_LOCAL_DIDS;
+  refreshDidQuotaStatus();
   const wizard=$('createWizard'),limitNote=$('didCreateLimit');
   if(wizard)wizard.hidden=limitReached;
   if(limitNote)limitNote.hidden=!limitReached;
@@ -188,7 +143,7 @@ function renderProfiles(){
 }
 function registerProfile(did,name){
   if(!DID_PROFILES.some(p=>p.did===did)&&DID_PROFILES.length>=MAX_LOCAL_DIDS)
-    throw Error('Two DID profiles maximum per browser. Removing a local profile does not reset server IP registrations.');
+    throw Error('Two DID profiles maximum per browser. Save a backup before removing one.');
   const next=addProfile(DID_PROFILES,{did,name});
   try{
     localStorage.setItem(KEY_PROFILES,JSON.stringify(next));
@@ -245,7 +200,7 @@ async function unlockSeed(seedText){
     const signature=await crypto.subtle.sign('Ed25519',signingKey,challenge);
     if(!await crypto.subtle.verify('Ed25519',verificationKey,signature,challenge))
       throw new Error('Could not verify local Ed25519 signing');
-    await ensureRegisteredDid(activeDid,signingKey);
+    assertDidUsage(activeDid);
     unlocked.set(activeDid,signingKey);
     selectDid(activeDid);
     message('identityStatus','Unlocked and cryptographically matched to '+label(activeDid)+'. Local signing is ready; no key was uploaded.','good');
@@ -272,7 +227,7 @@ $('unlockBackup').addEventListener('click',async()=>{
     const did=decrypted.did||obj.did;
     if(!isValidEd25519Did(did))throw new Error('This file does not contain a valid public Ed25519 DID.');
     if(!DID_PROFILES.some(p=>p.did===did)){
-      await ensureNewDidCapacity(did);
+      ensureNewDidCapacity();
       inserted=did;registerProfile(did,'Restored Agent');
     }else selectDid(did);
     await unlockSeed(decrypted.seed_hex);
@@ -297,7 +252,7 @@ $('importAgent').addEventListener('click',async()=>{
       selectDid(did);
       identityFeedback('importFeedback','This DID is already saved here. Profile selected — no need to recreate it.','good');
     }else{
-      await ensureNewDidCapacity(did);
+      ensureNewDidCapacity();
       registerProfile(did,name||'Imported Agent');
       identityFeedback('importFeedback','Your public DID is saved in this browser. Import does not create or restore its private signing key.','good');
     }
@@ -338,24 +293,16 @@ $('createWizard').addEventListener('submit',async event=>{
   if(pass!==again)return identityFeedback('createFeedback','The two backup passwords must match. Enter the same password in both fields.','error');
   button.disabled=true;
   $('backToPassword').disabled=true;
-  identityFeedback('createFeedback','Checking capacity and generating an encrypted backup locally…');
+  identityFeedback('createFeedback','Creating and locally verifying your encrypted agent backup…');
   try{
-    await ensureNewDidCapacity();
+    ensureNewDidCapacity();
     const {did,backup,signingKey}=await createLocalIdentity(pass,{webCrypto:crypto,cryptoUtil:window.CryptoUtil});
     const filename='floptrace-'+did.slice(-9)+'-ENCRYPTED.json';
     recentEncryptedBackup={did,filename,backup};
     $('createdDidValue').textContent=did;
     $('createdDidResult').hidden=false;
-    // If IP admission fails after key generation, keep the generated encrypted
-    // backup recoverable; never discard a private signing key silently.
-    try{await ensureRegisteredDid(did,signingKey);}
-    catch(error){
-      try{download(filename,backup);}
-      catch{}
-      throw Error('Your DID was generated but not admitted for use here: '+error.message+
-        ' Save the encrypted backup above; no profile was registered.');
-    }
-    // Persist public DID only after encrypted backup and quota admission.
+    // Persist the public DID only after the encrypted backup is ready.
+    // No IP address, external account or private key is sent to a server.
     registerProfile(did,name);
     unlocked.set(did,signingKey);
     selectDid(did);
@@ -571,13 +518,13 @@ $('postForm').addEventListener('submit',async event=>{
   if(!activeDid){go('identity');$('importDid').focus();return;}
   if(!unlocked.has(activeDid)){openSigner();return message('identityStatus','Unlock '+label(activeDid)+' with its matching offline seed first.','error');}
   const did=activeDid;
+  try{assertDidUsage(did);}catch(error){return message('postFeedback',error.message,'error');}
   const nonce=nextNonce(room,did);
   const button=$('publish');button.disabled=true;
   // Create the confirmation tab directly in the click event to avoid popup blockers.
   const popup=window.open('about:blank','_blank');
   if(popup)popup.opener=null;
   try{
-    await assertDidUsage(did);
     const payload=enc.encode(room+'|'+nonce+'|'+text);
     const sig=b64url(await crypto.subtle.sign('Ed25519',unlocked.get(did),payload));
     const url=TECH+'/r/'+encodeURIComponent(room)+'/say-signed/'+encodeURIComponent(did)+'/'+sig+'/'+nonce+'/'+encodeURIComponent(text);
@@ -806,7 +753,6 @@ for(const button of document.querySelectorAll('[data-copy-target]')){
 }
 
 fillRooms();selectDid(activeDid);renderEvents();go(currentRouteView(),false);
-void refreshDidQuotaStatus();
 await Promise.all([loadModels(),loadTestnetReadiness()]);
 setInterval(loadTestnetReadiness,60_000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void loadTestnetReadiness();});
