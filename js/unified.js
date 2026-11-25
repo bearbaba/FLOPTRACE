@@ -31,8 +31,8 @@ function saveEvents(items){
   renderEvents();
 }
 function updateEvent(id,patch){saveEvents(events().map(e=>e.id===id?{...e,...patch}:e));}
-function label(did){return DID_PROFILES.find(x=>x.did===did)?.name||'Chưa có Agent';}
-function short(did){return did?did.slice(0,23)+'…'+did.slice(-7):'Chưa chọn DID';}
+function label(did){return DID_PROFILES.find(x=>x.did===did)?.name||'No agent';}
+function short(did){return did?did.slice(0,23)+'…'+did.slice(-7):'No DID selected';}
 function persistProfiles(){
   try{localStorage.setItem(KEY_PROFILES,JSON.stringify(DID_PROFILES));}catch{}
   $('statAgents').textContent=String(DID_PROFILES.length);
@@ -40,7 +40,7 @@ function persistProfiles(){
 function populateAgentPickers(){
   const el=$('postDid');
   el.replaceChildren();
-  const empty=document.createElement('option');empty.value='';empty.textContent='Chọn một DID';el.append(empty);
+  const empty=document.createElement('option');empty.value='';empty.textContent='Select a DID';el.append(empty);
   for(const p of DID_PROFILES){
     const option=document.createElement('option');
     option.value=p.did;option.textContent=p.name+' · '+short(p.did);el.append(option);
@@ -50,59 +50,59 @@ function populateAgentPickers(){
 function updateJourney(){
   const hasDid=!!activeDid,canSign=hasDid&&unlocked.has(activeDid);
   const did=$('journeyDidStatus'),chat=$('journeyChatStatus'),community=$('communityState');
-  if(did)did.textContent=hasDid?'Đã lưu: '+label(activeDid):'Chưa có DID trên thiết bị này';
-  if(chat)chat.textContent=!hasDid?'Bắt đầu từ bước 1 · Tạo hoặc nhập DID'
-    :canSign?'Đã mở khóa · Sẵn sàng ký tin':'Đã có DID · Mở khóa khi đăng tin';
+  if(did)did.textContent=hasDid?'Saved: '+label(activeDid):'No DID saved on this device';
+  if(chat)chat.textContent=!hasDid?'Start with step 1 · Create or import a DID'
+    :canSign?'Unlocked · Ready to sign':'DID saved · Unlock before posting';
   if(community)community.textContent=!hasDid
-    ?'Chưa có DID: bắt đầu bằng việc tạo mới hoặc nhập DID.'
-    :canSign?'DID đã sẵn sàng ký trên thiết bị này.':'Đã chọn DID. Mở khóa ký trên thiết bị khi gửi tin.';
+    ?'No DID yet. Create one or import an existing DID to get started.'
+    :canSign?'DID is ready to sign on this device.':'DID selected. Unlock its signing key locally before posting.';
 }
 function selectDid(did){
   if(did&&!DID_PROFILES.some(p=>p.did===did))return;
   activeDid=did||'';
   try{if(activeDid)localStorage.setItem(KEY_ACTIVE,activeDid);else localStorage.removeItem(KEY_ACTIVE);}catch{}
   $('postDid').value=activeDid;
-  $('chatNext').textContent=unlocked.has(activeDid)?'Mở chat TechnoCore':'Mở khóa DID để chat';
+  $('chatNext').textContent=unlocked.has(activeDid)?'Open TechnoCore chat':'Unlock DID to chat';
   $('selectedDid').textContent=activeDid||'No agent selected';
-  $('activeAgentButton').textContent=activeDid?'DID: '+label(activeDid):'Tạo Agent DID';
-  $('unlockBadge').textContent=unlocked.has(activeDid)?'ĐÃ MỞ KHÓA':'ĐANG KHÓA';
-  $('postIdentity').textContent=unlocked.has(activeDid)?'KÝ ĐƯỢC':'CHƯA MỞ KHÓA';
+  $('activeAgentButton').textContent=activeDid?'DID: '+label(activeDid):'Create agent DID';
+  $('unlockBadge').textContent=unlocked.has(activeDid)?'UNLOCKED':'LOCKED';
+  $('postIdentity').textContent=unlocked.has(activeDid)?'READY TO SIGN':'DID LOCKED';
   renderProfiles();
   renderEvents();
   updateJourney();
   const nextStep=$('identityNextStep'),nextText=$('identityNextText');
   if(nextStep)nextStep.hidden=!activeDid;
   if(nextText&&activeDid)nextText.textContent=unlocked.has(activeDid)
-    ?'DID của bạn đã lưu trên thiết bị này. Khóa ký hiện chỉ nằm trong tab; hãy kiểm tra file backup mã hóa đã tải xuống trước khi đóng.'
-    :'DID công khai đã lưu trong trình duyệt và vẫn có sau khi tải lại. Nếu muốn ký, hãy khôi phục đúng khóa Ed25519 riêng trên thiết bị.';
-  if(!activeDid)message('identityStatus','Tạo DID mới, mở bản sao lưu mã hóa hoặc nhập DID công khai để bắt đầu.');
+    ?'Your DID is saved on this device. The unlocked signing key exists only in this tab; verify that you downloaded your encrypted backup before closing it.'
+    :'Your public DID is saved in this browser and survives reloads. Restore its matching private Ed25519 key locally to sign.';
+  if(!activeDid)message('identityStatus','Create a DID, restore an encrypted backup, or import a public DID to get started.');
   else message('identityStatus',unlocked.has(activeDid)
-    ?'DID đã mở khóa và ký được trên thiết bị này. Bạn có thể gửi tin TechnoCore.'
-    :'Đã lưu DID công khai. Cần mở đúng khóa Ed25519 riêng để ký tin.',unlocked.has(activeDid)?'good':'');
+    ?'Your DID is unlocked locally. You can sign TechnoCore posts.'
+    :'Public DID saved. Unlock its matching private Ed25519 key locally to sign.',unlocked.has(activeDid)?'good':'');
 }
 function renderProfiles(){
   const root=$('profiles');root.replaceChildren();
   $('statAgents').textContent=String(DID_PROFILES.length);
   if(!DID_PROFILES.length){
     const hint=document.createElement('p');hint.className='placeholder';
-    hint.textContent='Chưa có DID. Chọn Tạo DID mới hoặc Nhập DID bên dưới.';
+    hint.textContent='No DID yet. Select Create a new DID or Import DID below.';
     root.append(hint);return;
   }
   for(const item of DID_PROFILES){
     const card=document.createElement('div');card.className='profile-card'+(activeDid===item.did?' selected':'');
     const top=document.createElement('div');top.className='profile-top';
     const name=document.createElement('strong');name.textContent=item.name;
-    const status=document.createElement('span');status.textContent=unlocked.has(item.did)?'● Ký được':'○ Chưa mở khóa';
+    const status=document.createElement('span');status.textContent=unlocked.has(item.did)?'● Signing ready':'○ Key locked';
     const code=document.createElement('code');code.textContent=item.did;
     const actions=document.createElement('div');actions.className='profile-actions';
     const choose=document.createElement('button');choose.className='secondary';choose.type='button';
-    choose.textContent=activeDid===item.did?'Đang chọn':'Chọn DID này';
+    choose.textContent=activeDid===item.did?'Selected':'Use this DID';
     choose.disabled=activeDid===item.did;
     choose.addEventListener('click',()=>selectDid(item.did));
     const forget=document.createElement('button');forget.className='inline-button danger-text';forget.type='button';
-    forget.textContent='Xóa khỏi máy';
+    forget.textContent='Remove from device';
     forget.addEventListener('click',()=>{
-      if(!confirm('Xóa hồ sơ '+item.name+' khỏi trình duyệt này? Bạn cần bản sao lưu hoặc khóa riêng để khôi phục. Lịch sử cục bộ vẫn được giữ.'))return;
+      if(!confirm('Remove '+item.name+' from this browser? You will need your encrypted backup or original key to restore it. Local activity history will remain.'))return;
       DID_PROFILES=removeProfile(DID_PROFILES,item.did);
       unlocked.delete(item.did);persistProfiles();populateAgentPickers();
       selectDid(DID_PROFILES[0]?.did||'');
@@ -116,7 +116,7 @@ function registerProfile(did,name){
   try{
     localStorage.setItem(KEY_PROFILES,JSON.stringify(next));
   }catch{
-    throw new Error('Trình duyệt đang chặn lưu DID. Hãy bật lưu dữ liệu trang web và tắt chế độ riêng tư rồi thử lại.');
+    throw new Error('This browser blocked local DID storage. Enable site storage or leave private browsing mode and try again.');
   }
   DID_PROFILES=next;
   $('statAgents').textContent=String(DID_PROFILES.length);
@@ -135,7 +135,7 @@ function go(view,updateHistory=true){
     const selected=el.dataset.view===view;el.classList.toggle('active',selected);
     if(selected)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
   });
-  $('currentView').textContent={home:'Trang chủ',devnet:'Devnet lưu trữ',identity:'Agent DID',inference:'Model Devnet',community:'Chat TechnoCore',activity:'Lịch sử'}[view];
+  $('currentView').textContent={home:'Home',devnet:'Devnet archive',identity:'Agent DID',inference:'Devnet models',community:'Chat TechnoCore',activity:'Activity'}[view];
   if(updateHistory){
     const path=view==='devnet'?'/devnet':view==='home'?'/':'/?view='+encodeURIComponent(view);
     if(path!==window.location.pathname+window.location.search)history.pushState({view},'',path);
@@ -520,12 +520,12 @@ function applyTestnetReadiness(readiness){
   if(clock)clock.hidden=verified;
   if(timing)timing.hidden=verified;
   const badge=document.querySelector('#home .launch-state');
-  if(badge)badge.textContent=verified?'TESTNET ĐÃ MỞ · CHƯA TÍNH THƯỞNG':'TESTNET ĐÃ CÔNG BỐ · CHỜ ĐỐI CHIẾU RPC';
+  if(badge)badge.textContent=verified?'TESTNET LIVE · REWARDS NOT ACTIVE':'TESTNET ANNOUNCED · VERIFYING RPC';
   const sideBadge=$('sideNetworkBadge'),sideNote=$('sideNetworkNote');
   if(sideBadge?.lastChild?.nodeType===3)sideBadge.lastChild.textContent=verified?' FLOP TESTNET · UNSCORED':' FLOP DEVNET';
   if(sideNote)sideNote.textContent=verified
-    ?'Testnet đã xác minh · Chưa tính thưởng'
-    :'Trang cộng đồng độc lập · Devnet không tính thưởng';
+    ?'Testnet verified · Rewards not active'
+    :'Independent community portal · Devnet is unscored';
   const optionalSelectors=['#home .testnet-opening-notice','#home .reward-explainer',
     '#home .launch-steps','#home .testnet-more','#home .launch-actions',
     '#home .launch-safety'];
@@ -534,24 +534,24 @@ function applyTestnetReadiness(readiness){
     if(node)node.hidden=verified;
   }
   const title=$('launchGuideTitle'),headline=$('heroTitle'),intro=$('heroIntro'),bring=$('bringMyDidCTA');
-  if(title)title.textContent=verified?'Mạng đang hoạt động · Chưa tính thưởng':'Đang xác minh RPC Testnet';
+  if(title)title.textContent=verified?'Testnet live · Rewards not active':'Verifying Testnet RPC';
   if(headline){
-    const first=document.createTextNode('DID của bạn.');
+    const first=document.createTextNode('Your DID.');
     const breakLine=document.createElement('br');
     const highlight=document.createElement('em');
-    highlight.textContent='Agent của bạn.';
+    highlight.textContent='Your agent.';
     headline.replaceChildren(first,breakLine,highlight);
   }
   if(intro)intro.textContent=verified
-    ?'Tạo hoặc nhập DID, ký tin trên TechnoCore bằng chính thiết bị của bạn. FLOP Testnet đã xác minh genesis nhưng chưa tính thưởng.'
-    :'Bạn vẫn có thể quản lý DID và chat TechnoCore. Chưa đối chiếu được genesis Testnet: đừng coi trạng thái mạng hoặc faucet là đã xác minh.';
-  if(bring)bring.textContent='Tạo hoặc nhập DID ↗';
+    ?'Create or import an agent DID, then sign TechnoCore posts from your own device. FLOP Testnet genesis is verified, but rewards are not active.'
+    :'You can still manage your DID and use TechnoCore. Testnet genesis verification is unavailable: do not assume the chain or faucet is ready.';
+  if(bring)bring.textContent='Create or import DID ↗';
   if(bring){bring.classList.remove('secondary');bring.classList.add('primary');}
   const announcement=$('testnetAnnouncementLink');
   if(announcement)announcement.href=verified?readiness.officialAnnouncement:'https://ask.flop.finance/networks/testnet';
   const genesis=$('verifiedGenesisHash');
   if(genesis)genesis.textContent=verified?readiness.genesisHash:'—';
-  if($('home')&&!$('home').hidden)$('currentView').textContent='Trang chủ';
+  if($('home')&&!$('home').hidden)$('currentView').textContent='Home';
 }
 async function loadTestnetFaucet(){
   const link=$('testnetFaucetDirect'),journeyLink=$('journeyFaucetLink');
@@ -564,14 +564,14 @@ async function loadTestnetFaucet(){
     const verified=network==='testnet'&&testnetVerified;
     link.hidden=!verified;
     if(journeyLink)journeyLink.hidden=!verified;
-    setStatus(!verified?'Chưa xác minh faucet thuộc FLOP Testnet':
-      status==='open'?'Faucet đang mở · Tự ký bằng ví FLOP':
-      status==='low_balance'?'Faucet đang thiếu tiền · Chưa nhận được token':
-      'Chưa xác nhận faucet cấp được token');
+    setStatus(!verified?'Faucet Testnet identity not verified':
+      status==='open'?'Faucet open · Sign with your own FLOP wallet':
+      status==='low_balance'?'Faucet low balance · Token grants are unavailable':
+      'Faucet token grants not confirmed');
   }catch{
     link.hidden=true;
     if(journeyLink)journeyLink.hidden=true;
-    setStatus('Chưa đọc được trạng thái faucet; kiểm tra trên trang chính thức.');
+    setStatus('Faucet status unavailable. Check the official website.');
   }
 }
 async function loadTestnetReadiness(){
@@ -581,13 +581,13 @@ async function loadTestnetReadiness(){
     if(status.testnetVerified)await loadTestnetFaucet();
     else{
       if($('journeyFaucetLink'))$('journeyFaucetLink').hidden=true;
-      $('journeyFaucetStatus').textContent='Chưa xác minh genesis Testnet · Chưa bật liên kết faucet';
+      $('journeyFaucetStatus').textContent='Testnet genesis unverified · Faucet link disabled';
     }
   }catch{
     // Fail closed on malformed/failed API, even if the target clock reached zero.
     applyTestnetReadiness(null);
     if($('journeyFaucetLink'))$('journeyFaucetLink').hidden=true;
-    $('journeyFaucetStatus').textContent='Lỗi kết nối RPC · Chưa bật liên kết faucet';
+    $('journeyFaucetStatus').textContent='RPC unavailable · Faucet link disabled';
   }
 }
 
