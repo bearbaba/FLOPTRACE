@@ -540,3 +540,110 @@ body.testnet-verified .hero-copy .home-actions>button{min-height:44px}
   .identity-next-step .row{flex-direction:column;align-items:stretch}
   .identity-next-step .row>a,.identity-next-step .row>button{width:100%}
 }
+
+
+/* FLOPTRACE unified public flow — DID -> TechnoCore, optional official faucet. */
+:where(button,a,input,textarea,select,summary):focus-visible{
+  outline:3px solid #6552d6;outline-offset:3px
+}
+.journey{margin:18px 0 22px;color:#28354e}
+.journey-heading{display:flex;flex-direction:column;gap:7px;margin:0 0 16px}
+.journey-heading .eyebrow{font-size:10px;color:#645a99}
+.journey-heading h2{font-size:clamp(21px,2.6vw,27px);line-height:1.2;letter-spacing:-.035em;margin:0;color:#2d3151}
+.journey-heading p{font-size:13px;line-height:1.6;color:#66708a;margin:0}
+.journey-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
+.journey-card{
+  min-width:0;display:flex;flex-direction:column;align-items:flex-start;
+  background:#fff;border:1px solid #e1e3ef;border-radius:17px;padding:22px 21px;
+  box-shadow:0 7px 20px rgba(53,57,94,.04)
+}
+.journey-card.support{background:#f9fafc}
+.journey-number{
+  display:inline-flex;border-radius:8px;padding:5px 9px;font-size:10px;font-weight:820;
+  letter-spacing:.06em;color:#5148a8;background:#eeedfd
+}
+.journey-card h3{font-size:17px;letter-spacing:-.025em;color:#2c344e;margin:14px 0 9px}
+.journey-card>p{font-size:12px;line-height:1.72;color:#66708a;margin:0}
+.journey-card .journey-state{
+  color:#365b60;background:#eef7f4;border-radius:9px;font-size:11px;
+  padding:9px 11px;margin:16px 0 17px;line-height:1.6;width:100%;
+  overflow-wrap:anywhere
+}
+.journey-card.support .journey-state{color:#665f72;background:#f0f0f5}
+.journey-card>.primary,.journey-card>.secondary{margin-top:auto;min-height:44px;justify-content:center;width:100%}
+.journey-note{font-size:11px;color:#748098;line-height:1.75;margin:14px 2px 0}
+.chat-guide{
+  display:flex;align-items:center;justify-content:space-between;gap:15px;
+  border:1px solid #d5e4dc;background:#f1f8f4;border-radius:12px;
+  padding:13px 16px;margin:10px 0 22px;color:#355b54;font-size:12px;line-height:1.6
+}
+.chat-guide button{white-space:nowrap;min-height:40px}
+body.testnet-verified #homeStats,
+body.testnet-verified #legacyExploreHeading,
+body.testnet-verified #legacyQuickGrid,
+body.testnet-verified #devnetHomeDisclaimer,
+body.testnet-verified #home .hero-art{display:none!important}
+body.testnet-verified #home .hero-shell{
+  display:block;min-height:0;padding:31px 34px;border-radius:21px;
+  background:linear-gradient(110deg,#ebf7f2,#f2f4ff 87%);box-shadow:none;
+  border-color:#dce7e5
+}
+body.testnet-verified #home .hero-copy{max-width:900px}
+body.testnet-verified #home #heroTitle{font-size:clamp(31px,4.3vw,50px);line-height:1.12}
+body.testnet-verified #home #heroIntro{font-size:14px;max-width:690px;line-height:1.8}
+body.testnet-verified #home .home-actions{margin:21px 0 13px}
+body.testnet-verified #home .home-actions .primary,
+body.testnet-verified #home .home-actions .secondary{
+  display:inline-flex;justify-content:center;align-items:center;min-height:44px
+}
+body.testnet-verified #home #bringMyDidCTA{
+  background:#6451d8;color:#fff;border-color:#6451d8;box-shadow:none
+}
+body.testnet-verified #home #bringMyDidCTA:hover{background:#5040be}
+body.testnet-verified #home #startChatCTA{
+  border-color:#d4d1f2;background:#fff;color:#5144a9
+}
+body.testnet-verified #home #testnetStartHero{
+  border:0;background:transparent;color:#376a62;padding-inline:11px
+}
+body.testnet-verified #home .hero-benefits{margin:0;color:#617b72}
+body.testnet-verified #home .launch-guide{
+  padding:17px 20px;margin:0;background:#f9fafc;border:1px solid #e2e8eb;
+  border-radius:16px;box-shadow:none
+}
+body.testnet-verified #home .launch-head{margin-bottom:0}
+body.testnet-verified #home .launch-head h2{font-size:19px}
+body.testnet-verified #home .testnet-ready-panel{
+  background:#fff;border:1px solid #e1e6e9;box-shadow:none;
+  padding:16px 19px;margin-top:12px;border-radius:13px
+}
+body.testnet-verified #home .testnet-ready-panel h3{font-size:19px}
+body.testnet-verified #home .testnet-ready-panel>p{font-size:12px}
+body.testnet-verified #home .testnet-ready-panel .ready-genesis code{
+  font-size:10px;word-break:break-all
+}
+body.testnet-verified #home .launch-state{
+  white-space:normal;max-width:100%;text-align:right
+}
+@media(max-width:980px){
+  .journey-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .journey-card.support{grid-column:1/-1}
+}
+@media(max-width:620px){
+  .journey-grid{grid-template-columns:1fr;gap:11px}
+  .journey-card.support{grid-column:auto}
+  .journey-card{padding:17px}
+  .journey-card h3{font-size:16px;margin:11px 0 7px}
+  .journey-card .journey-state{margin:13px 0}
+  .journey-heading h2{font-size:23px}
+  .chat-guide{align-items:stretch;flex-direction:column;padding:13px}
+  .chat-guide button{width:100%}
+  body.testnet-verified #home .hero-shell{padding:23px 18px;border-radius:18px}
+  body.testnet-verified #home .home-actions{flex-direction:column;align-items:stretch}
+  body.testnet-verified #home .home-actions>a,
+  body.testnet-verified #home .home-actions>button{width:100%;justify-content:center}
+  body.testnet-verified #home .launch-head{flex-wrap:wrap;gap:9px}
+  body.testnet-verified #home .launch-state{text-align:left}
+  body.testnet-verified #home .launch-guide{padding:14px}
+  body.testnet-verified #home .testnet-ready-panel{padding:15px}
+}
