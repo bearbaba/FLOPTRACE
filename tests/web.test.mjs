@@ -263,3 +263,28 @@ test('24 November official opening is explicitly unscored, independent from RPC 
   assert.match(readiness,/GENESIS_MISMATCH/);
   assert.match(css,/\.testnet-opening-notice/);
 });
+
+test('verified FLOP Testnet home has exactly the two intended primary actions and no legacy entry',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
+  const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
+  const readme=await readFile(new URL('../README.md',import.meta.url),'utf8');
+  assert.match(html,/id="testnetStartHero"[^>]*href="https:\/\/testnet\.flopscan\.io\/"/);
+  assert.match(html,/id="bringMyDidCTA"[^>]*data-view="identity"[^>]*>Tạo hoặc nhập DID/);
+  assert.match(html,/Testnet đã mở · Chưa tính thưởng/);
+  assert.match(html,/Genesis đã xác minh: <code id="verifiedGenesisHash">/);
+  assert.match(html,/id="identityNextStep" hidden/);
+  assert.match(html,/id="identityNextText"/);
+  assert.match(html,/id="sideNetworkBadge"/);
+  assert.doesNotMatch(html,/href="\/legacy\//);
+  assert.match(js,/testnetVerified===true/);
+  assert.match(js,/readiness\?\.status==='GENESIS_VERIFIED'/);
+  assert.match(js,/sideNetworkBadge/);
+  assert.match(js,/optionalSelectors/);
+  assert.match(js,/#home \.reward-explainer/);
+  assert.match(js,/if\(nextStep\)nextStep\.hidden=!activeDid/);
+  assert.match(js,/localStorage\.setItem\(KEY_PROFILES,JSON\.stringify\(next\)\)/);
+  assert.match(css,/\.identity-next-step/);
+  assert.match(readme,/FLOPTRACE_TESTNET_EXPECTED_GENESIS=0x918abd58/);
+  assert.match(readme,/UNSCORED/);
+});
