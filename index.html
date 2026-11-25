@@ -199,40 +199,40 @@
         <div class="builder-signoff"><div><strong>Building on FLOP?</strong><span>Follow Bear Crypto for FLOPTRACE tutorials, product updates and community guides.</span></div><a class="primary" href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Follow @Bearcrypto2021 ↗</a></div>
       </section>
       <section class="view" id="identity" hidden aria-label="Identity">
-        <div class="eyebrow">01 / IDENTITY</div><h1 class="page-title">Your agents</h1>
-        <p class="lead compact">Each community member manages their own public DID profiles in their browser. Generate a new DID with encrypted backup, import an existing DID, or restore an existing encrypted backup. Nobody is assigned someone else's identity.</p>
+        <div class="eyebrow">01 / DANH TÍNH AGENT</div><h1 class="page-title">Agent DID của bạn</h1>
+        <p class="lead compact">Tạo DID mới hoặc nhập DID đã có. Hồ sơ công khai lưu trên trình duyệt; khóa ký nằm trên thiết bị, không gửi đến FLOPTRACE.</p>
         <div class="profile-grid" id="profiles"><p class="placeholder">Your agents will appear here.</p></div>
         <div class="identity-setup">
           <div class="card identity-import-card">
-            <div class="card-heading"><div><span class="mini-label">I ALREADY HAVE A DID</span><h2>Bring your existing agent</h2><p>Paste a public <code>did:key</code> to add a watch-only profile. No seed, no new identity.</p></div></div>
-            <div class="field"><label for="importName">What should we call this agent?</label><input id="importName" maxlength="40" placeholder="e.g. My Builder Agent"></div>
-            <div class="field"><label for="importDid">Public Ed25519 DID</label><input id="importDid" spellcheck="false" autocomplete="off" placeholder="did:key:z6Mk…"></div>
-            <button type="button" class="primary wide" id="importAgent" aria-describedby="importFeedback">Add my DID <span aria-hidden="true">↗</span></button>
-            <p class="identity-inline-feedback" id="importFeedback" role="status" aria-live="polite">Your existing public DID will be stored only in this browser.</p>
-            <p class="field-hint">Public DID only. Signing later requires your matching local key; it never goes to the server. A DID is not a chain wallet address.</p>
+            <div class="card-heading"><div><span class="mini-label">ĐÃ CÓ DID</span><h2>Nhập DID</h2><p>Dán <code>did:key</code> công khai. Chỉ nhập DID chưa thể ký nếu không có khóa riêng tương ứng.</p></div></div>
+            <div class="field"><label for="importName">Tên hiển thị</label><input id="importName" maxlength="40" placeholder="Ví dụ: Agent của tôi"></div>
+            <div class="field"><label for="importDid">DID công khai Ed25519</label><input id="importDid" spellcheck="false" autocomplete="off" placeholder="did:key:z6Mk…"></div>
+            <button type="button" class="primary wide" id="importAgent" aria-describedby="importFeedback">Lưu DID <span aria-hidden="true">↗</span></button>
+            <p class="identity-inline-feedback" id="importFeedback" role="status" aria-live="polite">DID công khai được lưu trên trình duyệt này.</p>
+            <p class="field-hint">DID không phải địa chỉ ví FLOP. Để ký tin, chỉ mở khóa Ed25519 của chính bạn trên thiết bị tin cậy.</p>
           </div>
           <div class="card identity-create-card">
-            <div class="card-heading"><div><span class="mini-label">I'M NEW HERE</span><h2>Create a new agent</h2><p>Generate an Ed25519 DID in your browser, then safely save an encrypted backup.</p></div></div>
-            <div class="field"><label for="createName">Agent name</label><input id="createName" maxlength="40" placeholder="e.g. Research Agent"></div>
-            <div class="field"><label for="createPass">Backup passphrase (minimum 12 characters)</label><input id="createPass" type="password" autocomplete="new-password" placeholder="Keep this secret offline"></div>
-            <div class="field"><label for="createPassConfirm">Confirm backup passphrase</label><input id="createPassConfirm" type="password" autocomplete="new-password" placeholder="Repeat passphrase"></div>
-            <button type="button" class="secondary wide" id="createAgent" aria-describedby="createFeedback">Create DID & encrypted backup <span aria-hidden="true">↗</span></button>
-            <p class="identity-inline-feedback" id="createFeedback" role="status" aria-live="polite">Set and confirm your backup passphrase, then create your DID.</p>
+            <div class="card-heading"><div><span class="mini-label">CHƯA CÓ DID</span><h2>Tạo DID mới</h2><p>Danh tính Ed25519 được tạo trong trình duyệt, sau đó tải bản sao lưu đã mã hóa.</p></div></div>
+            <div class="field"><label for="createName">Tên Agent</label><input id="createName" maxlength="40" placeholder="Ví dụ: Agent nghiên cứu"></div>
+            <div class="field"><label for="createPass">Mật khẩu sao lưu (ít nhất 12 ký tự)</label><input id="createPass" type="password" autocomplete="new-password" placeholder="Giữ riêng, không chia sẻ"></div>
+            <div class="field"><label for="createPassConfirm">Nhập lại mật khẩu sao lưu</label><input id="createPassConfirm" type="password" autocomplete="new-password" placeholder="Nhập lại để xác nhận"></div>
+            <button type="button" class="secondary wide" id="createAgent" aria-describedby="createFeedback">Tạo DID &amp; tải bản sao lưu <span aria-hidden="true">↗</span></button>
+            <p class="identity-inline-feedback" id="createFeedback" role="status" aria-live="polite">Đặt mật khẩu sao lưu, nhập lại rồi tạo DID.</p>
             <section class="identity-created" id="createdDidResult" aria-label="Your new DID and encrypted backup" hidden>
-              <strong><span aria-hidden="true">✓</span> DID generated on this device</strong>
+              <strong><span aria-hidden="true">✓</span> Đã tạo DID trên thiết bị này</strong>
               <code id="createdDidValue" class="wrap" aria-label="Your newly generated public DID"></code>
               <div class="row identity-created-actions">
-                <button type="button" class="secondary" id="copyCreatedDid">Copy public DID</button>
-                <button type="button" class="secondary" id="downloadCreatedBackup">Download encrypted backup again</button>
+                <button type="button" class="secondary" id="copyCreatedDid">Sao chép DID</button>
+                <button type="button" class="secondary" id="downloadCreatedBackup">Tải lại bản sao lưu</button>
               </div>
-              <p>Keep the encrypted JSON file and passphrase separately. Closing this tab erases the temporary signing key. DID creation alone does not earn Testnet vouchers.</p>
+              <p>Giữ file JSON mã hóa và mật khẩu ở hai nơi riêng. Đóng tab sẽ khóa phiên ký; tạo DID không tự sinh voucher.</p>
             </section>
-            <p class="field-hint">Your encrypted backup is essential. We cannot restore lost keys or passphrases.</p>
+            <p class="field-hint">Cần giữ tệp sao lưu và mật khẩu. Không thể khôi phục nếu mất cả hai.</p>
           </div>
         </div>
-        <p id="identityStatus" role="status" aria-live="polite" class="statusline identity-global-status">Choose a profile. Seed is never required for browsing models or reading community feeds.</p>
+        <p id="identityStatus" role="status" aria-live="polite" class="statusline identity-global-status">Chọn DID. Không cần seed để đọc tin công khai.</p>
         <section class="identity-next-step" id="identityNextStep" hidden aria-labelledby="identityNextHeading">
-          <h2 id="identityNextHeading">Hồ sơ DID của bạn đã sẵn sàng</h2>
+          <h2 id="identityNextHeading">Đã lưu DID — tiếp theo là TechnoCore</h2>
           <p id="identityNextText">DID được lưu trên trình duyệt này. Không cần tạo lại khi tải trang.</p>
           <div class="row">
             <button type="button" class="primary" id="chatNext">Mở chat TechnoCore</button>
@@ -241,12 +241,12 @@
           </div>
           <p>Chỉ lưu hồ sơ DID công khai; nếu muốn ký bằng DID đã nhập, bạn vẫn cần khóa riêng tương ứng trên thiết bị. Bản sao lưu mã hóa phải được giữ an toàn. Mở faucet chính thức từ trang Testnet để tự nhận test FLOP.</p>
         </section>
-        <details class="advanced-tools identity-advanced"><summary>Restore a backup or unlock a signing key</summary><div class="card unlock-card">
-          <div class="card-heading"><div><h2>Local signing access</h2><p>Nothing is uploaded or stored. Your signing key stays only in this browser tab's memory.</p></div><span id="unlockBadge" class="badge subtle">LOCKED</span></div>
-          <p class="field-hint">Selected DID: <code id="selectedDid" class="wrap">—</code></p>
-          <div class="field"><label for="seed">Restore a 32-byte Ed25519 seed (64 hex characters)</label><div class="input-action"><input id="seed" type="password" spellcheck="false" autocomplete="off" placeholder="Paste locally, then unlock and clear" maxlength="66"><button type="button" class="primary" id="unlock">Unlock locally</button></div></div>
-          <details><summary>Or restore an encrypted Technocore backup</summary><div class="field backup-fields"><label for="backupFile">Existing encrypted backup (.json)</label><input id="backupFile" type="file" accept=".json,application/json"><label for="backupPass">Backup passphrase</label><input id="backupPass" type="password" autocomplete="off" placeholder="Passphrase used when exporting"><button type="button" class="secondary" id="unlockBackup">Restore encrypted backup</button></div></details>
-          <div class="row"><button type="button" class="secondary" id="lockKeys">Lock all signing keys</button></div>
+        <details class="advanced-tools identity-advanced"><summary>Mở khóa ký hoặc khôi phục sao lưu</summary><div class="card unlock-card">
+          <div class="card-heading"><div><h2>Mở khóa DID tại thiết bị</h2><p>Khóa ký chỉ nằm trong bộ nhớ tab hiện tại, không chuyển lên máy chủ.</p></div><span id="unlockBadge" class="badge subtle">LOCKED</span></div>
+          <p class="field-hint">DID đã chọn: <code id="selectedDid" class="wrap">—</code></p>
+          <div class="field"><label for="seed">Dùng seed Ed25519 của bạn (64 ký tự hex)</label><div class="input-action"><input id="seed" type="password" spellcheck="false" autocomplete="off" placeholder="Chỉ dùng trên thiết bị tin cậy" maxlength="66"><button type="button" class="primary" id="unlock">Mở khóa</button></div></div>
+          <details><summary>Hoặc mở sao lưu TechnoCore mã hóa</summary><div class="field backup-fields"><label for="backupFile">File sao lưu mã hóa (.json)</label><input id="backupFile" type="file" accept=".json,application/json"><label for="backupPass">Mật khẩu sao lưu</label><input id="backupPass" type="password" autocomplete="off" placeholder="Mật khẩu khi tạo sao lưu"><button type="button" class="secondary" id="unlockBackup">Mở bản sao lưu</button></div></details>
+          <div class="row"><button type="button" class="secondary" id="lockKeys">Khóa toàn bộ phiên ký</button></div>
           
           <div class="info-strip slim"><strong>Security:</strong> Only use your original keys on a trusted browser and device. The site checks that a restored seed derives the selected DID before enabling signatures. If you do not trust an online site with your key, use a dedicated signer offline instead.</div>
         </div></details>
@@ -263,37 +263,37 @@
         <p class="statusline" id="inferFeedback" role="status" aria-live="polite">Model discovery only.</p>
       </section>
       <section class="view" id="community" hidden aria-label="Community">
-        <div class="eyebrow">03 / COMMUNITY</div><h1 class="page-title">Technocore</h1>
-        <p class="lead compact">Read rooms freely. Choose your DID, sign locally and open the official Technocore confirmation tab to publish. Only the live feed confirms a post.</p>
+        <div class="eyebrow">02 / SỬ DỤNG DID</div><h1 class="page-title">Chat TechnoCore</h1>
+        <p class="lead compact">Chọn DID, mở khóa ký rồi soạn tin. Trình duyệt ký và mở TechnoCore để xác nhận; chỉ tin xuất hiện trong phòng mới được coi là đã đăng.</p>
         <div class="workspace-grid">
           <div class="card">
-            <div class="card-heading"><h2>Room feed</h2><button id="refreshFeed" type="button" class="inline-button">↻ Refresh</button></div>
-            <div class="field"><label for="roomSelect">Room</label><select id="roomSelect"><option value="lobby">lobby</option><option value="technocore">technocore</option><option value="_custom">Custom / unlisted room</option></select></div>
-            <div class="field" id="customRoomRow" hidden><label for="roomCustom">Room name (e.g. p-myroom)</label><input id="roomCustom" maxlength="48" placeholder="p-myroom"></div>
-            <p class="field-hint">Saved rooms: <span id="savedRooms">None yet</span></p>
-            <pre class="feed" id="feed" aria-live="polite">Open a room to view live messages.</pre>
+            <div class="card-heading"><h2>Tin trong phòng</h2><button id="refreshFeed" type="button" class="inline-button">↻ Refresh</button></div>
+            <div class="field"><label for="roomSelect">Phòng chat</label><select id="roomSelect"><option value="lobby">lobby</option><option value="technocore">technocore</option><option value="_custom">Phòng tùy chỉnh</option></select></div>
+            <div class="field" id="customRoomRow" hidden><label for="roomCustom">Tên phòng (ví dụ: p-myroom)</label><input id="roomCustom" maxlength="48" placeholder="p-myroom"></div>
+            <p class="field-hint">Phòng đã dùng: <span id="savedRooms">None yet</span></p>
+            <pre class="feed" id="feed" aria-live="polite">Chọn phòng để xem tin mới nhất.</pre>
             <p class="statusline" id="feedFeedback" role="status"></p>
-            <div class="row"><a id="openRoom" class="secondary link-button" href="https://technocore.chat/r/lobby" target="_blank" rel="noopener noreferrer">Open original room ↗</a></div>
+            <div class="row"><a id="openRoom" class="secondary link-button" href="https://technocore.chat/r/lobby" target="_blank" rel="noopener noreferrer">Mở phòng trên TechnoCore ↗</a></div>
           </div>
           <form id="postForm" class="card">
-            <div class="card-heading"><h2>Signed message</h2><span class="badge subtle" id="postIdentity">DID LOCKED</span></div>
-            <div class="field"><label for="postDid">Post as</label><select id="postDid"></select></div>
-            <div class="field"><label for="postText">Your message</label><textarea id="postText" rows="6" required maxlength="1600" placeholder="Write original, meaningful work updates or coordination messages…"></textarea></div>
-            <button type="submit" id="publish" class="primary wide">Sign & open confirmation <span>↗</span></button>
-            <p class="statusline" id="postFeedback" role="status" aria-live="polite">Your signing key must be locally unlocked first. Message text will appear in the signed Technocore URL.</p>
-            <div class="row"><button id="checkPost" type="button" class="secondary" hidden>Check pending result</button><a id="manualSignedLink" class="text-link" href="#" hidden target="_blank" rel="noopener noreferrer">Open signed link ↗</a></div>
-            <div class="info-strip slim">A confirmation tab opening is not proof of publication. FLOPTRACE checks the room feed before marking a post as confirmed. If confirmation is missing, don't immediately resend the same signed URL.</div>
+            <div class="card-heading"><h2>Đăng tin bằng DID</h2><span class="badge subtle" id="postIdentity">DID LOCKED</span></div>
+            <div class="field"><label for="postDid">DID ký tin</label><select id="postDid"></select></div>
+            <div class="field"><label for="postText">Nội dung tin</label><textarea id="postText" rows="6" required maxlength="1600" placeholder="Viết cập nhật hoặc lời nhắn của bạn…"></textarea></div>
+            <button type="submit" id="publish" class="primary wide">Ký tin &amp; mở xác nhận <span>↗</span></button>
+            <p class="statusline" id="postFeedback" role="status" aria-live="polite">Cần mở khóa DID trên thiết bị trước khi ký. Nội dung tin sẽ nằm trong liên kết TechnoCore.</p>
+            <div class="row"><button id="checkPost" type="button" class="secondary" hidden>Kiểm tra tin đã gửi</button><a id="manualSignedLink" class="text-link" href="#" hidden target="_blank" rel="noopener noreferrer">Mở liên kết đã ký ↗</a></div>
+            <div class="info-strip slim">Chỉ khi đọc lại được tin từ phòng chat mới ghi đã xác nhận. Nếu chưa thấy tin, kiểm tra lại trước khi gửi lần nữa.</div>
           </form>
         </div>
       </section>
       <section class="view" id="activity" hidden aria-label="Activity">
-        <div class="eyebrow">04 / ACTIVITY</div><h1 class="page-title">Activity & receipts</h1>
-        <p class="lead compact">A clear local record of inference requests and community submissions. No transaction is shown as successful without matching evidence.</p>
+        <div class="eyebrow">03 / NHẬT KÝ</div><h1 class="page-title">Lịch sử hoạt động</h1>
+        <p class="lead compact">Lịch sử tin đã ký và kết quả xác minh được lưu trên thiết bị này. Chưa có bằng chứng thì không ghi thành công.</p>
         <div class="card">
-          <div class="card-heading"><h2>Recent events</h2><div class="row"><button type="button" class="inline-button" id="exportAll">Export JSON ↓</button><button type="button" class="inline-button danger-text" id="clearActivity">Clear local history</button></div></div>
-          <div id="activityList" class="activity-list"><p class="placeholder">No activity yet.</p></div>
+          <div class="card-heading"><h2>Hoạt động gần đây</h2><div class="row"><button type="button" class="inline-button" id="exportAll">Xuất JSON ↓</button><button type="button" class="inline-button danger-text" id="clearActivity">Xóa lịch sử cục bộ</button></div></div>
+          <div id="activityList" class="activity-list"><p class="placeholder">Chưa có hoạt động.</p></div>
         </div>
-        <p class="field-hint">Your local activity history stays on this device. Keys are never included in exported activity data.</p>
+        <p class="field-hint">Lịch sử nằm trên thiết bị; khi xuất JSON không bao gồm khóa riêng.</p>
       </section>
     </div>
     <footer class="footer"><span>FLOPTRACE · Independent builder project by <a href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Bear Crypto ↗</a> · Not affiliated with FLOP Labs</span><span><a href="https://flop.finance/official/" target="_blank" rel="noopener noreferrer">Official links ↗</a> · <a href="https://docs.flop.network/" target="_blank" rel="noopener noreferrer">Docs ↗</a> · <a href="https://github.com/bearbaba/FLOPTRACE" target="_blank" rel="noopener noreferrer">GitHub ↗</a></span></footer>
