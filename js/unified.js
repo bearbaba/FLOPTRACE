@@ -145,6 +145,11 @@ function selectDid(did){
     :'Public DID saved. Unlock its matching private Ed25519 key locally to sign.',unlocked.has(activeDid)?'good':'');
 }
 function renderProfiles(){
+  const limitReached=DID_PROFILES.length>=MAX_LOCAL_DIDS;
+  const wizard=$('createWizard'),limitNote=$('didCreateLimit');
+  if(wizard)wizard.hidden=limitReached;
+  if(limitNote)limitNote.hidden=!limitReached;
+  if(limitReached&&$('createAnother'))$('createAnother').hidden=true;
   const root=$('profiles');root.replaceChildren();
   $('statAgents').textContent=String(DID_PROFILES.length);
   if(!DID_PROFILES.length){
@@ -361,7 +366,7 @@ $('createWizard').addEventListener('submit',async event=>{
       downloadMessage='Your DID is created, but the backup download could not start automatically. Use “Download encrypted backup again” below before closing this tab.';
     }
     $('createWizard').hidden=true;
-    $('createAnother').hidden=false;
+    $('createAnother').hidden=DID_PROFILES.length>=MAX_LOCAL_DIDS;
     $('copyCreatedDid').focus();
     identityFeedback('createFeedback',downloadMessage,'good');
   }catch(error){
