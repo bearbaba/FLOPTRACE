@@ -506,3 +506,37 @@ body.testnet-verified .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .opening-proof code{font:600 11px/1.7 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;word-break:break-all;color:#654272}
 body.testnet-verified .testnet-opening-notice{border-color:#c9e1d6;background:#eff9f4}
 @media(max-width:600px){.testnet-opening-notice{padding:17px 15px}.opening-links{flex-direction:column;align-items:stretch}.opening-links>a{width:100%}}
+
+
+/* Verified Testnet landing: the first two actions are FLOPScan and local DID. */
+body.testnet-verified #home .hero-shell{margin-bottom:16px}
+body.testnet-verified #home .launch-guide{
+  background:#f7faf9;border-color:#dae6df;box-shadow:none
+}
+body.testnet-verified #home .testnet-ready-panel{
+  margin:16px 0 0;padding:19px 22px;border-radius:17px;
+  background:#eef8f2;box-shadow:none;border-color:#cce7d7
+}
+body.testnet-verified #home .testnet-ready-panel h3{
+  font-size:clamp(19px,2.2vw,25px);margin:7px 0
+}
+.testnet-ready-reference{margin:9px 0 0}
+body.testnet-verified .hero-copy .home-actions>a,
+body.testnet-verified .hero-copy .home-actions>button{min-height:44px}
+.identity-next-step{
+  border:1px solid #c6e4d7;background:#eff9f3;
+  padding:19px 21px;border-radius:17px;margin:19px 0 5px
+}
+.identity-next-step h2{color:#286751;font-size:19px;letter-spacing:-.025em;margin:0 0 9px}
+.identity-next-step p{color:#506c62;font-size:12px;line-height:1.75;margin:10px 0}
+.identity-next-step .row{display:flex;flex-wrap:wrap;gap:10px;margin:13px 0}
+.identity-next-step .row>a,.identity-next-step .row>button{
+  min-height:42px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px
+}
+@media(max-width:610px){
+  body.testnet-verified #home .testnet-ready-panel{padding:16px}
+  .identity-next-step{padding:16px}
+  .identity-next-step .row{flex-direction:column;align-items:stretch}
+  .identity-next-step .row>a,.identity-next-step .row>button{width:100%}
+}
