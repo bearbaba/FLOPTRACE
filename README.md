@@ -1,9 +1,28 @@
 # FLOPTRACE — Community Agent Workbench
 
-FLOPTRACE is an independent FLOP Devnet community builder application. It is **not** affiliated with Flop Labs.
+FLOPTRACE is an independent, open-source FLOP Testnet Agent DID and TechnoCore community application. The Devnet tools remain archived at /devnet. It is **not** affiliated with Flop Labs.
 
 **Public app:** https://flops-murex.vercel.app/
 **Source:** https://github.com/bearbaba/FLOPTRACE
+
+
+## Open access and two-DID limits
+
+There is **no invite link, whitelist, X login, mandatory wallet signature or 100-seat enrollment** for participation. Everyone can use the public site, create/import a DID and read the TechnoCore community. The repository and source code remain public.
+
+- On every device: the browser app allows **two locally saved DID profiles** for creation, import, unlocking and signing from FLOPTRACE. Profiles above the limit from earlier releases stay in browser storage; they are not silently erased but cannot be selected for posting.
+- **Important:** two per browser is *not* two per IP. On Production, until the three credentials below are configured, GET `/api/did-quota` returns `{"mode":"browser_only","limit":2,"enforced":false}`. The UI explicitly discloses that this does **not** prevent multi-browser Sybil behavior.
+- For a **server-enforced 2 signing-DIDs per public IP** limit, configure these private Production variables, using a separate Free Upstash Redis database or a properly isolated namespace:
+  - `UPSTASH_REDIS_REST_URL` — private Upstash Redis HTTPS REST endpoint.
+  - `UPSTASH_REDIS_REST_TOKEN` — private Redis bearer token.
+  - `FLOPTRACE_DID_QUOTA_SALT` — fresh random secret at least 32 characters, not the Redis token.
+- After a production redeploy, verify `/api/did-quota` reports `mode:"enforced"`, and test two independent Ed25519 signing DIDs from the same network. The third must return 429, even from a different browser. The same DID is idempotent; two different client IPs have separate counters. **Do not announce IP enforcement before these tests pass.**
+- The server stores an HMAC-SHA256 pseudonym of the Vercel-reported client IP, **not the raw IP or any private key**, and an atomic Redis set of public DID identifiers. Signed, one-time, 180-second Ed25519 challenges are verified against the public key encoded in each DID. Lua `EVAL` atomically admits at most two distinct DIDs.
+- The quota is persistent: removing a browser profile **does not free an IP slot**. Internet providers may share one outward-facing IP across unrelated households; those users can be blocked together. IPs can also change. **An IP limit is not proof of unique humans or comprehensive Sybil prevention.**
+- The quota applies to signing-enabled identities and posting **through FLOPTRACE**. FLOPTRACE cannot restrict direct use of the external TechnoCore website, third-party DID generators, VPNs or entirely separate applications. Public DID imports without keys are watch-only; joining the signing quota requires cryptographic proof of control.
+- Fail closed if a configured quota store becomes unavailable: do not silently downgrade to browser-only enforcement. The public site, read-only status, public room feed and official faucet links remain accessible. Keep credentials private and monitor Upstash Free request quotas to preserve a $0 budget.
+
+The official FLOP Faucet/ SubWallet action always opens **https://faucet.flop.network/** directly from the visitor's browser. Vercel does not sign or proxy agent chat posts or faucet claims.
 
 ## FLOP Devnet Hub (public release)
 
@@ -111,7 +130,7 @@ These are nonsecret operator-side settings. Their presence alone does not mark t
 
 When verified, the English homepage says **“Testnet live · Rewards not active”**, prominently offers **Create or import DID**, **Chat TechnoCore**, and **[View blocks on FLOPScan](https://testnet.flopscan.io/)**, displays the checked genesis and hides Devnet content, previous countdown and lengthy onboarding from the primary home view. Devnet tools remain available only through `/devnet` (no homepage/menu promotions). The Identity view shows a locally persisted DID profile and the next step after create/import; an imported DID is public/read-only unless its matching Ed25519 signing key is restored. Reload preserves the public profile in localStorage; it does not persist unlocked signing keys.
 
-Scoring remains **UNSCORED** independently of the RPC response. Neither DID creation nor a displayed explorer proves Testnet faucet/inference/voucher issuance. The unmerged PR #17 invite-WL work remains separate. A physical-device mobile/browser test is still necessary before claiming mobile onboarding is fully verified.
+Scoring remains **UNSCORED** independently of the RPC response. Neither DID creation nor a displayed explorer proves Testnet faucet/inference/voucher issuance. Invite-only PR #17 was closed without merging; FLOPTRACE is open to everyone. A physical-device mobile/browser test is still necessary before claiming mobile onboarding is fully verified.
 
 Existing Devnet tools are still available at **[/devnet](https://flops-murex.vercel.app/devnet)**. The route is a Vercel rewrite to the existing client-side `devnet` view, preserving the same functionality and avoiding a second copy of the application. Back/forward navigation and `?view=devnet` legacy deep links remain supported.
 
