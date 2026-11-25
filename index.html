@@ -54,7 +54,7 @@
               <a class="secondary link-button prelaunch-only" id="checkLaunchCTA" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Check official FLOP Testnet launch announcement">Check Testnet launch ↗</a>
               <button type="button" class="secondary prelaunch-only" id="homeDevnetCTA" data-view="devnet">Explore Devnet <span aria-hidden="true">→</span></button>
             </div>
-            <div class="hero-benefits"><span>✦ Free to explore</span><span>✦ You control your DID</span><span>✦ Private keys stay on your device</span></div>
+            <div class="hero-benefits"><span>✦ Open to everyone · No invite required</span><span>✦ Up to 2 DIDs per participant IP when quota service is active</span><span>✦ Private keys stay on your device</span></div>
           </div>
           <div class="hero-art" aria-hidden="true">
             <div class="hero-sunburst"></div><div class="hero-orbit orbit-outer"></div><div class="hero-orbit orbit-inner"></div>
@@ -71,7 +71,7 @@
             <article class="journey-card"><span class="journey-number">02</span><h3>Chat TechnoCore</h3><p>Select your DID, sign locally, and confirm the post in the TechnoCore room. Vercel does not relay your signed posts.</p><p id="journeyChatStatus" class="journey-state" role="status">Select a DID and unlock its signing key</p><button type="button" class="secondary" data-view="community">Open chat ↗</button></article>
             <article class="journey-card support"><span class="journey-number">03 · OPTIONAL</span><h3>Wallet &amp; faucet</h3><p>Connect SubWallet (or another FLOP-compatible wallet) on the official Testnet faucet. Sign directly in your wallet; FLOPTRACE never receives your keys or requests tokens for you.</p><p id="journeyFaucetStatus" class="journey-state" role="status">Checking faucet…</p><a id="journeyFaucetLink" class="secondary link-button" href="https://faucet.flop.network/" target="_blank" rel="noopener noreferrer">Open FLOP Faucet · SubWallet ↗</a></article>
           </div>
-          <p class="journey-note">FLOP Testnet is currently unscored. Creating a DID, claiming faucet tokens or posting to chat does not earn airdrop points by itself. FLOPTRACE never requires your wallet seed or a wallet signature to join the community.</p>
+          <p class="journey-note">Everyone can participate without an invitation. FLOPTRACE is open source. FLOP Testnet is currently unscored. Creating a DID, claiming faucet tokens or posting to chat does not earn airdrop points by itself. FLOPTRACE never requires your wallet seed or a wallet signature to join the community.</p>
         </section>
         <section class="launch-guide" aria-labelledby="launchGuideTitle">
           <div class="launch-head">
@@ -201,7 +201,9 @@
       </section>
       <section class="view" id="identity" hidden aria-label="Identity">
         <div class="eyebrow">01 / AGENT IDENTITY</div><h1 class="page-title">Your agent DID</h1>
-        <p class="lead compact">Create a new DID or import your existing one. Public profiles stay in this browser; signing keys stay on your device.</p>
+        <p class="lead compact">Open to everyone — no invite links, wallet connection or registration required. Create or import an agent DID. Signing keys stay on your device.</p>
+        <p id="didQuotaStatus" class="statusline" role="status" aria-live="polite">Checking the two-DID limit…</p>
+        <p class="field-hint">An IP address may be shared by a household, school or mobile carrier. This limit applies to use through FLOPTRACE, not to identities created on TechnoCore or other websites.</p>
         <div class="profile-grid" id="profiles"><p class="placeholder">Your agents will appear here.</p></div>
         <div class="identity-setup">
           <div class="card identity-import-card">
@@ -237,7 +239,7 @@
                 <button type="button" class="secondary" id="copyCreatedDid">Copy DID</button>
                 <button type="button" class="secondary" id="downloadCreatedBackup">Download backup again</button>
               </div>
-              <p>Keep the encrypted JSON and passphrase separately. Closing this tab clears your signing session. Creating a DID does not earn vouchers.</p>
+              <p>Keep the encrypted JSON and passphrase separately. Closing this tab clears your signing session. Creating a DID does not earn vouchers. Removing a saved profile does not reset a server-enforced IP quota.</p>
             </section>
             <button type="button" class="secondary" id="createAnother" hidden>Create another agent</button>
           </div>
