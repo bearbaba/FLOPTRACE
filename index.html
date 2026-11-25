@@ -25,8 +25,8 @@
       <button class="nav-item" data-view="activity"><span>≡</span> Activity <b id="navCount" class="counter">0</b></button>
     </nav>
     <div class="side-footer">
-      <span class="network"><span class="pulse"></span> FLOP DEVNET</span>
-      <p>Independent builder tool<br>Devnet tokens have no reward weight</p>
+      <span class="network" id="sideNetworkBadge"><span class="pulse"></span> FLOP DEVNET</span>
+      <p id="sideNetworkNote">Independent builder tool<br>Devnet tokens have no reward weight</p>
       <a href="/?view=identity">Your agent identities ↗</a>
       <a class="follow-link" href="https://x.com/Bearcrypto2021" target="_blank" rel="noopener noreferrer">Follow Bear Crypto ↗</a>
     </div>
@@ -47,8 +47,8 @@
             <h1 id="heroTitle">Find your spark.<br><em>Build your next.</em></h1>
             <p class="lead" id="heroIntro">One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.</p>
             <div class="home-actions">
-              <a id="testnetStartHero" class="primary link-button" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer" hidden>Xem trạng thái Testnet ↗</a>
-              <button type="button" class="primary" id="bringMyDidCTA" data-view="identity">Bring my DID <span aria-hidden="true">↗</span></button>
+              <a id="testnetStartHero" class="primary link-button" href="https://testnet.flopscan.io/" target="_blank" rel="noopener noreferrer" hidden>Xem block trên FLOPScan ↗</a>
+              <button type="button" class="primary" id="bringMyDidCTA" data-view="identity">Tạo hoặc nhập DID <span aria-hidden="true">↗</span></button>
               <a class="secondary link-button prelaunch-only" id="checkLaunchCTA" href="https://flop.finance/" target="_blank" rel="noopener noreferrer" aria-label="Check official FLOP Testnet launch announcement">Check Testnet launch ↗</a>
               <button type="button" class="secondary prelaunch-only" id="homeDevnetCTA" data-view="devnet">Explore Devnet <span aria-hidden="true">→</span></button>
             </div>
@@ -81,15 +81,11 @@
           </div>
           <section class="testnet-ready-panel" id="testnetReadyPanel" hidden aria-labelledby="testnetReadyTitle">
             <span class="ready-kicker"><span aria-hidden="true">✦</span> RPC GENESIS VERIFIED</span>
-            <h3 id="testnetReadyTitle">Testnet genesis verified — scoring is not active.</h3>
-            <p>Early network reads are available, but official vouchers have not begun. Keep your existing DID and follow the latest network instructions. Do not assume the shared gateway, faucet or TechnoCore is serving settled Testnet inference yet.</p>
-            <div class="testnet-ready-actions">
-              <a class="primary link-button" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer">Xem Testnet chính thức ↗</a>
-              <button class="secondary" type="button" data-view="identity">Use my existing DID</button>
-              <a class="secondary link-button" id="testnetAnnouncementLink" href="https://flop.finance/" target="_blank" rel="noopener noreferrer">Official network announcement ↗</a>
-            </div>
-            <p class="ready-genesis">Verified block 0: <code id="verifiedGenesisHash">—</code></p>
-            <p class="ready-caution">Unscored opening: zero airdrop credit until the officially announced activation block. FLOPTRACE cannot yet claim Testnet faucet funds, execute settled inference or verify vouchers. No wallets or keys should be submitted to unverified services.</p>
+            <h3 id="testnetReadyTitle">Testnet đã mở · Chưa tính thưởng</h3>
+            <p>Block đầu tiên đã được kiểm tra qua RPC và khớp genesis chính thức. Bạn có thể xem blockchain và tạo hoặc nhập DID. Chưa có bằng chứng faucet, inference thanh toán hay voucher khả dụng trên FLOPTRACE.</p>
+            <p class="testnet-ready-reference">Theo dõi thông báo kích hoạt thưởng tại <a class="text-link" id="testnetAnnouncementLink" href="https://ask.flop.finance/networks/testnet" target="_blank" rel="noopener noreferrer">FLOP Testnet chính thức ↗</a>.</p>
+            <p class="ready-genesis">Genesis đã xác minh: <code id="verifiedGenesisHash">—</code></p>
+            <p class="ready-caution">Chưa tính thưởng: không có voucher trước block kích hoạt chính thức, không cộng hồi tố. FLOPTRACE chưa thực hiện faucet hoặc inference Testnet và không yêu cầu khóa ví.</p>
           </section>
           <div class="launch-clock" id="testnetCountdownPanel" data-phase="counting">
             <div class="launch-clock-heading"><strong>Countdown to the announced target</strong><span class="clock-live"><span aria-hidden="true" class="clock-indicator"></span> LIVE CLOCK</span></div>
@@ -222,6 +218,15 @@
           </div>
         </div>
         <p id="identityStatus" role="status" aria-live="polite" class="statusline identity-global-status">Choose a profile. Seed is never required for browsing models or reading community feeds.</p>
+        <section class="identity-next-step" id="identityNextStep" hidden aria-labelledby="identityNextHeading">
+          <h2 id="identityNextHeading">Hồ sơ DID của bạn đã sẵn sàng</h2>
+          <p id="identityNextText">DID được lưu trên trình duyệt này. Không cần tạo lại khi tải trang.</p>
+          <div class="row">
+            <a class="secondary link-button" href="https://testnet.flopscan.io/" target="_blank" rel="noopener noreferrer">Xem block trên FLOPScan ↗</a>
+            <button type="button" class="secondary" data-view="home">Về trang Testnet</button>
+          </div>
+          <p>Chỉ lưu hồ sơ DID công khai; nếu muốn ký bằng DID đã nhập, bạn vẫn cần khóa riêng tương ứng trên thiết bị. Bản sao lưu mã hóa phải được giữ an toàn. Chức năng faucet và inference còn chưa bật.</p>
+        </section>
         <details class="advanced-tools identity-advanced"><summary>Restore a backup or unlock a signing key</summary><div class="card unlock-card">
           <div class="card-heading"><div><h2>Local signing access</h2><p>Nothing is uploaded or stored. Your signing key stays only in this browser tab's memory.</p></div><span id="unlockBadge" class="badge subtle">LOCKED</span></div>
           <p class="field-hint">Selected DID: <code id="selectedDid" class="wrap">—</code></p>
