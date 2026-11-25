@@ -299,7 +299,7 @@ test('English DID-first homepage keeps optional faucet and no false claim action
   assert.doesNotMatch(js,/journeyFaucetLink'\)\)\.hidden=true/);
   assert.match(js,/Grants still depend on eligibility and balance/);
   assert.match(js,/Faucet low balance/);
-  assert.match(js,/journeyFaucetLink/);
+  assert.match(html,/id="journeyFaucetLink"/);
   assert.match(css,/\.journey-grid\{display:grid/);
   assert.match(css,/\.journey-card\.support/);
   assert.match(css,/@media\(max-width:620px\)/);
