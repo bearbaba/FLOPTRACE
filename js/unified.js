@@ -554,7 +554,8 @@ function applyTestnetReadiness(readiness){
   if($('home')&&!$('home').hidden)$('currentView').textContent='Home';
 }
 async function loadTestnetFaucet(){
-  const link=$('testnetFaucetDirect'),journeyLink=$('journeyFaucetLink');
+  // The public button is a direct external link to FLOP, never a claim or signing proxy.
+  // Keep it visible even when status checks fail; never imply grants are available.
   const setStatus=text=>{
     $('testnetFaucetState').textContent=text;
     $('journeyFaucetStatus').textContent=text;
@@ -562,16 +563,12 @@ async function loadTestnetFaucet(){
   try{
     const {network,status}=await api('/api/testnet-faucet');
     const verified=network==='testnet'&&testnetVerified;
-    link.hidden=!verified;
-    if(journeyLink)journeyLink.hidden=!verified;
-    setStatus(!verified?'Faucet Testnet identity not verified':
-      status==='open'?'Faucet open · Sign with your own FLOP wallet':
-      status==='low_balance'?'Faucet low balance · Token grants are unavailable':
-      'Faucet token grants not confirmed');
+    setStatus(!verified?'Faucet Testnet identity not verified. Confirm the official network before signing.':
+      status==='open'?'Faucet reports open · Grants still depend on eligibility and balance':
+      status==='low_balance'?'Faucet low balance · Token grants are currently unavailable':
+      'Faucet token grants not confirmed. Check the official website.');
   }catch{
-    link.hidden=true;
-    if(journeyLink)journeyLink.hidden=true;
-    setStatus('Faucet status unavailable. Check the official website.');
+    setStatus('Faucet status unavailable. Check the official FLOP website before signing.');
   }
 }
 async function loadTestnetReadiness(){
@@ -580,14 +577,12 @@ async function loadTestnetReadiness(){
     applyTestnetReadiness(status);
     if(status.testnetVerified)await loadTestnetFaucet();
     else{
-      if($('journeyFaucetLink'))$('journeyFaucetLink').hidden=true;
-      $('journeyFaucetStatus').textContent='Testnet genesis unverified · Faucet link disabled';
+      $('journeyFaucetStatus').textContent='Testnet genesis unverified · Verify the official network before signing';
     }
   }catch{
     // Fail closed on malformed/failed API, even if the target clock reached zero.
     applyTestnetReadiness(null);
-    if($('journeyFaucetLink'))$('journeyFaucetLink').hidden=true;
-    $('journeyFaucetStatus').textContent='RPC unavailable · Faucet link disabled';
+    $('journeyFaucetStatus').textContent='RPC unavailable · Verify the official network before signing';
   }
 }
 
