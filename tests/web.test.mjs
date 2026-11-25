@@ -153,7 +153,7 @@ test('home onboarding distinguishes Devnet from the official Testnet launch',asy
   const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
   const hero=html.split('<div class="home-actions">')[1]?.split('</div>')[0] || '';
   const claim=html.split('<strong>3 · Claim, then spend (later)</strong>')[1]?.split('</li>')[0] || '';
-  assert.match(hero,/Bring my DID/);
+  assert.match(hero,/Tạo hoặc nhập DID/);
   assert.match(hero,/Check Testnet launch/);
   assert.match(hero,/Explore Devnet/);
   assert.doesNotMatch(hero,/Explore the network/);
