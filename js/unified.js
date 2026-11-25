@@ -224,13 +224,40 @@ $('importAgent').addEventListener('click',()=>{
     $('importDid').value='';$('importName').value='';
   }catch(error){identityFeedback('importFeedback',error.message||'Unable to add DID','error');}
 });
-$('createAgent').addEventListener('click',async()=>{
+let createStage=1;
+function showCreateStage(stage){
+  createStage=stage;
+  for(let n=1;n<=3;n++)$('createStage'+n).hidden=n!==stage;
+  message('createFeedback','');
+  $([null,'createName','createPass','createPassConfirm'][stage]).focus();
+}
+$('backToName').addEventListener('click',()=>showCreateStage(1));
+$('backToPassword').addEventListener('click',()=>showCreateStage(2));
+$('createAnother').addEventListener('click',()=>{
+  $('createdDidResult').hidden=true;
+  $('createAnother').hidden=true;
+  $('createWizard').hidden=false;
+  showCreateStage(1);
+});
+$('createWizard').addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(createStage===1){showCreateStage(2);return;}
+  if(createStage===2){
+    if($('createPass').value.length<12){
+      $('createPass').focus();
+      return identityFeedback('createFeedback','Choose a backup password of at least 12 characters.','error');
+    }
+    $('createPassConfirm').value='';
+    showCreateStage(3);return;
+  }
   const button=$('createAgent');
+  if(button.disabled)return;
   const name=$('createName').value.trim()||'My Agent';
   const pass=$('createPass').value,again=$('createPassConfirm').value;
   if(pass.length<12)return identityFeedback('createFeedback','Enter a new password of at least 12 characters to protect your agent backup.','error');
   if(pass!==again)return identityFeedback('createFeedback','The two backup passwords must match. Enter the same password in both fields.','error');
   button.disabled=true;
+  $('backToPassword').disabled=true;
   identityFeedback('createFeedback','Creating and locally verifying your DID and encrypted backup…');
   try{
     const {did,backup,signingKey}=await createLocalIdentity(pass,{webCrypto:crypto,cryptoUtil:window.CryptoUtil});
@@ -248,11 +275,18 @@ $('createAgent').addEventListener('click',async()=>{
     catch{
       downloadMessage='Your DID is created, but the backup download could not start automatically. Use “Download encrypted backup again” below before closing this tab.';
     }
+    $('createWizard').hidden=true;
+    $('createAnother').hidden=false;
+    $('copyCreatedDid').focus();
     identityFeedback('createFeedback',downloadMessage,'good');
   }catch(error){
     identityFeedback('createFeedback',error?.message||'Could not create a DID. Try an updated browser with HTTPS and enabled storage.','error');
   }finally{
     $('createPass').value='';$('createPassConfirm').value='';
+    if(!$('createWizard').hidden){
+      createStage=2;$('createStage3').hidden=true;$('createStage2').hidden=false;$('createPass').focus();
+    }
+    $('backToPassword').disabled=false;
     button.disabled=false;
   }
 });

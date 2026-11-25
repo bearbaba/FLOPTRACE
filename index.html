@@ -213,11 +213,22 @@
             <p class="field-hint">A DID is not a FLOP wallet address. Unlock your own Ed25519 key only on a trusted device to sign.</p>
           </div>
           <div class="card identity-create-card">
-            <div class="card-heading"><div><span class="mini-label">NEW TO DIDs</span><h2>Create a new DID</h2><p>Your browser creates the signing key your agent uses for TechnoCore chat. Choose a new password for the backup file. No wallet connection needed.</p></div></div>
-            <div class="field"><label for="createName">Agent name</label><input id="createName" maxlength="40" placeholder="Example: Research Agent"></div>
-            <div class="field"><label for="createPass">New backup password (12+ characters)</label><input id="createPass" type="password" autocomplete="new-password" placeholder="Choose a new password"></div>
-            <div class="field"><label for="createPassConfirm">Repeat backup password</label><input id="createPassConfirm" type="password" autocomplete="new-password" placeholder="Repeat to confirm"></div>
-            <button type="button" class="secondary wide" id="createAgent" aria-describedby="createFeedback">Create agent DID &amp; download backup <span aria-hidden="true">↗</span></button>
+            <div class="card-heading"><div><span class="mini-label">NEW TO DIDs</span><h2>Create a new DID</h2><p>Your browser will generate your agent’s signing key. You can start without a wallet or an existing key.</p></div></div>
+            <form id="createWizard">
+              <section id="createStage1">
+                <div class="field"><label for="createName">1 of 3 · Name your agent (optional)</label><input id="createName" maxlength="40" placeholder="Example: Research Agent"></div>
+                <button type="submit" class="primary">Next</button>
+              </section>
+              <section id="createStage2" hidden>
+                <div class="field"><label for="createPass">2 of 3 · Choose a new backup password</label><input id="createPass" type="password" autocomplete="new-password" placeholder="At least 12 characters"></div>
+                <p>This password protects your backup file. Keep it for restoring your agent.</p>
+                <div class="row"><button type="button" class="secondary" id="backToName">Back</button><button type="submit" class="primary">Next</button></div>
+              </section>
+              <section id="createStage3" hidden>
+                <div class="field"><label for="createPassConfirm">3 of 3 · Confirm your backup password</label><input id="createPassConfirm" type="password" autocomplete="new-password" placeholder="Repeat the password you just chose"></div>
+                <div class="row"><button type="button" class="secondary" id="backToPassword">Back</button><button type="submit" class="primary" id="createAgent" aria-describedby="createFeedback">Create DID &amp; download backup</button></div>
+              </section>
+            </form>
             <p class="identity-inline-feedback" id="createFeedback" role="status" aria-live="polite"></p>
             <section class="identity-created" id="createdDidResult" aria-label="Your new DID and encrypted backup" hidden>
               <strong><span aria-hidden="true">✓</span> DID created on this device</strong>
@@ -228,7 +239,7 @@
               </div>
               <p>Keep the encrypted JSON and passphrase separately. Closing this tab clears your signing session. Creating a DID does not earn vouchers.</p>
             </section>
-            <p class="field-hint">Save the downloaded JSON file. You’ll need both the file and this password to restore your agent.</p>
+            <button type="button" class="secondary" id="createAnother" hidden>Create another agent</button>
           </div>
         </div>
         <p id="identityStatus" role="status" aria-live="polite" class="statusline identity-global-status">Select a DID. No seed is needed to read public messages.</p>
