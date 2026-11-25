@@ -65,3 +65,22 @@ test('the page gives beginners simple actions and collapses advanced controls',a
   assert.match(js,/grant availability remains unknown/i);
   assert.doesNotMatch(js,/fetch\([^)]*\/fund/);
 });
+
+test('Testnet faucet displays low balance only after matching genesis and network',async()=>{
+  const {default:status}=await import('../api/testnet-faucet.js');
+  const genesisHash='0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800';
+  const previous=globalThis.fetch;
+  try{
+    for(const network of ['testnet','devnet']){
+      const paths=[];
+      globalThis.fetch=async url=>{
+        paths.push(new URL(url).pathname);
+        return {ok:true,json:async()=>url.endsWith('/chain')?{network,genesisHash}:{network:'testnet',faucet:{status:'low_balance'}}};
+      };
+      const res=response();
+      await status({method:'GET'},res);
+      assert.deepEqual(paths,['/chain','/limits']);
+      assert.equal(res.body.status,network==='testnet'?'low_balance':'unverified');
+    }
+  }finally{globalThis.fetch=previous;}
+});

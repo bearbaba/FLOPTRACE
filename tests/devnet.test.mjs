@@ -24,7 +24,7 @@ test('all public developer URLs are official, and affiliate call-to-action is cl
   const page=await html();
   const official=[
     'https://explorer.devnet.flop.network',
-    'https://faucet.flop.network',
+    'https://faucet.devnet.flop.network',
     'https://api.flop.network/v1/models',
     'https://mcp.flop.network/mcp',
     'https://docs.flop.network/',
@@ -60,8 +60,6 @@ test('chain actions and PoUI are not misrepresented as implemented',async()=>{
   const page=await html(),script=await browser(),server=await api();
   assert.match(page,/does not create a FLOP chain wallet, submit transactions, attest PoUI/);
   assert.match(page,/does not guarantee an available completion route/);
-  assert.match(server,/FLOPTRACE_ENABLE_INFERENCE/);
-  assert.match(server,/FLOPTRACE_SPEND_CAP_ACK/);
-  assert.match(server,/NOT_VERIFIED/);
+  assert.doesNotMatch(server,/chat\/completions/);
   assert.match(script,/network compatibility/);
 });

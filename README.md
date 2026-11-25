@@ -36,7 +36,7 @@ Do not put any of these secrets in GitHub, browser storage or chat. Configure th
 
 ### Protected functionality
 
-`POST /api/infer` requires current approved member status plus per-member limits (default 12/hour and 60/day) on the server; this is **additional to** the separate, default-off `FLOPTRACE_ENABLE_INFERENCE=1`, `FLOPTRACE_SPEND_CAP_ACK=1` and `FLOP_API_KEY` provider configuration. These flags must not be set until an independently verifiable, provider-enforced spending cap is active. Voucher verification, wallet signing and Testnet faucet claims are **not implemented** by this access system.
+Hosted inference is retired. Member requests never forward through /api/infer.
 
 `GET /api/community-access` reports whether the access system is configured and the current public 100-seat count; `GET ...?view=members` requires the admin session. Admin batch creation returns all 100 plaintext links **once**, not a permanent public export. The Redis Lua scripts enforce claims atomically, but a live concurrency/security test on a configured Redis instance is required before inviting real members.
 
@@ -53,7 +53,7 @@ The unified web includes a Devnet Hub with read-only, official developer resourc
 - [Official SDK docs](https://docs.flop.network/docs/sdk-references) — copy package installation commands for @flop-labs/client, @flop-labs/sdk, and the pinned CLI.
 - [Ask FLOP](https://ask.flop.finance) — the official docs assistant.
 
-There is no automatic faucet claim, no wallet import, no on-chain transaction signing, no production PoUI verifier and no user-paid inference in the public website. The existing authenticated server inference is disabled by default without official credentials and a provider-enforced hard spending cap. The UI labels this boundary explicitly.
+There is no automatic faucet claim, no wallet import, no on-chain transaction signing, no production PoUI verifier and no user-paid inference in the public website. The hosted inference proxy is retired. The UI labels this boundary explicitly.
 
 The public website credits its independent builder, [Bear Crypto](https://x.com/Bearcrypto2021), with a voluntary follow link, and makes it clear that FLOPTRACE is not an official FLOP Labs product.
 
@@ -88,8 +88,7 @@ The community can use the site independently. The founder's two previously creat
 ## FLOP model discovery and inference
 
 - Public model listing through /api/models, with brief CDN caching to reduce load on FLOP Gateway.
-- Private inference through /api/infer is **disabled by default**. To enable it the site operator must supply FLOP_API_KEY, FLOPTRACE_ACCESS_TOKEN, FLOPTRACE_ENABLE_INFERENCE=1 and FLOPTRACE_SPEND_CAP_ACK=1 with an enforced **provider-side spending limit**.
-- The current private access-token mode is intended for operator testing, **not** for offering free inference to thousands of visitors. For shared production inference, implement authenticated user sessions, per-user quotas, durable limits (Redis/database), billing controls, request abuse prevention and operational monitoring before enabling it.
+- The community deployment only lists models. POST /api/infer returns HTTP 410, including when legacy credentials are configured.
 - Receipts are local SHA-256 records, not proof of FLOP inference or settlement. Every inference receipt remains NOT_VERIFIED until a real PoUI/TEE/chain verification is added.
 - Public DIDs are unsigned labels on inference receipts; they are not wallet addresses or proof of FLOP chain account ownership.
 
@@ -139,7 +138,17 @@ The new public GET `/api/testnet-readiness` endpoint checks all of these private
 
 For each check, the server sends `chain_getBlockHash` with block number `0`, accepts only a valid 32-byte hash and requires an exact match to the independently pinned official value. Missing config, RPC failure, a different hash, Devnet's known hash or Devnet RPC all leave the cutover **OFF**. The API is read-only, does not accept user-provided RPC endpoints or hashes, and does not hold seeds or wallet credentials. Vercel caches public status briefly; the browser checks about once per minute. After configuring these settings, redeploy and verify `/api/testnet-readiness` returns `testnetVerified: true`. Confirm the public homepage has changed and **check both routes**.
 
-When verified, the homepage defaults to Testnet, displays the checked genesis hash, hides Devnet links/cards/menu and replaces the clock with **Bắt đầu trên Testnet**, opening the officially documented [TechnoCore](https://technocore.chat/). While in-site Testnet inference, faucet and voucher verification are not implemented, the CTA must not claim those features work in FLOPTRACE.
+As of the 24 November 2026 verified official *unscored* Testnet opening, Production pins:
+- `FLOPTRACE_TESTNET_RELEASE_VERIFIED=1`
+- `FLOPTRACE_TESTNET_EXPECTED_GENESIS=0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800`
+- `FLOPTRACE_TESTNET_RPC_URL=https://testnet.flop.network/`
+- `FLOPTRACE_TESTNET_ANNOUNCEMENT_URL=https://ask.flop.finance/networks/testnet`
+
+These are nonsecret operator-side settings. Their presence alone does not mark the web LIVE: `/api/testnet-readiness` runs `chain_getBlockHash(0)` on FLOP's public RPC and compares with the pinned official genesis **on each cache refresh**. RPC failures, mismatches and unapproved settings keep `testnetVerified:false`.
+
+When verified, the homepage says **“Testnet đã mở · Chưa tính thưởng”**, prominently links to **[Xem block trên FLOPScan](https://testnet.flopscan.io/)** and **Tạo hoặc nhập DID**, displays the checked genesis and hides Devnet content, previous countdown and lengthy onboarding from the primary home view. Devnet tools remain available only through `/devnet` (no homepage/menu promotions). The Identity view shows a locally persisted DID profile and the next step after create/import; an imported DID is public/read-only unless its matching Ed25519 signing key is restored. Reload preserves the public profile in localStorage; it does not persist unlocked signing keys.
+
+Scoring remains **UNSCORED** independently of the RPC response. Neither DID creation nor a displayed explorer proves Testnet faucet/inference/voucher issuance. The unmerged PR #17 invite-WL work remains separate. A physical-device mobile/browser test is still necessary before claiming mobile onboarding is fully verified.
 
 Existing Devnet tools are still available at **[/devnet](https://flops-murex.vercel.app/devnet)**. The route is a Vercel rewrite to the existing client-side `devnet` view, preserving the same functionality and avoiding a second copy of the application. Back/forward navigation and `?view=devnet` legacy deep links remain supported.
 

@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import './identity-create.test.mjs';
-import './access.test.mjs'; // Keep real Ed25519 onboarding tests inside the existing CI test command.
+import './identity-create.test.mjs'; // Keep real Ed25519 onboarding tests inside the existing CI test command.
 import {LAUNCH_UTC,getLaunchCountdown} from '../js/launch-clock.mjs';
 import statusHandler from '../api/status.js';
 import modelsHandler from '../api/models.js';
@@ -44,63 +43,19 @@ test('public models proxy filters IDs without leaking upstream details',async()=
     assert.equal(response.code,200);assert.deepEqual(response.body.data,[{id:'sample/model'}]);
   }finally{globalThis.fetch=before;}
 });
-test('private inference rejects guests and cross-site callers, even with all spending flags set',async()=>{
-  await withEnv({
-    FLOPTRACE_ENABLE_INFERENCE:'1',FLOPTRACE_SPEND_CAP_ACK:'1',FLOP_API_KEY:'upstream-key',
-    UPSTASH_REDIS_REST_URL:'https://example.upstash.io',UPSTASH_REDIS_REST_TOKEN:'dev-token',
-    TURNSTILE_SITE_KEY:'test-site-key',TURNSTILE_SECRET_KEY:'test-secret-key',
-    FLOPTRACE_ADMIN_PASSPHRASE:'long-test-passphrase-24characters'
-  },async()=>{
-    const before=globalThis.fetch;
-    globalThis.fetch=async(url)=>{if(String(url).includes('upstash'))return {ok:true,json:async()=>({result:null})};throw Error('Should not call gateway');};
-    try{
-      const body={model:'sample/model',prompt:'Hello'};
-      const guest=res();await inferHandler(req('POST',body),guest);assert.equal(guest.code,403);
-      const origin=res();await inferHandler(req('POST',body,{origin:'https://evil.example'}),origin);assert.equal(origin.code,403);
-    }finally{globalThis.fetch=before;}
-  });
-});
-test('approved X-handle membership gates an actual mocked gateway response and retains UNVERIFIED proof',async()=>{
-  const token='a'.repeat(64),member='research_builder';
-  const session={handle:member,expires:Date.now()+3600000};
-  await withEnv({
-    FLOPTRACE_ENABLE_INFERENCE:'1',FLOPTRACE_SPEND_CAP_ACK:'1',FLOP_API_KEY:'upstream-key',
-    UPSTASH_REDIS_REST_URL:'https://example.upstash.io',UPSTASH_REDIS_REST_TOKEN:'dev-token',
-    TURNSTILE_SITE_KEY:'test-site-key',TURNSTILE_SECRET_KEY:'test-secret-key',
-    FLOPTRACE_ADMIN_PASSPHRASE:'long-test-passphrase-24characters'
-  },async()=>{
-    const before=globalThis.fetch;let sent;
-    globalThis.fetch=async(url,options)=>{
-      if(String(url).includes('example.upstash.io')){
-        const [command,key]=JSON.parse(options.body);
-        if(command==='GET'&&String(key).includes('session:'))return{ok:true,json:async()=>({result:JSON.stringify(session)})};
-        if(command==='GET'&&String(key).includes('member:'))return{ok:true,json:async()=>({result:JSON.stringify({id:'m-1',handle:member,status:'ACTIVE'})})};
-        return{ok:true,json:async()=>({result:1})};
-      }
-      sent={url,options};
-      return{ok:true,json:async()=>({id:'test-inference',choices:[{message:{content:'Mocked answer'}}]})};
-    };
+test('configured credentials cannot enable hosted inference or trigger upstream traffic',async()=>{
+  await withEnv({FLOPTRACE_ENABLE_INFERENCE:'1',FLOPTRACE_SPEND_CAP_ACK:'1',FLOP_API_KEY:'test',FLOPTRACE_ACCESS_TOKEN:'test'},async()=>{
+    const previous=globalThis.fetch;
+    let calls=0;
+    globalThis.fetch=()=>{calls++;throw new Error('Unexpected upstream call');};
     try{
       const response=res();
-      await inferHandler(req('POST',{
-        model:'sample/model',prompt:'Hello',did:'did:key:z6MktYZcwhU44paRoi5AwahUv66jKAMsxXvf2TxaUzLs3yyG'
-      },{cookie:'__Host-floptrace_access='+token,origin:'https://flops-murex.vercel.app'}),response);
-      assert.equal(response.code,200);
-      assert.equal(response.body.output,'Mocked answer');
-      assert.equal(response.body.receipt.proofStatus,'NOT_VERIFIED');
-      assert.equal(response.body.receipt.signatureStatus,'NOT_SIGNED');
-      assert.equal(response.body.receipt.outputSha256.length,64);
-      assert.ok(sent.url.endsWith('/chat/completions'));
-      assert.equal(JSON.stringify(response.body).includes('upstream-key'),false);
-      assert.equal(JSON.stringify(response.body.receipt).includes('Hello'),false);
-      assert.equal(JSON.parse(sent.options.body).max_tokens,512);
-    }finally{globalThis.fetch=before;}
-  });
-});
-test('no public inference when owner has not enabled private access',async()=>{
-  await withEnv({FLOPTRACE_ENABLE_INFERENCE:null,FLOPTRACE_SPEND_CAP_ACK:null,FLOP_API_KEY:null,FLOPTRACE_ACCESS_TOKEN:null},async()=>{
-    const response=res();await inferHandler(req('POST',{model:'sample/model',prompt:'Hello'}),response);
-    assert.equal(response.code,503);
+      await inferHandler(req('POST',{model:'sample/model',prompt:'test'},{authorization:'Bearer test'}),response);
+      assert.equal(response.code,410);
+      assert.equal(calls,0);
+      const status=res();statusHandler(req(),status);
+      assert.equal(status.body.inferenceEnabled,false);
+    }finally{globalThis.fetch=previous;}
   });
 });
 
@@ -180,7 +135,7 @@ test('home onboarding distinguishes Devnet from the official Testnet launch',asy
   const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
   const hero=html.split('<div class="home-actions">')[1]?.split('</div>')[0] || '';
   const claim=html.split('<strong>3 · Claim, then spend (later)</strong>')[1]?.split('</li>')[0] || '';
-  assert.match(hero,/Bring my DID/);
+  assert.match(hero,/Tạo hoặc nhập DID/);
   assert.match(hero,/Check Testnet launch/);
   assert.match(hero,/Explore Devnet/);
   assert.doesNotMatch(hero,/Explore the network/);
@@ -281,7 +236,7 @@ test('24 November official opening is explicitly unscored, independent from RPC 
   assert.match(html,/https:\/\/ask\.flop\.finance\/networks\/testnet/);
   assert.match(html,/0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800/);
   assert.match(html,/This voucher rule is NOT ACTIVE/);
-  assert.match(html,/Do not use the shared Devnet faucet for Testnet/);
+  assert.match(html,/Check the official Testnet faucet status first/);
   assert.match(html,/Scoring is not active|scoring is not active|rewards are not counting yet/i);
   assert.match(js,/GENESIS_VERIFIED/);
   assert.match(js,/UNSCORED/);
@@ -289,4 +244,29 @@ test('24 November official opening is explicitly unscored, independent from RPC 
   assert.match(readiness,/rewardsActive:false/);
   assert.match(readiness,/GENESIS_MISMATCH/);
   assert.match(css,/\.testnet-opening-notice/);
+});
+
+test('verified FLOP Testnet home has exactly the two intended primary actions and no legacy entry',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
+  const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
+  const readme=await readFile(new URL('../README.md',import.meta.url),'utf8');
+  assert.match(html,/id="testnetStartHero"[^>]*href="https:\/\/testnet\.flopscan\.io\/"/);
+  assert.match(html,/id="bringMyDidCTA"[^>]*data-view="identity"[^>]*>Tạo hoặc nhập DID/);
+  assert.match(html,/Testnet đã mở · Chưa tính thưởng/);
+  assert.match(html,/Genesis đã xác minh: <code id="verifiedGenesisHash">/);
+  assert.match(html,/id="identityNextStep" hidden/);
+  assert.match(html,/id="identityNextText"/);
+  assert.match(html,/id="sideNetworkBadge"/);
+  assert.doesNotMatch(html,/href="\/legacy\//);
+  assert.match(js,/testnetVerified===true/);
+  assert.match(js,/readiness\?\.status==='GENESIS_VERIFIED'/);
+  assert.match(js,/sideNetworkBadge/);
+  assert.match(js,/optionalSelectors/);
+  assert.match(js,/#home \.reward-explainer/);
+  assert.match(js,/if\(nextStep\)nextStep\.hidden=!activeDid/);
+  assert.match(js,/localStorage\.setItem\(KEY_PROFILES,JSON\.stringify\(next\)\)/);
+  assert.match(css,/\.identity-next-step/);
+  assert.match(readme,/FLOPTRACE_TESTNET_EXPECTED_GENESIS=0x918abd58/);
+  assert.match(readme,/UNSCORED/);
 });
