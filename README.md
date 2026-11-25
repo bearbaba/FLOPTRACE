@@ -102,7 +102,17 @@ The new public GET `/api/testnet-readiness` endpoint checks all of these private
 
 For each check, the server sends `chain_getBlockHash` with block number `0`, accepts only a valid 32-byte hash and requires an exact match to the independently pinned official value. Missing config, RPC failure, a different hash, Devnet's known hash or Devnet RPC all leave the cutover **OFF**. The API is read-only, does not accept user-provided RPC endpoints or hashes, and does not hold seeds or wallet credentials. Vercel caches public status briefly; the browser checks about once per minute. After configuring these settings, redeploy and verify `/api/testnet-readiness` returns `testnetVerified: true`. Confirm the public homepage has changed and **check both routes**.
 
-When verified, the homepage defaults to Testnet, displays the checked genesis hash, hides Devnet links/cards/menu and replaces the clock with **Bắt đầu trên Testnet**, opening the officially documented [TechnoCore](https://technocore.chat/). While in-site Testnet inference, faucet and voucher verification are not implemented, the CTA must not claim those features work in FLOPTRACE.
+As of the 24 November 2026 verified official *unscored* Testnet opening, Production pins:
+- `FLOPTRACE_TESTNET_RELEASE_VERIFIED=1`
+- `FLOPTRACE_TESTNET_EXPECTED_GENESIS=0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800`
+- `FLOPTRACE_TESTNET_RPC_URL=https://testnet.flop.network/`
+- `FLOPTRACE_TESTNET_ANNOUNCEMENT_URL=https://ask.flop.finance/networks/testnet`
+
+These are nonsecret operator-side settings. Their presence alone does not mark the web LIVE: `/api/testnet-readiness` runs `chain_getBlockHash(0)` on FLOP's public RPC and compares with the pinned official genesis **on each cache refresh**. RPC failures, mismatches and unapproved settings keep `testnetVerified:false`.
+
+When verified, the homepage says **“Testnet đã mở · Chưa tính thưởng”**, prominently links to **[Xem block trên FLOPScan](https://testnet.flopscan.io/)** and **Tạo hoặc nhập DID**, displays the checked genesis and hides Devnet content, previous countdown and lengthy onboarding from the primary home view. Devnet tools remain available only through `/devnet` (no homepage/menu promotions). The Identity view shows a locally persisted DID profile and the next step after create/import; an imported DID is public/read-only unless its matching Ed25519 signing key is restored. Reload preserves the public profile in localStorage; it does not persist unlocked signing keys.
+
+Scoring remains **UNSCORED** independently of the RPC response. Neither DID creation nor a displayed explorer proves Testnet faucet/inference/voucher issuance. The unmerged PR #17 invite-WL work remains separate. A physical-device mobile/browser test is still necessary before claiming mobile onboarding is fully verified.
 
 Existing Devnet tools are still available at **[/devnet](https://flops-murex.vercel.app/devnet)**. The route is a Vercel rewrite to the existing client-side `devnet` view, preserving the same functionality and avoiding a second copy of the application. Back/forward navigation and `?view=devnet` legacy deep links remain supported.
 

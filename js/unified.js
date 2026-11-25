@@ -60,6 +60,11 @@ function selectDid(did){
   $('postIdentity').textContent=unlocked.has(activeDid)?'SIGNING READY':'DID LOCKED';
   renderProfiles();
   renderEvents();
+  const nextStep=$('identityNextStep'),nextText=$('identityNextText');
+  if(nextStep)nextStep.hidden=!activeDid;
+  if(nextText&&activeDid)nextText.textContent=unlocked.has(activeDid)
+    ?'DID của bạn đã lưu trên thiết bị này. Khóa ký hiện chỉ nằm trong tab; hãy kiểm tra file backup mã hóa đã tải xuống trước khi đóng.'
+    :'DID công khai đã lưu trong trình duyệt và vẫn có sau khi tải lại. Nếu muốn ký, hãy khôi phục đúng khóa Ed25519 riêng trên thiết bị.';
   if(!activeDid)message('identityStatus','Create a new DID, restore an encrypted backup, or add an existing public DID.');
   else message('identityStatus',unlocked.has(activeDid)
     ?'This DID is verified locally in this tab. You can sign messages.'
@@ -551,23 +556,36 @@ function applyTestnetReadiness(readiness){
   if(clock)clock.hidden=verified;
   if(timing)timing.hidden=verified;
   const badge=document.querySelector('#home .launch-state');
-  if(badge)badge.textContent=verified?'TESTNET · GENESIS VERIFIED · UNSCORED':'EARLY TESTNET ANNOUNCED · RPC CHECK PENDING';
+  if(badge)badge.textContent=verified?'TESTNET ĐÃ MỞ · CHƯA TÍNH THƯỞNG':'TESTNET ĐÃ CÔNG BỐ · CHỜ ĐỐI CHIẾU RPC';
+  const sideBadge=$('sideNetworkBadge'),sideNote=$('sideNetworkNote');
+  if(sideBadge?.lastChild?.nodeType===3)sideBadge.lastChild.textContent=verified?' FLOP TESTNET · UNSCORED':' FLOP DEVNET';
+  if(sideNote)sideNote.textContent=verified
+    ?'Testnet genesis verified · Rewards not active'
+    :'Independent builder · Devnet activity does not count';
+  const optionalSelectors=['#home .testnet-opening-notice','#home .reward-explainer',
+    '#home .launch-steps','#home .testnet-more','#home .launch-actions',
+    '#home .launch-safety','#home .hero-benefits'];
+  for(const selector of optionalSelectors){
+    const node=document.querySelector(selector);
+    if(node)node.hidden=verified;
+  }
   const title=$('launchGuideTitle'),headline=$('heroTitle'),intro=$('heroIntro'),bring=$('bringMyDidCTA');
-  if(title)title.textContent=verified?'Testnet genesis verified. Rewards are not active.':"Testnet has opened, but rewards have not started.";
+  if(title)title.textContent=verified?'Bắt đầu trên FLOP Testnet.':'FLOP Testnet đã công bố. Đang kiểm tra RPC.';
   if(headline){
-    const first=document.createTextNode(verified?'Testnet is here.':'Find your spark.');
+    const first=document.createTextNode(verified?'Testnet đã mở.':'Testnet đang kiểm tra.');
     const breakLine=document.createElement('br');
     const highlight=document.createElement('em');
-    highlight.textContent=verified?'Explore safely.':'Build your next.';
+    highlight.textContent=verified?'Chưa tính thưởng.':'Chưa xác minh RPC.';
     headline.replaceChildren(first,breakLine,highlight);
   }
   if(intro)intro.textContent=verified
-    ?'Published genesis verified via RPC. This early Testnet is unscored; check the official activation status before using any faucet or inference service.'
-    :'One friendly place to discover FLOP, bring your own agent identity, and explore tools with the community. Start without a wallet.';
+    ?'Block 0 khớp genesis do FLOP công bố. Xem blockchain qua FLOPScan hoặc tạo/nhập DID ngay trên FLOPTRACE. Voucher chưa được tính.'
+    :'FLOP đã công bố Testnet mở từ 24/11/2026, nhưng FLOPTRACE chưa đối chiếu được block 0 từ RPC. Bạn vẫn có thể tạo hoặc nhập DID cục bộ.';
+  if(bring)bring.textContent='Tạo hoặc nhập DID ↗';
   if(bring)bring.classList.toggle('secondary',verified);
   if(bring)bring.classList.toggle('primary',!verified);
   const announcement=$('testnetAnnouncementLink');
-  if(announcement)announcement.href=verified?readiness.officialAnnouncement:'https://flop.finance/';
+  if(announcement)announcement.href=verified?readiness.officialAnnouncement:'https://ask.flop.finance/networks/testnet';
   const genesis=$('verifiedGenesisHash');
   if(genesis)genesis.textContent=verified?readiness.genesisHash:'—';
   if($('home')&&!$('home').hidden)$('currentView').textContent=verified?'Testnet':'Overview';
