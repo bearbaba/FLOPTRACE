@@ -135,12 +135,12 @@ test('home onboarding distinguishes Devnet from the official Testnet launch',asy
   const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
   const hero=html.split('<div class="home-actions">')[1]?.split('</div>')[0] || '';
   const claim=html.split('<strong>3 · Claim, then spend (later)</strong>')[1]?.split('</li>')[0] || '';
-  assert.match(hero,/Tạo hoặc nhập DID/);
+  assert.match(hero,/Create or import DID/);
   assert.match(hero,/Check Testnet launch/);
   assert.match(hero,/Explore Devnet/);
   assert.doesNotMatch(hero,/Explore the network/);
   assert.match(hero,/href="https:\/\/flop\.finance\/"/);
-  assert.match(claim,/Xem thông báo mở mạng/);
+  assert.match(claim,/View network announcement/);
   assert.match(claim,/href="https:\/\/flop\.finance\/"/);
   assert.match(claim,/rel="noopener noreferrer"/);
   assert.match(css,/\.launch-steps li>a\.link-button/);
@@ -246,15 +246,15 @@ test('24 November official opening is explicitly unscored, independent from RPC 
   assert.match(css,/\.testnet-opening-notice/);
 });
 
-test('verified FLOP Testnet home has exactly the two intended primary actions and no legacy entry',async()=>{
+test('verified FLOP Testnet home has three transparent public actions and no legacy entry',async()=>{
   const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
   const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
   const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
   const readme=await readFile(new URL('../README.md',import.meta.url),'utf8');
   assert.match(html,/id="testnetStartHero"[^>]*href="https:\/\/testnet\.flopscan\.io\/"/);
   assert.match(html,/id="bringMyDidCTA"[^>]*data-view="identity"[^>]*>Tạo hoặc nhập DID/);
-  assert.match(html,/Testnet đã mở · Chưa tính thưởng/);
-  assert.match(html,/Genesis đã xác minh: <code id="verifiedGenesisHash">/);
+  assert.match(html,/Testnet live · Rewards not active/);
+  assert.match(html,/Verified genesis: <code id="verifiedGenesisHash">/);
   assert.match(html,/id="identityNextStep" hidden/);
   assert.match(html,/id="identityNextText"/);
   assert.match(html,/id="sideNetworkBadge"/);
@@ -272,28 +272,28 @@ test('verified FLOP Testnet home has exactly the two intended primary actions an
 });
 
 
-test('Vietnamese DID-first homepage keeps clear optional faucet and no false claim action',async()=>{
+test('English DID-first homepage keeps optional faucet and no false claim action',async()=>{
   const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
   const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
   const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
-  assert.match(html,/<html lang="vi">/);
+  assert.match(html,/<html lang="en">/);
   assert.match(html,/id="mainJourney"/);
   for(const id of ['journeyDidStatus','journeyChatStatus','journeyFaucetStatus',
     'journeyFaucetLink','communityState','chatNext','postForm','testnetFaucetState']){
     assert.match(html,new RegExp('id="'+id+'"'));
   }
-  assert.match(html,/Tạo hoặc nhập DID/);
+  assert.match(html,/Create or import DID/);
   assert.match(html,/Chat TechnoCore/);
-  assert.match(html,/03 · TÙY CHỌN/);
-  assert.match(html,/Không cần|không cần/i);
-  assert.match(html,/không tự sinh điểm airdrop/i);
+  assert.match(html,/03 · OPTIONAL/);
+  assert.match(html,/No wallet connection required|not required/i);
+  assert.match(html,/does not earn airdrop points/i);
   assert.match(html,/id="journeyFaucetLink"[^>]*target="_blank"[^>]*rel="noopener noreferrer" hidden/);
   assert.match(html,/href="https:\/\/faucet\.flop\.network\/"/);
   assert.match(js,/function updateJourney\(/);
   assert.match(js,/updateJourney\(\)/);
   assert.match(js,/testnetVerified/);
   assert.match(js,/const verified=network==='testnet'&&testnetVerified/);
-  assert.match(js,/Faucet đang thiếu tiền/);
+  assert.match(js,/Faucet low balance/);
   assert.match(js,/journeyFaucetLink/);
   assert.match(css,/\.journey-grid\{display:grid/);
   assert.match(css,/\.journey-card\.support/);
