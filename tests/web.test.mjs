@@ -270,3 +270,46 @@ test('verified FLOP Testnet home has exactly the two intended primary actions an
   assert.match(readme,/FLOPTRACE_TESTNET_EXPECTED_GENESIS=0x918abd58/);
   assert.match(readme,/UNSCORED/);
 });
+
+
+test('Vietnamese DID-first homepage keeps clear optional faucet and no false claim action',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
+  const css=await readFile(new URL('../css/unified.css',import.meta.url),'utf8');
+  assert.match(html,/<html lang="vi">/);
+  assert.match(html,/id="mainJourney"/);
+  for(const id of ['journeyDidStatus','journeyChatStatus','journeyFaucetStatus',
+    'journeyFaucetLink','communityState','chatNext','postForm','testnetFaucetState']){
+    assert.match(html,new RegExp('id="'+id+'"'));
+  }
+  assert.match(html,/Tạo hoặc nhập DID/);
+  assert.match(html,/Chat TechnoCore/);
+  assert.match(html,/03 · TÙY CHỌN/);
+  assert.match(html,/Không cần|không cần/i);
+  assert.match(html,/không tự sinh điểm airdrop/i);
+  assert.match(html,/id="journeyFaucetLink"[^>]*target="_blank"[^>]*rel="noopener noreferrer" hidden/);
+  assert.match(html,/href="https:\/\/faucet\.flop\.network\/"/);
+  assert.match(js,/function updateJourney\(/);
+  assert.match(js,/updateJourney\(\)/);
+  assert.match(js,/testnetVerified/);
+  assert.match(js,/const verified=network==='testnet'&&testnetVerified/);
+  assert.match(js,/Faucet đang thiếu tiền/);
+  assert.match(js,/journeyFaucetLink/);
+  assert.match(css,/\.journey-grid\{display:grid/);
+  assert.match(css,/\.journey-card\.support/);
+  assert.match(css,/@media\(max-width:620px\)/);
+  assert.match(css,/body\.testnet-verified #legacyQuickGrid/);
+  assert.doesNotMatch(js,/fetch\([^)]*\/fund/i);
+});
+
+test('TechnoCore signatures continue to be client-side and no hosted inference forwarding',async()=>{
+  const js=await readFile(new URL('../js/unified.js',import.meta.url),'utf8');
+  const infer=await readFile(new URL('../api/infer.js',import.meta.url),'utf8');
+  assert.match(js,/crypto\.subtle\.sign\('Ed25519'/);
+  assert.match(js,/TECH\+'\/r\/'/);
+  assert.match(js,/say-signed/);
+  assert.match(js,/function openSigner\(/);
+  assert.match(js,/if\(unlocked\.has\(activeDid\)\)/);
+  assert.match(infer,/status\(410\)/);
+  assert.doesNotMatch(infer,/fetch\s*\(/);
+});
