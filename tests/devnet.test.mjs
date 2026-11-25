@@ -60,8 +60,6 @@ test('chain actions and PoUI are not misrepresented as implemented',async()=>{
   const page=await html(),script=await browser(),server=await api();
   assert.match(page,/does not create a FLOP chain wallet, submit transactions, attest PoUI/);
   assert.match(page,/does not guarantee an available completion route/);
-  assert.match(server,/FLOPTRACE_ENABLE_INFERENCE/);
-  assert.match(server,/FLOPTRACE_SPEND_CAP_ACK/);
-  assert.match(server,/NOT_VERIFIED/);
+  assert.doesNotMatch(server,/chat\/completions/);
   assert.match(script,/network compatibility/);
 });

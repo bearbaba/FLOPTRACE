@@ -16,7 +16,7 @@ The unified web includes a Devnet Hub with read-only, official developer resourc
 - [Official SDK docs](https://docs.flop.network/docs/sdk-references) — copy package installation commands for @flop-labs/client, @flop-labs/sdk, and the pinned CLI.
 - [Ask FLOP](https://ask.flop.finance) — the official docs assistant.
 
-There is no automatic faucet claim, no wallet import, no on-chain transaction signing, no production PoUI verifier and no user-paid inference in the public website. The existing authenticated server inference is disabled by default without official credentials and a provider-enforced hard spending cap. The UI labels this boundary explicitly.
+There is no automatic faucet claim, no wallet import, no on-chain transaction signing, no production PoUI verifier and no user-paid inference in the public website. The hosted inference proxy is retired. The UI labels this boundary explicitly.
 
 The public website credits its independent builder, [Bear Crypto](https://x.com/Bearcrypto2021), with a voluntary follow link, and makes it clear that FLOPTRACE is not an official FLOP Labs product.
 
@@ -51,8 +51,7 @@ The community can use the site independently. The founder's two previously creat
 ## FLOP model discovery and inference
 
 - Public model listing through /api/models, with brief CDN caching to reduce load on FLOP Gateway.
-- Private inference through /api/infer is **disabled by default**. To enable it the site operator must supply FLOP_API_KEY, FLOPTRACE_ACCESS_TOKEN, FLOPTRACE_ENABLE_INFERENCE=1 and FLOPTRACE_SPEND_CAP_ACK=1 with an enforced **provider-side spending limit**.
-- The current private access-token mode is intended for operator testing, **not** for offering free inference to thousands of visitors. For shared production inference, implement authenticated user sessions, per-user quotas, durable limits (Redis/database), billing controls, request abuse prevention and operational monitoring before enabling it.
+- The community deployment only lists models. POST /api/infer returns HTTP 410, including when legacy credentials are configured.
 - Receipts are local SHA-256 records, not proof of FLOP inference or settlement. Every inference receipt remains NOT_VERIFIED until a real PoUI/TEE/chain verification is added.
 - Public DIDs are unsigned labels on inference receipts; they are not wallet addresses or proof of FLOP chain account ownership.
 

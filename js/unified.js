@@ -11,7 +11,7 @@ let DID_PROFILES=(()=>{try{return normalizedProfiles(JSON.parse(localStorage.get
 let activeDid=DID_PROFILES.some(p=>p.did===localStorage.getItem(KEY_ACTIVE))
   ?localStorage.getItem(KEY_ACTIVE):(DID_PROFILES[0]?.did||'');
 const unlocked=new Map();
-let inferenceEnabled=false, gatewayReady=false,latestReceipt=null,pendingPostId=null;
+let pendingPostId=null;
 let publicModels=[];
 // Only an encrypted backup can be re-downloaded; no raw seed or passphrase is stored.
 let recentEncryptedBackup=null;
@@ -30,7 +30,6 @@ function saveEvents(items){
   catch{message('inferFeedback','Browser storage unavailable: export important receipts manually.','error');}
   renderEvents();
 }
-function appendEvent(evt){saveEvents([{id:crypto.randomUUID(),createdAt:new Date().toISOString(),...evt},...events()]);}
 function updateEvent(id,patch){saveEvents(events().map(e=>e.id===id?{...e,...patch}:e));}
 function label(did){return DID_PROFILES.find(x=>x.did===did)?.name||'No agent';}
 function short(did){return did?did.slice(0,23)+'…'+did.slice(-7):'No agent selected';}
@@ -39,21 +38,21 @@ function persistProfiles(){
   $('statAgents').textContent=String(DID_PROFILES.length);
 }
 function populateAgentPickers(){
-  for(const id of ['inferDid','postDid']){
-    const el=$(id);el.replaceChildren();
-    const empty=document.createElement('option');empty.value='';empty.textContent='Select an agent';el.append(empty);
-    for(const p of DID_PROFILES){
-      const option=document.createElement('option');
-      option.value=p.did;option.textContent=p.name+' · '+short(p.did);el.append(option);
-    }
-    el.value=activeDid;
+  const el=$('postDid');
+  el.replaceChildren();
+  const empty=document.createElement('option');empty.value='';empty.textContent='Select an agent';el.append(empty);
+  for(const p of DID_PROFILES){
+    const option=document.createElement('option');
+    option.value=p.did;option.textContent=p.name+' · '+short(p.did);el.append(option);
   }
+  el.value=activeDid;
 }
 function selectDid(did){
   if(did&&!DID_PROFILES.some(p=>p.did===did))return;
   activeDid=did||'';
   try{if(activeDid)localStorage.setItem(KEY_ACTIVE,activeDid);else localStorage.removeItem(KEY_ACTIVE);}catch{}
-  for(const id of ['inferDid','postDid'])$(id).value=activeDid;
+  $('postDid').value=activeDid;
+  $('chatNext').textContent=unlocked.has(activeDid)?'Mở chat TechnoCore':'Mở khóa DID để chat';
   $('selectedDid').textContent=activeDid||'No agent selected';
   $('activeAgentButton').textContent=activeDid?label(activeDid):'Create an agent';
   $('unlockBadge').textContent=unlocked.has(activeDid)?'UNLOCKED HERE':'LOCKED';
@@ -276,20 +275,6 @@ async function api(url,options={}){
   if(!r.ok)throw new Error(data.error||('HTTP '+r.status));
   return data;
 }
-async function loadStatus(){
-  try{
-    const status=await api('/api/status');
-    inferenceEnabled=!!status.inferenceEnabled;
-    $('inferStatus').textContent=inferenceEnabled?'PRIVATE ACCESS':'DISCOVERY ONLY';
-    message('inferFeedback',inferenceEnabled
-      ?'Inference is enabled for authorized users. Enter the private access passcode under Access settings.'
-      :'Models can be browsed; inference is disabled until the site owner securely configures API access and a spending cap.');
-    $('runInference').disabled=!inferenceEnabled;
-  }catch{
-    inferenceEnabled=false;$('runInference').disabled=true;
-    message('inferFeedback','Inference status unavailable. Model discovery may still work.','error');
-  }
-}
 function renderModelCatalogue(){
   const root=$('modelResults');
   if(!root)return;
@@ -306,20 +291,13 @@ function renderModelCatalogue(){
     const item=document.createElement('div');item.className='model-item';
     const name=document.createElement('code');name.textContent=model.id;
     const row=document.createElement('div');row.className='row';
-    const choose=document.createElement('button');choose.type='button';choose.className='inline-button';
-    choose.textContent='Use model →';
-    choose.addEventListener('click',()=>{
-      $('model').value=model.id;
-      $('model').focus();
-      message('inferFeedback','Model selected. Public discovery is available; completions require authorized access.');
-    });
     const copy=document.createElement('button');copy.type='button';copy.className='inline-button';
     copy.textContent='Copy ID';
     copy.addEventListener('click',async()=>{
       try{await navigator.clipboard.writeText(model.id);message('inferFeedback','Model ID copied.');}
       catch{message('inferFeedback','Clipboard unavailable. Select and copy the model ID manually.','error');}
     });
-    row.append(choose,copy);item.append(name,row);root.append(item);
+    row.append(copy);item.append(name,row);root.append(item);
   }
   if(filtered.length>18){
     const hint=document.createElement('p');hint.className='placeholder';
@@ -334,44 +312,18 @@ async function loadModels(){
     const data=await api('/api/models');
     const models=Array.isArray(data.data)?data.data.filter(m=>typeof m.id==='string'):[];
     publicModels=models;
-    const previous=$('model').value;$('model').replaceChildren();
-    for(const model of models){const item=document.createElement('option');item.value=model.id;item.textContent=model.id;$('model').append(item);}
-    if(models.some(m=>m.id===previous))$('model').value=previous;
-    gatewayReady=models.length>0;
+    const gatewayReady=models.length>0;
     $('statGateway').textContent=gatewayReady?'Available':'No models';
     $('gatewayPill').textContent=gatewayReady?models.length+' gateway models':'Empty catalog';
     renderModelCatalogue();
     if(!gatewayReady)message('inferFeedback','Gateway returned no models. Try refreshing later.','error');
   }catch(error){
     publicModels=[];renderModelCatalogue();
-    gatewayReady=false;$('statGateway').textContent='Offline';$('gatewayPill').textContent='Gateway unavailable';
-    $('model').replaceChildren(new Option('Models unavailable',''));
+    $('statGateway').textContent='Offline';$('gatewayPill').textContent='Gateway unavailable';
     message('inferFeedback','Model discovery error: '+error.message,'error');
   }
 }
 $('refreshModels').addEventListener('click',loadModels);
-$('inferForm').addEventListener('submit',async event=>{
-  event.preventDefault();
-  if(!inferenceEnabled)return message('inferFeedback','Private inference is disabled; use model discovery for now.','error');
-  if(!gatewayReady)return message('inferFeedback','Refresh gateway models first.','error');
-  const access=$('accessToken').value;
-  if(!access)return message('inferFeedback','Enter your private workbench passcode under Access settings. Do not enter a seed or your FLOP API key.','error');
-  const form=$('runInference');form.disabled=true;message('inferFeedback','Sending a bounded request to FLOP Gateway…');$('inferenceOutput').textContent='Processing…';
-  try{
-    const result=await api('/api/infer',{
-      method:'POST',headers:{'content-type':'application/json',Authorization:'Bearer '+access},
-      body:JSON.stringify({model:$('model').value,system:$('system').value,prompt:$('prompt').value.trim(),did:activeDid||null})
-    });
-    $('inferenceOutput').textContent=result.output;latestReceipt=result.receipt;
-    $('outputHash').textContent=result.receipt.outputSha256.slice(0,28)+'…';
-    $('exportReceipt').disabled=false;
-    appendEvent({...result.receipt,kind:'inference',status:'GATEWAY_RESPONSE',proofStatus:'NOT_VERIFIED'});
-    message('inferFeedback','Gateway answered. Receipt saved automatically; protocol proof remains NOT VERIFIED.','good');
-  }catch(error){
-    $('inferenceOutput').textContent='No response received.';
-    message('inferFeedback','Inference unsuccessful: '+error.message,'error');
-  }finally{form.disabled=!inferenceEnabled;}
-});
 function download(filename,data){
   const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
   const a=document.createElement('a');
@@ -383,7 +335,6 @@ function download(filename,data){
     setTimeout(()=>URL.revokeObjectURL(url),30_000);
   }
 }
-$('exportReceipt').addEventListener('click',()=>{if(latestReceipt)download('floptrace-inference-receipt.json',latestReceipt);});
 function savedRooms(){const rooms=snapshot(KEY_ROOMS,[]);return Array.isArray(rooms)?rooms.filter(s=>typeof s==='string'&&/^[a-z0-9][a-z0-9_-]{0,47}$/.test(s)).slice(0,15):[];}
 function rememberRoom(room){
   if(room==='lobby'||room==='technocore')return;
@@ -449,7 +400,7 @@ function b64url(bytes){
 }
 function findPost(data,item){
   const list=Array.isArray(data)?data:Array.isArray(data?.messages)?data.messages:[];
-  return list.find(m=>(m.from===item.did||m.did===item.did)&&String(m.nonce||'')===item.nonce);
+  return list.find(m=>(m.from===item.did||m.did===item.did)&&String(m.nonce||'')===item.nonce&&(!item.sig||item.sig===m.sig));
 }
 async function verifyPost(id){
   const item=events().find(e=>e.id===id);
@@ -482,21 +433,23 @@ $('postForm').addEventListener('submit',async event=>{
   let room;try{room=currentRoom();}catch(error){return message('postFeedback',error.message,'error');}
   const text=window.CryptoUtil.sweep($('postText').value);
   if(!text||text.length>1600)return message('postFeedback','Message must contain 1–1600 characters.','error');
-  if(!unlocked.has(activeDid)){go('identity');return message('identityStatus','Unlock '+label(activeDid)+' with its matching offline seed first.','error');}
-  const nonce=nextNonce(room,activeDid);
+  if(!activeDid){go('identity');$('importDid').focus();return;}
+  if(!unlocked.has(activeDid)){openSigner();return message('identityStatus','Unlock '+label(activeDid)+' with its matching offline seed first.','error');}
+  const did=activeDid;
+  const nonce=nextNonce(room,did);
   const button=$('publish');button.disabled=true;
   // Create the confirmation tab directly in the click event to avoid popup blockers.
   const popup=window.open('about:blank','_blank');
   if(popup)popup.opener=null;
   try{
     const payload=enc.encode(room+'|'+nonce+'|'+text);
-    const sig=b64url(await crypto.subtle.sign('Ed25519',unlocked.get(activeDid),payload));
-    const url=TECH+'/r/'+encodeURIComponent(room)+'/say-signed/'+encodeURIComponent(activeDid)+'/'+sig+'/'+nonce+'/'+encodeURIComponent(text);
+    const sig=b64url(await crypto.subtle.sign('Ed25519',unlocked.get(did),payload));
+    const url=TECH+'/r/'+encodeURIComponent(room)+'/say-signed/'+encodeURIComponent(did)+'/'+sig+'/'+nonce+'/'+encodeURIComponent(text);
     if(popup)popup.location.replace(url);
     $('manualSignedLink').href=url;$('manualSignedLink').hidden=!!popup;
     $('checkPost').hidden=false;
     const receipt={id:crypto.randomUUID(),kind:'community',status:'AWAITING_CONFIRMATION',createdAt:new Date().toISOString(),
-      room,did:activeDid,nonce,seq:null,proofStatus:'PENDING_EXTERNAL_READBACK'};
+      room,did,nonce,sig,seq:null,proofStatus:'PENDING_EXTERNAL_READBACK'};
     saveEvents([receipt,...events()]);pendingPostId=receipt.id;
     message('postFeedback',popup?'Confirmation tab opened. Checking the room automatically…':'Popup blocked. Use “Open signed link”, then check the result.');
     // Do not clear the draft: a new tab opening does not confirm publication.
@@ -638,9 +591,16 @@ document.addEventListener('visibilitychange',()=>{
   if(!document.hidden)updateLaunchTarget();
 });
 
-for(const id of ['inferDid','postDid']){
-  $(id).addEventListener('change',()=>selectDid($(id).value));
+$('postDid').addEventListener('change',()=>selectDid($('postDid').value));
+function openSigner(){
+  go('identity');
+  document.querySelector('.identity-advanced').open=true;
+  $('seed').focus();
 }
+$('chatNext').addEventListener('click',()=>{
+  if(unlocked.has(activeDid)){go('community');$('postText').focus();}
+  else openSigner();
+});
 populateAgentPickers();
 let lastHealthCheck=0,healthLoading=false;
 async function loadDevnetHealth(force=false){
@@ -688,6 +648,6 @@ for(const button of document.querySelectorAll('[data-copy-target]')){
 }
 
 fillRooms();selectDid(activeDid);renderEvents();go(currentRouteView(),false);
-await Promise.all([loadStatus(),loadModels(),loadTestnetReadiness()]);
+await Promise.all([loadModels(),loadTestnetReadiness()]);
 setInterval(loadTestnetReadiness,60_000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void loadTestnetReadiness();});

@@ -222,6 +222,7 @@
           <h2 id="identityNextHeading">Hồ sơ DID của bạn đã sẵn sàng</h2>
           <p id="identityNextText">DID được lưu trên trình duyệt này. Không cần tạo lại khi tải trang.</p>
           <div class="row">
+            <button type="button" class="primary" id="chatNext">Mở chat TechnoCore</button>
             <a class="secondary link-button" href="https://testnet.flopscan.io/" target="_blank" rel="noopener noreferrer">Xem block trên FLOPScan ↗</a>
             <button type="button" class="secondary" data-view="home">Về trang Testnet</button>
           </div>
@@ -238,30 +239,15 @@
         </div></details>
       </section>
       <section class="view" id="inference" hidden aria-label="Inference">
-        <div class="eyebrow">02 / INFERENCE</div><h1 class="page-title">Run a model</h1>
-        <p class="lead compact">Browse public FLOP models without a key. Running inference requires an authorized API credential and a spending cap; results are not called PoUI verified until independent protocol evidence is checked.</p>
+        <div class="eyebrow">02 / INFERENCE</div><h1 class="page-title">FLOP model catalogue</h1>
+        <p class="lead compact">Browse the public gateway and copy model IDs for your own agent.</p>
         <div class="card model-browser">
           <div class="card-heading"><div><h2>Discover models</h2><p>Live public catalogue from FLOP Gateway; listing a model does not guarantee an available completion route.</p></div><span id="modelCount" class="badge subtle">Loading…</span></div>
           <div class="field"><label for="modelSearch">Search by model ID</label><input id="modelSearch" placeholder="Search public models…" autocomplete="off" aria-controls="modelResults"></div>
           <div id="modelResults" class="model-results" aria-live="polite"><p class="placeholder">Fetching public models…</p></div>
         </div>
-        <div class="workspace-grid">
-          <form id="inferForm" class="card">
-            <div class="card-heading"><h2>New inference</h2><span class="badge subtle" id="inferStatus">DISCOVERY</span></div>
-            <div class="field"><label for="inferDid">Agent</label><select id="inferDid"><option value="">No DID label</option></select></div>
-            <div class="field"><label for="model">Model <button class="inline-button" id="refreshModels" type="button">↻ Refresh</button></label><select id="model" required><option value="">Loading models…</option></select></div>
-            <div class="field"><label for="system">System instruction <span class="muted">(optional)</span></label><input id="system" maxlength="1000" value="Answer clearly, accurately and concisely."></div>
-            <div class="field"><label for="prompt">Prompt</label><textarea id="prompt" rows="6" maxlength="5000" required placeholder="What would you like your agent to do?"></textarea></div>
-            <details class="credentials"><summary>Access settings (server-protected)</summary><p class="field-hint">When the app owner enables inference on Vercel, enter the private access passcode here. This is not your DID seed or FLOP API key.</p><input type="password" id="accessToken" autocomplete="off" placeholder="Private workbench passcode"></details>
-            <button type="submit" class="primary wide" id="runInference">Run inference <span>→</span></button>
-            <p class="statusline" id="inferFeedback" role="status" aria-live="polite">Checking gateway access…</p>
-          </form>
-          <div class="card result-card">
-            <div class="card-heading"><h2>Response</h2><span class="badge amber">NOT VERIFIED</span></div>
-            <pre id="inferenceOutput" class="output">Your model response will appear here after an actual gateway completion.</pre>
-            <div class="receipt-footer"><div><small>OUTPUT SHA-256</small><code id="outputHash">—</code></div><button type="button" id="exportReceipt" disabled class="secondary">Export receipt ↓</button></div>
-          </div>
-        </div>
+        <button class="secondary" id="refreshModels" type="button">Refresh catalogue</button>
+        <p class="statusline" id="inferFeedback" role="status" aria-live="polite">Model discovery only.</p>
       </section>
       <section class="view" id="community" hidden aria-label="Community">
         <div class="eyebrow">03 / COMMUNITY</div><h1 class="page-title">Technocore</h1>
