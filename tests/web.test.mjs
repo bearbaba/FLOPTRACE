@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import './identity-create.test.mjs'; // Keep real Ed25519 onboarding tests inside the existing CI test command.
-import './did-quota.test.mjs'; // Exercise free/public fallback and atomic Redis admission without live credentials.
+import './browser-did-limit.test.mjs'; // Verify public two-profile browser policy without IP tracking.
 import {LAUNCH_UTC,getLaunchCountdown} from '../js/launch-clock.mjs';
 import statusHandler from '../api/status.js';
 import modelsHandler from '../api/models.js';
